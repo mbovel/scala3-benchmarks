@@ -86,14 +86,15 @@ for version in "${RUN_ORDER[@]}"; do
   VERSION_DIR="$RESULTS_BASE/$version"
   mkdir -p "$VERSION_DIR"
   RESULTS_FILE="$VERSION_DIR/$TIMESTAMP.json"
+  RESULTS_FILE_ABS=$(realpath "$RESULTS_FILE")
 
   echo "[$CURRENT/$TOTAL] Running benchmarks for Scala $version..."
-  echo "  Results will be written to: $RESULTS_FILE"
+  echo "  Results will be written to: $RESULTS_FILE_ABS"
 
   sbt -Dcompiler.version="$version" \
-    "clean; bench / Jmh / run -gc true -foe true -rf json -rff $RESULTS_FILE"
+    "clean; bench / Jmh / run -gc true -foe true -rf json -rff $RESULTS_FILE_ABS"
 
-  echo "  Completed: $RESULTS_FILE"
+  echo "  Completed: $RESULTS_FILE_ABS"
   echo ""
 done
 

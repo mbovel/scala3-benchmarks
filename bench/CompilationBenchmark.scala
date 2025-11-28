@@ -70,6 +70,7 @@ class CompilationBenchmarks:
   @Benchmark def implicitInductive = scalac(Config.implicitInductive)
   @Benchmark def implicitNums = scalac(Config.implicitNums)
   @Benchmark def implicitScopeLoop = scalac(Config.implicitScopeLoop)
+  @Benchmark def matchTypeBubbleSort = scalac(Config.matchTypeBubbleSort)
   @Benchmark def patmatexhaust = scalac(Config.patmatexhaust)
   @Benchmark def tuple = scalac(Config.tuple)
   @Benchmark def tuple22Apply = scalac(Config.tuple22Apply)

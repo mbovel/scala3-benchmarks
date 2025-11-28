@@ -2,6 +2,18 @@
 
 JMH benchmarks for measuring Scala 3 compiler performance.
 
+## Benchmarks
+
+**Real-world code** (multi-file):
+- [scala-parser-combinators](https://github.com/scala/scala-parser-combinators)
+- [scala-yaml](https://github.com/VirtusLab/scala-yaml)
+- [sourcecode](https://github.com/com-lihaoyi/sourcecode)
+- [dottyUtil](https://github.com/scala/scala3/tree/main/compiler/src/dotty/tools/dotc/util): some utility code extracted from the Scala 3 compiler
+- [re2s](https://github.com/twitter/rsc/tree/1d2b8962604206b1328e94257885117fd252bd23/examples/re2s/src/main/scala/java/util/regex): a regex implementation, originally used to test [reasonable-scala](https://github.com/twitter/reasonable-scala/)
+
+
+**Synthetic benchmarks** (single-file): The remaining benchmarks target specific compiler aspects (pattern matching, implicit resolution, inlining, etc.). Most are adapted from the previous benchmark suite.
+
 ## Quick Start
 
 ```bash

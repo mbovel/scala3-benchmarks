@@ -1,8 +1,0 @@
-index: index.md
-subsection:
-  - title: Quick start
-    page: quickstart.md
-  - title: Examples
-    page: examples.md
-  - title: Contributing guide
-    page: contributing.md

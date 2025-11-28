@@ -53,7 +53,7 @@ object ArgsTests {
     baz
     check(Seq())
 
-    withImplicit("text", 42, false)("foo")
+    withImplicit("text", 42, false)(using "foo")
     check(Seq(Seq("p1" -> "text", "p2" -> 42, "p3" -> false), Seq("foo" -> "foo")))
 
     implicit val implicitFoo = "bar"

@@ -247,11 +247,11 @@ object Macros {
       nearestEnclosingMethod(Symbol.spliceOwner)
     }
 
-    val texts0 = param.map(_.foldRight('{List.empty[Text[_]]}) {
+    val texts0 = param.map(_.foldRight('{List.empty[Text[?]]}) {
       case (vd @ ValDef(nme, _, _), l) =>
         '{(new Text(${Ref(vd.symbol).asExpr}, ${Expr(nme)})) :: $l}
     })
-    val texts = texts0.foldRight('{List.empty[List[Text[_]]]}) {
+    val texts = texts0.foldRight('{List.empty[List[Text[?]]]}) {
       case (l, acc) =>
         '{$l :: $acc}
     }

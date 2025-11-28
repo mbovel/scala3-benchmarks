@@ -4,10 +4,10 @@ package sourcecode
 object ManualImplicit {
   def apply() = {
     assert(foo() == "apply")
-    assert(foo()("cow") == "cow")
+    assert(foo()(using "cow") == "cow")
     assert(bar() == 8)
-    assert(bar()(123) == 123)
-    assert(bar()(123) == 123)
+    assert(bar()(using 123) == 123)
+    assert(bar()(using 123) == 123)
     assert(baz() == "sourcecode.ManualImplicit.apply")
     assert(baz() == "sourcecode.ManualImplicit.apply")
     def enc() =
@@ -16,7 +16,7 @@ object ManualImplicit {
     enc()
     def enc2() =
       assert(
-        qux()("sourcecode.ManualImplicit")
+        qux()(using "sourcecode.ManualImplicit")
         == "sourcecode.ManualImplicit"
       )
 

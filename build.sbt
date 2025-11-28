@@ -18,7 +18,7 @@ lazy val benchSources =
     .in(file("bench-sources"))
     .settings(
       scalaVersion := compilerVersion,
-      scalacOptions ++= Seq("-feature"),
+      scalacOptions ++= Seq("-feature", "-Xfatal-warnings"),
       Compile / scalaSource := baseDirectory.value,
     )
 

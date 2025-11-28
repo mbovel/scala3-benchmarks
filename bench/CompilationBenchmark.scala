@@ -34,7 +34,7 @@ class CompilationBenchmarks:
 
   /** Launches `scalac` with the given arguments. */
   def scalac(args: Seq[String]) =
-    val allArgs = Array("-d", "out") ++ args
+    val allArgs = Array("-Xfatal-warnings", "-d", "out") ++ args
     val reporter = Driver().process(allArgs)
     assert(!reporter.hasErrors, "Compilation failed with errors")
 

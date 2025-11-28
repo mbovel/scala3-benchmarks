@@ -10,6 +10,7 @@ private[yaml] trait YamlEncoderCrossCompanionCompat extends EncoderMacros {
 }
 
 private[yaml] trait EncoderMacros:
+  @annotation.nowarn("msg=class definition will be duplicated")
   protected inline def deriveProduct[T](p: Mirror.ProductOf[T]): YamlEncoder[T] =
     new YamlEncoder[T] {
       val yamlEncoders = summonAll[p.MirroredElemTypes]
@@ -29,6 +30,7 @@ private[yaml] trait EncoderMacros:
         Node.MappingNode(nodes)
     }
 
+  @annotation.nowarn("msg=class definition will be duplicated")
   protected inline def deriveSum[T](s: Mirror.SumOf[T]) =
     new YamlEncoder[T]:
       val yamlEncoders = summonSumOf[s.MirroredElemTypes].asInstanceOf[List[YamlEncoder[T]]]
@@ -37,14 +39,14 @@ private[yaml] trait EncoderMacros:
         yamlEncoders(index).asInstanceOf[YamlEncoder[Any]].asNode(t)
       }
 
-  protected inline def summonSumOf[T <: Tuple]: List[YamlEncoder[_]] = inline erasedValue[T] match
+  protected inline def summonSumOf[T <: Tuple]: List[YamlEncoder[?]] = inline erasedValue[T] match
     case _: (t *: ts) =>
       summonFrom { case p: Mirror.ProductOf[`t`] =>
         deriveProduct(p) :: summonSumOf[ts]
       }
     case _: EmptyTuple => Nil
 
-  inline def summonAll[T <: Tuple]: List[YamlEncoder[_]] = inline erasedValue[T] match {
+  inline def summonAll[T <: Tuple]: List[YamlEncoder[?]] = inline erasedValue[T] match {
     case _: EmptyTuple => Nil
     case _: (t *: ts)  => summonInline[YamlEncoder[t]] :: summonAll[ts]
   }

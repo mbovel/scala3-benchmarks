@@ -17,7 +17,7 @@ object DecoderMacros {
       case '{ $m: Mirror.ProductOf[T] } => deriveProduct(m)
       case '{ $m: Mirror.SumOf[T] }     => deriveSum(m)
 
-  protected def summonSumOf[T <: Tuple: Type](using q: Quotes): List[Expr[YamlDecoder[_]]] =
+  protected def summonSumOf[T <: Tuple: Type](using q: Quotes): List[Expr[YamlDecoder[?]]] =
     import q.reflect.report.*
     Type.of[T] match
       case '[t *: ts] =>
@@ -96,6 +96,7 @@ object DecoderMacros {
   ): Expr[YamlDecoder[T]] =
 
     // returns a list of tuples of label, instance, isOptional
+    @annotation.nowarn("msg=match may not be exhaustive")
     def prepareInstances(
         elemLabels: Type[?],
         elemTypes: Type[?]
@@ -159,6 +160,7 @@ object DecoderMacros {
 
   private val DefaultParamPrefix = "$lessinit$greater$default$"
 
+  @annotation.nowarn("msg=match may not be exhaustive")
   protected def findDefaultParams[T](using
       quotes: Quotes,
       tpe: Type[T]

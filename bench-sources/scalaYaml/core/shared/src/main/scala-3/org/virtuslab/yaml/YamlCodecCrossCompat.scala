@@ -9,5 +9,5 @@ private[yaml] trait YamlCodecCompanionCrossCompat {
   inline def derived[T](using m: Mirror.Of[T]): YamlCodec[T] =
     val decoder = YamlDecoder.derived[T]
     val encoder = YamlEncoder.derived[T]
-    make(decoder, encoder)
+    make(using decoder, encoder)
 }

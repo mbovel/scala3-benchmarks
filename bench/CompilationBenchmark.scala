@@ -52,10 +52,28 @@ class CompilationBenchmarks:
 
   @Benchmark def helloWorld = scalac(Config.helloWorld)
 
+  // Library benchmarks
   @Benchmark def sourcecode = scalac(Config.sourcecode)
-
   @Benchmark def re2s = scalac(Config.re2s)
-
   @Benchmark def dottyUtils = scalac(Config.dottyUtil)
-
   @Benchmark def scalaYaml = scalac(Config.scalaYaml)
+
+  // Benchmarks from previous suite
+  @Benchmark def exhaustivityI = scalac(Config.exhaustivityI)
+  @Benchmark def exhaustivityS = scalac(Config.exhaustivityS)
+  @Benchmark def exhaustivityT = scalac(Config.exhaustivityT)
+  @Benchmark def exhaustivityV = scalac(Config.exhaustivityV)
+  @Benchmark def findRef = scalac(Config.findRef)
+  @Benchmark def i1535 = scalac(Config.i1535)
+  @Benchmark def i1687 = scalac(Config.i1687)
+  @Benchmark def implicitCache = scalac(Config.implicitCache)
+  @Benchmark def implicitInductive = scalac(Config.implicitInductive)
+  @Benchmark def implicitNums = scalac(Config.implicitNums)
+  @Benchmark def implicitScopeLoop = scalac(Config.implicitScopeLoop)
+  @Benchmark def patmatexhaust = scalac(Config.patmatexhaust)
+  @Benchmark def tuple = scalac(Config.tuple)
+  @Benchmark def tuple22Apply = scalac(Config.tuple22Apply)
+  @Benchmark def tuple22Cons = scalac(Config.tuple22Cons)
+  @Benchmark def tuple22Creation = scalac(Config.tuple22Creation)
+  @Benchmark def tuple22Size = scalac(Config.tuple22Size)
+  @Benchmark def tuple22Tails = scalac(Config.tuple22Tails)

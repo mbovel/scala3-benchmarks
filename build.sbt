@@ -1,6 +1,3 @@
-
-import scala.{sys => parseSbtListrunSbt}
-
 val compilerVersion = sys.props.get("compiler.version").getOrElse("3.7.4")
 
 lazy val bench =
@@ -26,7 +23,7 @@ lazy val benchSources =
 
 def generateBenchmarkConfig = Def.task {
   val configFile = (Compile / sourceManaged).value / "bench" / "Config.scala"
-  val benchmarks = smallBenchmarkConfigs.value
+  val benchmarks = benchmarkConfigs.value
   val members = benchmarks.map { case (name, args) =>
     val argsSeq = args.map(a => s""""$a"""").mkString("Seq(", ", ", ")")
     s"  val $name = $argsSeq"
@@ -41,16 +38,27 @@ def generateBenchmarkConfig = Def.task {
   Seq(configFile)
 }
 
-def smallBenchmarkConfigs = Def.task {
+def benchmarkConfigs = Def.task {
+  val benchSourcesDir = (benchSources / Compile / scalaSource).value
   val classPath = (benchSources / Compile / fullClasspath).value
     .map(_.data.getAbsolutePath)
     .mkString(java.io.File.pathSeparator)
-  val sourceFiles = (benchSources / Compile / sources).value
-  sourceFiles.map { file =>
-    val name = file.base
-    val args = Seq("-classpath", classPath, file.getAbsolutePath)
-    name -> args
-  }.toMap
+
+  val entries = benchSourcesDir.listFiles.toSeq.flatMap { entry =>
+    if (entry.isFile && entry.getName.endsWith(".scala")) {
+      // Single .scala file: use filename (without extension) as benchmark name
+      val name = entry.getName.stripSuffix(".scala")
+      Some(name -> Seq("-classpath", classPath, entry.getAbsolutePath))
+    } else if (entry.isDirectory) {
+      // Directory: collect all .scala files inside recursively
+      val sources = (entry ** "*.scala").get.map(_.getAbsolutePath)
+      if (sources.nonEmpty) {
+        val name = entry.getName
+        Some(name -> (Seq("-classpath", classPath) ++ sources))
+      } else None
+    } else None
+  }
+  entries.toMap
 }
 
 /*

@@ -1,7 +1,5 @@
-// Copied from https://raw.githubusercontent.com/com-lihaoyi/sourcecode/refs/tags/0.4.4/sourcecode/src/sourcecode/SourceContext.scala
 package sourcecode
 
-import scala.language.implicitConversions
 
 abstract class SourceValue[T]{
   def value: T
@@ -43,5 +41,5 @@ object Pkg extends SourceCompanion[String, Pkg](new Pkg(_)) with PkgMacros
 case class Text[T](value: T, source: String)
 object Text extends TextMacros
 
-case class Args(value: Seq[Seq[Text[?]]]) extends SourceValue[Seq[Seq[Text[?]]]]
-object Args extends SourceCompanion[Seq[Seq[Text[?]]], Args](new Args(_)) with ArgsMacros
+case class Args(value: Seq[Seq[Text[_]]]) extends SourceValue[Seq[Seq[Text[_]]]]
+object Args extends SourceCompanion[Seq[Seq[Text[_]]], Args](new Args(_)) with ArgsMacros

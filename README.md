@@ -21,7 +21,7 @@ JMH benchmarks for measuring Scala 3 compiler performance.
 ./run.sh --versions 3.3.4 3.7.4 --jvm temurin:21 --runs 3
 
 # Or run manually with sbt
-sbt -Dcompiler.version=3.3.4 "bench / Jmh / run -gc true -foe true"
+sbt -Dcompiler.version=3.3.4 "clean; bench / Jmh / run -gc true -foe true"
 ```
 
 ## Structure
@@ -63,3 +63,13 @@ To add a new benchmark:
    ```
 
 `Config` is auto-generated at `bench/target/scala-*/src_managed/main/bench/Config.scala` with the `scalac` arguments (classpath and sources) for each benchmark.
+
+## Using JMH's profilers
+
+Flame graphs can be generated using [async-profiler](https://github.com/async-profiler/async-profiler). Example command:
+
+```bash
+sbt -Dcompiler.version=3.7.4 "clean; bench / Jmh / run -gc true -foe true -prof \"async:libPath=../async-profiler-4.2.1-macos/lib/libasyncProfiler.dylib;output=flamegraph;dir=profile-results\" helloWorld"
+```
+
+Replace `3.7.4`, `../async-profiler-4.2.1-macos/lib/libasyncProfiler.dylib` and `helloWorld` with the desired Scala version, path to the async profiler library, and benchmark name respectively. Read more at [markrmiller/jmh-profilers.md](https://gist.github.com/markrmiller/a04f5c734fad879f688123bc312c21af#using-jmh-with-the-async-profiler).

@@ -60,7 +60,7 @@ package shapeless {
 
 import shapeless.*
 
-object Test extends App {
+@main def Test =
   val sel = Selector[L, Boolean]
 
   type L =
@@ -616,4 +616,4 @@ object Test extends App {
 // //
     Boolean ::
     HNil
-}
+

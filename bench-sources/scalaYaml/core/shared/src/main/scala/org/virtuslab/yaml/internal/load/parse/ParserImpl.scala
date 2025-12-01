@@ -106,7 +106,7 @@ private object Production {
  * 
 */
 final class ParserImpl private (in: Tokenizer) extends Parser {
-  import Production._
+  import Production.*
 
   private val productions = mutable.ArrayDeque[Production](ParseStreamStart)
   // Primary ('!') and secondary ('!!') tags, if not overwritten by tag directive, have some predefined defaults
@@ -118,7 +118,7 @@ final class ParserImpl private (in: Tokenizer) extends Parser {
     def loop(events: mutable.ArrayDeque[Event]): Either[YamlError, List[Event]] = {
       getNextEvent() match {
         case Right(event) =>
-          if (event.kind != EventKind.StreamEnd) loop(events.append(event))
+          if event.kind != EventKind.StreamEnd then loop(events.append(event))
           else Right(events.append(event).toList)
         case Left(err) => Left(err)
       }
@@ -127,7 +127,7 @@ final class ParserImpl private (in: Tokenizer) extends Parser {
   }
 
   override def getNextEvent(): Either[YamlError, Event] =
-    if (productions.size > 0) getNextEventImpl()
+    if productions.size > 0 then getNextEventImpl()
     else Right(Event.streamEnd)
 
   private def clearDirectives(): Unit = {
@@ -374,7 +374,7 @@ final class ParserImpl private (in: Tokenizer) extends Parser {
           in.popToken()
           Right(Event(EventKind.Scalar(value, style, metadata), token.range))
         case TokenKind.Alias(alias) =>
-          if (metadata.anchor.isDefined)
+          if metadata.anchor.isDefined then
             Left(ParseError.from("Alias cannot have an anchor", nextToken))
           else {
             in.popToken()
@@ -395,7 +395,7 @@ final class ParserImpl private (in: Tokenizer) extends Parser {
     parseNodeAttributes(Right(token)).flatMap { case (metadata, nextToken) =>
       nextToken.kind match {
         case TokenKind.Alias(alias) =>
-          if (metadata.anchor.isDefined)
+          if metadata.anchor.isDefined then
             Left(ParseError.from("Alias cannot have an anchor", nextToken))
           else {
             in.popToken()
@@ -452,7 +452,7 @@ final class ParserImpl private (in: Tokenizer) extends Parser {
                 case Some(prefix) =>
                   val tagValue = s"$prefix$suffix"
                   val tag =
-                    if (Tag.coreSchemaValues.contains(tagValue)) CoreSchemaTag(tagValue)
+                    if Tag.coreSchemaValues.contains(tagValue) then CoreSchemaTag(tagValue)
                     else CustomTag(tagValue)
                   parseNodeAttributes(in.peekToken(), metadata.withTag(tag))
                 case None =>

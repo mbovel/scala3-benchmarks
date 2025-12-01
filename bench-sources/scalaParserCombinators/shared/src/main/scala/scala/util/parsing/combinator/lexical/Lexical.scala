@@ -15,7 +15,7 @@ package util.parsing
 package combinator
 package lexical
 
-import token._
+import token.*
 import input.CharArrayReader.EofCh
 
 /** This component complements the `Scanners` component with

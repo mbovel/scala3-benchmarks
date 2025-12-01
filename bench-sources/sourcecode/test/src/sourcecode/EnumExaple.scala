@@ -6,7 +6,7 @@ object EnumExaple {
       override def toString = name
     }
     class Enum{
-      def value(implicit name: sourcecode.Name) = EnumValue(name.value)
+      def value(using name: sourcecode.Name) = EnumValue(name.value)
     }
     object MyEnum extends Enum{
       val firstItem = value

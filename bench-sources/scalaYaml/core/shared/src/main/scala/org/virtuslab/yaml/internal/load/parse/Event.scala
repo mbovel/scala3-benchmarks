@@ -16,7 +16,7 @@ import org.virtuslab.yaml.internal.load.reader.token.ScalarStyle
  */
 final case class Event(kind: EventKind, pos: Option[Range])
 object Event {
-  import EventKind._
+  import EventKind.*
 
   val streamStart = Event(StreamStart, None)
   val streamEnd   = Event(StreamEnd, None)

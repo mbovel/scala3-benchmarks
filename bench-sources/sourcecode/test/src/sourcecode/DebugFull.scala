@@ -2,7 +2,7 @@ package sourcecode
 
 object DebugFull {
   def main() = {
-    def debug[V](value: sourcecode.Text[V])(implicit enclosing: sourcecode.Enclosing) = {
+    def debug[V](value: sourcecode.Text[V])(using enclosing: sourcecode.Enclosing) = {
       println(enclosing.value + " [" + value.source + "]: " + value.value)
     }
 

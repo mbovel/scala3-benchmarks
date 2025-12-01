@@ -25,9 +25,9 @@ object CharSequenceReader {
  * @param source the source sequence
  * @param offset  starting offset.
  */
-class CharSequenceReader(override val source: java.lang.CharSequence,
+open class CharSequenceReader(override val source: java.lang.CharSequence,
                          override val offset: Int) extends Reader[Char] {
-  import CharSequenceReader._
+  import CharSequenceReader.*
 
   /** Construct a `CharSequenceReader` with its first element at
    *  `source(0)` and position `(1,1)`.
@@ -37,7 +37,7 @@ class CharSequenceReader(override val source: java.lang.CharSequence,
   /** Returns the first element of the reader, or EofCh if reader is at its end.
    */
   def first =
-    if (offset < source.length) source.charAt(offset) else EofCh
+    if offset < source.length then source.charAt(offset) else EofCh
 
   /** Returns a CharSequenceReader consisting of all elements except the first.
    *
@@ -45,7 +45,7 @@ class CharSequenceReader(override val source: java.lang.CharSequence,
    *         otherwise, it's a `CharSequenceReader` containing the rest of input.
    */
   def rest: CharSequenceReader =
-    if (offset < source.length) new CharSequenceReader(source, offset + 1)
+    if offset < source.length then new CharSequenceReader(source, offset + 1)
     else this
 
   /** The position of the first element in the reader.
@@ -67,7 +67,7 @@ class CharSequenceReader(override val source: java.lang.CharSequence,
    *  or `CharSequenceReader()` if this is `atEnd`.
    */
   override def toString: String = {
-    val c = if (atEnd) "" else s"'$first', ..."
+    val c = if atEnd then "" else s"'$first', ..."
     s"CharSequenceReader($c)"
   }
 }

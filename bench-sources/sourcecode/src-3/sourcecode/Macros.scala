@@ -70,11 +70,11 @@ object Util{
     isSyntheticAlt(s)
 
   def isSyntheticAlt(using Quotes)(s: quotes.reflect.Symbol) = {
-    import quotes.reflect._
+    import quotes.reflect.*
     s.flags.is(Flags.Synthetic) || s.isClassConstructor || s.isLocalDummy || isScala2Macro(s)
   }
   def isScala2Macro(using Quotes)(s: quotes.reflect.Symbol) = {
-    import quotes.reflect._
+    import quotes.reflect.*
     (s.flags.is(Flags.Macro) && s.owner.flags.is(Flags.Scala2x)) ||
       (s.flags.is(Flags.Macro) && !s.flags.is(Flags.Inline))
   }
@@ -91,7 +91,7 @@ object Macros {
 
   def findOwner(using Quotes)(owner: quotes.reflect.Symbol, skipIf: quotes.reflect.Symbol => Boolean): quotes.reflect.Symbol = {
     var owner0 = owner
-    while(skipIf(owner0)) owner0 = owner0.owner
+    while skipIf(owner0) do owner0 = owner0.owner
     owner0
   }
 
@@ -111,7 +111,7 @@ object Macros {
     findOwner(owner, owner0 => { owner0.flags.is(quotes.reflect.Flags.Macro) && Util.getName(owner0) == "macro"})
 
   def nameImpl(using Quotes): Expr[Name] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val owner = actualOwner(Symbol.spliceOwner)
     val simpleName = Util.getName(owner)
     '{new Name(${Expr(simpleName)})}
@@ -119,20 +119,20 @@ object Macros {
 
   private def adjustName(s: String): String =
     // Required to get the same name from dotty
-    if (s.startsWith("<local ") && s.endsWith("$>"))
+    if s.startsWith("<local ") && s.endsWith("$>") then
       s.stripSuffix("$>") + ">"
     else
       s
 
   def nameMachineImpl(using Quotes): Expr[Name.Machine] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val owner = nonMacroOwner(Symbol.spliceOwner)
     val simpleName = adjustName(Util.getName(owner))
     '{new Name.Machine(${Expr(simpleName)})}
   }
 
   def fullNameImpl(using Quotes): Expr[FullName] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     @annotation.tailrec def cleanChunk(chunk: String): String =
       val refined = chunk.stripPrefix("_$").stripSuffix("$")
       if chunk != refined then cleanChunk(refined) else refined
@@ -148,7 +148,7 @@ object Macros {
   }
 
   def fullNameMachineImpl(using Quotes): Expr[FullName.Machine] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val owner = nonMacroOwner(Symbol.spliceOwner)
     val fullName = owner.fullName.trim
       .split("\\.", -1)
@@ -169,7 +169,7 @@ object Macros {
   }
 
   def fileImpl(using Quotes): Expr[sourcecode.File] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val sourceFile = quotes.reflect.Position.ofMacroExpansion.sourceFile
     val file = filePrefixCache.computeIfAbsent(sourceFile, _ => findOriginalFile(sourceFile.content))
       .getOrElse(sourceFile.path)
@@ -205,7 +205,7 @@ object Macros {
   }
 
   def enclosingImpl(using Quotes): Expr[Enclosing] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val path = enclosing(machine = false)(!Util.isSynthetic(_))
     '{new Enclosing(${Expr(path)})}
   }
@@ -225,7 +225,7 @@ object Macros {
   }
 
   def argsImpl(using qctx: Quotes): Expr[Args] = {
-    import quotes.reflect._
+    import quotes.reflect.*
 
     val param: List[List[ValDef]] = {
       def nearestEnclosingMethod(owner: Symbol): List[List[ValDef]] =
@@ -261,7 +261,7 @@ object Macros {
 
 
   def text[T: Type](v: Expr[T])(using Quotes): Expr[sourcecode.Text[T]] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val txt = v.asTerm.pos.sourceCode.get
     '{new sourcecode.Text[T]($v, ${Expr(txt)})}
   }
@@ -275,16 +275,16 @@ object Macros {
   }
 
   def enclosing(using Quotes)(machine: Boolean)(filter: quotes.reflect.Symbol => Boolean): String = {
-    import quotes.reflect._
+    import quotes.reflect.*
 
     var current = Symbol.spliceOwner
-    if (!machine)
+    if !machine then
       current = actualOwner(current)
     else
       current = nonMacroOwner(current)
     var path = List.empty[Chunk]
-    while(current != Symbol.noSymbol && current != defn.RootPackage && current != defn.RootClass){
-      if (filter(current)) {
+    while current != Symbol.noSymbol && current != defn.RootPackage && current != defn.RootClass do {
+      if filter(current) then {
 
         val chunk = current match {
           case sym if

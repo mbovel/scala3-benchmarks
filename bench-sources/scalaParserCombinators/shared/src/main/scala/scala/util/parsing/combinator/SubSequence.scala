@@ -22,10 +22,10 @@ private[combinator] class SubSequence(s: CharSequence, start: Int, val length: I
   def this(s: CharSequence, start: Int) = this(s, start, s.length - start)
 
   def charAt(i: Int) =
-    if (i >= 0 && i < length) s.charAt(start + i) else throw new IndexOutOfBoundsException(s"index: $i, length: $length")
+    if i >= 0 && i < length then s.charAt(start + i) else throw new IndexOutOfBoundsException(s"index: $i, length: $length")
 
   def subSequence(_start: Int, _end: Int) = {
-    if (_start < 0 || _end < 0 || _end > length || _start > _end)
+    if _start < 0 || _end < 0 || _end > length || _start > _end then
       throw new IndexOutOfBoundsException(s"start: ${_start}, end: ${_end}, length: $length")
 
     new SubSequence(s, start + _start, _end - _start)

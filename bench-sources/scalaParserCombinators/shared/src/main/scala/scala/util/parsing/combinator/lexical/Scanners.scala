@@ -15,7 +15,7 @@ package util.parsing
 package combinator
 package lexical
 
-import input._
+import input.*
 
 /** This component provides core functionality for lexical parsers.
  *
@@ -52,7 +52,7 @@ trait Scanners extends Parsers {
         }
       case ns: NoSuccess => (errorToken(ns.msg), ns.next, skip(ns.next))
     }
-    private def skip(in: Reader[Char]) = if (in.atEnd) in else in.rest
+    private def skip(in: Reader[Char]) = if in.atEnd then in else in.rest
 
     override def source: java.lang.CharSequence = in.source
     override def offset: Int = in.offset

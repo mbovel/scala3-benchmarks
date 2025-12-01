@@ -6,7 +6,7 @@ import scala.collection.mutable
 import org.virtuslab.yaml.Range
 import org.virtuslab.yaml.Tag
 import org.virtuslab.yaml.internal.load.parse.EventKind
-import org.virtuslab.yaml.internal.load.parse.EventKind._
+import org.virtuslab.yaml.internal.load.parse.EventKind.*
 import org.virtuslab.yaml.internal.load.parse.NodeEventMetadata
 
 object PresenterImpl extends Presenter {
@@ -33,7 +33,7 @@ object PresenterImpl extends Presenter {
             case Scalar(value, _, NodeEventMetadata(_, tag)) =>
               insertSequencePadding()
               // todo escape string using doublequotes
-              if (tag.contains(Tag.nullTag)) sb.append("!!null")
+              if tag.contains(Tag.nullTag) then sb.append("!!null")
               else sb.append(value)
               sb.append(newline)
               tail
@@ -83,7 +83,7 @@ object PresenterImpl extends Presenter {
     }
 
     def pushAndIncreaseIndent(event: EventKind) = {
-      if (toplevelNode) toplevelNode = false
+      if toplevelNode then toplevelNode = false
       else {
         indent += 2
         sb.append(System.lineSeparator())

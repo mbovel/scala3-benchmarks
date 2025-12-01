@@ -36,15 +36,15 @@ abstract class SimpleIdentitySet[+Elem <: AnyRef] {
     (z /: this)((s, x) => if p(x) then s + x else s)
 
   def ++ [E >: Elem <: AnyRef](that: SimpleIdentitySet[E]): SimpleIdentitySet[E] =
-    if (this.size == 0) that
-    else if (that.size == 0) this
+    if this.size == 0 then that
+    else if that.size == 0 then this
     else ((this: SimpleIdentitySet[E]) /: that)(_ + _)
 
   def -- [E >: Elem <: AnyRef](that: SimpleIdentitySet[E]): SimpleIdentitySet[E] =
-    if (that.size == 0) this
+    if that.size == 0 then this
     else
       ((SimpleIdentitySet.empty: SimpleIdentitySet[E]) /: this) { (s, x) =>
-        if (that.contains(x)) s else s + x
+        if that.contains(x) then s else s + x
       }
 
   def ** [E >: Elem <: AnyRef](that: SimpleIdentitySet[E]): SimpleIdentitySet[E] =
@@ -88,9 +88,9 @@ object SimpleIdentitySet {
   private class Set1[+Elem <: AnyRef](x0: AnyRef) extends SimpleIdentitySet[Elem] {
     def size = 1
     def + [E >: Elem <: AnyRef](x: E): SimpleIdentitySet[E] =
-      if (contains(x)) this else new Set2[E](x0, x)
+      if contains(x) then this else new Set2[E](x0, x)
     def - [E >: Elem <: AnyRef](x: E): SimpleIdentitySet[Elem] =
-      if (x `eq` x0) empty else this
+      if x `eq` x0 then empty else this
     def contains[E >: Elem <: AnyRef](x: E): Boolean = x `eq` x0
     def foreach(f: Elem => Unit): Unit = f(x0.asInstanceOf[Elem])
     def exists[E >: Elem <: AnyRef](p: E => Boolean): Boolean =
@@ -108,10 +108,10 @@ object SimpleIdentitySet {
   private class Set2[+Elem <: AnyRef](x0: AnyRef, x1: AnyRef) extends SimpleIdentitySet[Elem] {
     def size = 2
     def + [E >: Elem <: AnyRef](x: E): SimpleIdentitySet[E] =
-      if (contains(x)) this else new Set3(x0, x1, x)
+      if contains(x) then this else new Set3(x0, x1, x)
     def - [E >: Elem <: AnyRef](x: E): SimpleIdentitySet[Elem] =
-      if (x `eq` x0) new Set1(x1)
-      else if (x `eq` x1) new Set1(x0)
+      if x `eq` x0 then new Set1(x1)
+      else if x `eq` x1 then new Set1(x0)
       else this
     def contains[E >: Elem <: AnyRef](x: E): Boolean = (x `eq` x0) || (x `eq` x1)
     def foreach(f: Elem => Unit): Unit = { f(x0.asInstanceOf[Elem]); f(x1.asInstanceOf[Elem]) }
@@ -133,7 +133,7 @@ object SimpleIdentitySet {
   private class Set3[+Elem <: AnyRef](x0: AnyRef, x1: AnyRef, x2: AnyRef) extends SimpleIdentitySet[Elem] {
     def size = 3
     def + [E >: Elem <: AnyRef](x: E): SimpleIdentitySet[E] =
-      if (contains(x)) this
+      if contains(x) then this
       else {
         val xs = new Array[AnyRef](4)
         xs(0) = x0
@@ -143,9 +143,9 @@ object SimpleIdentitySet {
         new SetN[E](xs)
       }
     def - [E >: Elem <: AnyRef](x: E): SimpleIdentitySet[Elem] =
-      if (x `eq` x0) new Set2(x1, x2)
-      else if (x `eq` x1) new Set2(x0, x2)
-      else if (x `eq` x2) new Set2(x0, x1)
+      if x `eq` x0 then new Set2(x1, x2)
+      else if x `eq` x1 then new Set2(x0, x2)
+      else if x `eq` x2 then new Set2(x0, x1)
       else this
     def contains[E >: Elem <: AnyRef](x: E): Boolean = (x `eq` x0) || (x `eq` x1) || (x `eq` x2)
     def foreach(f: Elem => Unit): Unit = {
@@ -174,7 +174,7 @@ object SimpleIdentitySet {
   private class SetN[+Elem <: AnyRef](val xs: Array[AnyRef]) extends SimpleIdentitySet[Elem] {
     def size = xs.length
     def + [E >: Elem <: AnyRef](x: E): SimpleIdentitySet[E] =
-      if (contains(x)) this
+      if contains(x) then this
       else {
         val xs1 = new Array[AnyRef](size + 1)
         System.arraycopy(xs, 0, xs1, 0, size)
@@ -183,12 +183,12 @@ object SimpleIdentitySet {
       }
     def - [E >: Elem <: AnyRef](x: E): SimpleIdentitySet[Elem] = {
       var i = 0
-      while (i < size && (xs(i) `ne` x)) i += 1
-      if (i == size) this
-      else if (size == 4)
-        if (i == 0) new Set3(xs(1), xs(2), xs(3))
-        else if (i == 1) new Set3(xs(0), xs(2), xs(3))
-        else if (i == 2) new Set3(xs(0), xs(1), xs(3))
+      while i < size && (xs(i) `ne` x) do i += 1
+      if i == size then this
+      else if size == 4 then
+        if i == 0 then new Set3(xs(1), xs(2), xs(3))
+        else if i == 1 then new Set3(xs(0), xs(2), xs(3))
+        else if i == 2 then new Set3(xs(0), xs(1), xs(3))
         else new Set3(xs(0), xs(1), xs(2))
       else {
         val xs1 = new Array[AnyRef](size - 1)
@@ -199,12 +199,12 @@ object SimpleIdentitySet {
     }
     def contains[E >: Elem <: AnyRef](x: E): Boolean = {
       var i = 0
-      while (i < size && (xs(i) `ne` x)) i += 1
+      while i < size && (xs(i) `ne` x) do i += 1
       i < size
     }
     def foreach(f: Elem => Unit): Unit = {
       var i = 0
-      while (i < size) { f(xs(i).asInstanceOf[Elem]); i += 1 }
+      while i < size do { f(xs(i).asInstanceOf[Elem]); i += 1 }
     }
     def exists[E >: Elem <: AnyRef](p: E => Boolean): Boolean =
       xs.asInstanceOf[Array[E]].exists(p)
@@ -224,21 +224,21 @@ object SimpleIdentitySet {
           var toAdd: mutable.ArrayBuffer[AnyRef] | Null = null
           var i = 0
           val limit = that.xs.length
-          while (i < limit) {
+          while i < limit do {
             val elem = that.xs(i)
-            if (!contains(elem)) {
-              if (toAdd == null) toAdd = new mutable.ArrayBuffer
+            if !contains(elem) then {
+              if toAdd == null then toAdd = new mutable.ArrayBuffer
               toAdd += elem
             }
             i += 1
           }
-          if (toAdd == null) this
+          if toAdd == null then this
           else {
             val numAdded = toAdd.size
             val xs1 = new Array[AnyRef](size + numAdded)
             System.arraycopy(xs, 0, xs1, 0, size)
             var i = 0
-            while (i < numAdded) {
+            while i < numAdded do {
               xs1(i + size) = toAdd(i)
               i += 1
             }
@@ -257,23 +257,23 @@ object SimpleIdentitySet {
           val thatElems = that.xs
           var i = 0
           var searchStart = 0
-          while (i < thisSize) {
+          while i < thisSize do {
             val elem = this.xs(i)
             var j = searchStart    // search thatElems in round robin fashion, starting one after latest hit
             var missing = false
-            while (!missing && (elem ne thatElems(j))) {
+            while !missing && (elem ne thatElems(j)) do {
               j += 1
-              if (j == thatSize) j = 0
+              if j == thatSize then j = 0
               missing = j == searchStart
             }
-            if (missing) {
-              if (toAdd == null) toAdd = new mutable.ArrayBuffer
+            if missing then {
+              if toAdd == null then toAdd = new mutable.ArrayBuffer
               toAdd += elem
             }
             else searchStart = (j + 1) % thatSize
             i += 1
           }
-          if (toAdd == null) empty
+          if toAdd == null then empty
           else toAdd.size match {
             case 1 => new Set1[E](toAdd(0))
             case 2 => new Set2[E](toAdd(0), toAdd(1))

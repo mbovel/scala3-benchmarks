@@ -8,7 +8,7 @@
 package java.util.regex
 
 import java.util.ArrayList
-import java.util.regex.Regexp.{Op => ROP}
+import java.util.regex.Regexp.{Op as ROP}
 
 object Simplify {
 
@@ -21,7 +21,7 @@ object Simplify {
   // /(x)(x)?/ but both parentheses capture as $1.  The returned regexp
   // may share structure with or be the original.
   def simplify(re: Regexp): Regexp = {
-    if (re == null) {
+    if re == null then {
       return null
     }
     re.op match {
@@ -29,10 +29,10 @@ object Simplify {
         // Simplify children, building new Regexp if children change.
         var nre: Regexp = re
         var i: Int   = 0
-        while (i < re.subs.length) {
+        while i < re.subs.length do {
           val sub: Regexp  = re.subs(i)
           val nsub: Regexp = simplify(sub)
-          if (nre == re && nsub != sub) {
+          if nre == re && nsub != sub then {
             // Start a copy.
             nre = new Regexp() // shallow copy
             nre.op = re.op
@@ -46,7 +46,7 @@ object Simplify {
             nre.runes = null
             nre.subs = Parser.subarray(re.subs, 0, re.subs.length) // clone
           }
-          if (nre != re) {
+          if nre != re then {
             nre.subs(i) = nsub
           }
           i += 1
@@ -58,7 +58,7 @@ object Simplify {
       case ROP.REPEAT =>
         // Special special case: x{0} matches the empty string
         // and doesn't even need to consider x.
-        if (re.min == 0 && re.max == 0) {
+        if re.min == 0 && re.max == 0 then {
           val re: Regexp = new Regexp()
           re.op = ROP.EMPTY_MATCH
         }
@@ -67,14 +67,14 @@ object Simplify {
         val sub: Regexp = simplify(re.subs(0))
 
         // x{n,} means at least n matches of x.
-        if (re.max == -1) {
+        if re.max == -1 then {
           // Special case: x{0,} is x*.
-          if (re.min == 0) {
+          if re.min == 0 then {
             return simplify1(ROP.STAR, re.flags, sub, null)
           }
 
           // Special case: x{1,} is x+.
-          if (re.min == 1) {
+          if re.min == 1 then {
             return simplify1(ROP.PLUS, re.flags, sub, null)
           }
 
@@ -83,7 +83,7 @@ object Simplify {
           nre.op = ROP.CONCAT
           val subs: ArrayList[Regexp] = new ArrayList[Regexp]()
           var i: Int    = 0
-          while (i < re.min - 1) {
+          while i < re.min - 1 do {
             subs.add(sub)
             i += 1
           }
@@ -94,7 +94,7 @@ object Simplify {
         // Special case x{0} handled above.
 
         // Special case: x{1} is just x.
-        if (re.min == 1 && re.max == 1) {
+        if re.min == 1 && re.max == 1 then {
           return sub
         }
 
@@ -104,32 +104,32 @@ object Simplify {
 
         // Build leading prefix: xx.
         var prefixSubs: ArrayList[Regexp] = null
-        if (re.min > 0) {
+        if re.min > 0 then {
           prefixSubs = new ArrayList[Regexp]()
           var i: Int = 0
-          while (i < re.min) {
+          while i < re.min do {
             prefixSubs.add(sub)
             i += 1
           }
         }
 
         // Build and attach suffix: (x(x(x)?)?)?
-        if (re.max > re.min) {
+        if re.max > re.min then {
           var suffix: Regexp = simplify1(ROP.QUEST, re.flags, sub, null)
           var i: Int      = re.min + 1
-          while (i < re.max) {
+          while i < re.max do {
             val nre2: Regexp = new Regexp()
             nre2.op = ROP.CONCAT
             nre2.subs = Array[Regexp](sub, suffix)
             suffix = simplify1(ROP.QUEST, re.flags, nre2, null)
             i += 1
           }
-          if (prefixSubs == null) {
+          if prefixSubs == null then {
             return suffix
           }
           prefixSubs.add(suffix)
         }
-        if (prefixSubs != null) {
+        if prefixSubs != null then {
           val prefix: Regexp = new Regexp()
           prefix.op = ROP.CONCAT
           prefix.subs =
@@ -170,17 +170,17 @@ object Simplify {
 
     // Special case: repeat the empty string as much as
     // you want, but it's still the empty string.
-    if (sub.op == ROP.EMPTY_MATCH) {
+    if sub.op == ROP.EMPTY_MATCH then {
       return sub
     }
     // The operators are idempotent if the flags match.
-    if (op == sub.op &&
-        (flags & RE2.NON_GREEDY) == (sub.flags & RE2.NON_GREEDY)) {
+    if op == sub.op &&
+        (flags & RE2.NON_GREEDY) == (sub.flags & RE2.NON_GREEDY) then {
       return sub
     }
-    if (re != null && re.op == op &&
+    if re != null && re.op == op &&
         (re.flags & RE2.NON_GREEDY) == (flags & RE2.NON_GREEDY) &&
-        sub == re.subs(0)) {
+        sub == re.subs(0) then {
       return re
     }
 

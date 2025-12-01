@@ -23,21 +23,21 @@ object CommentParsing {
    *  sequence of whitespace characters characters (but no newlines)
    */
   def skipWhitespace(str: String, start: Int): Int =
-    if (start < str.length && isWhitespace(str.charAt(start))) skipWhitespace(str, start + 1)
+    if start < str.length && isWhitespace(str.charAt(start)) then skipWhitespace(str, start + 1)
     else start
 
   /** Returns index of string `str` following `start` skipping
    *  sequence of identifier characters.
    */
   def skipIdent(str: String, start: Int): Int =
-    if (start < str.length && isIdentifierPart(str.charAt(start))) skipIdent(str, start + 1)
+    if start < str.length && isIdentifierPart(str.charAt(start)) then skipIdent(str, start + 1)
     else start
 
   /** Returns index of string `str` following `start` skipping
    *  sequence of identifier characters.
    */
   def skipTag(str: String, start: Int): Int =
-    if (start < str.length && (str.charAt(start)) == '@') skipIdent(str, start + 1)
+    if start < str.length && (str.charAt(start)) == '@' then skipIdent(str, start + 1)
     else start
 
 
@@ -47,11 +47,11 @@ object CommentParsing {
    *  @pre  start == str.length || str(start) == `\n`
    */
   def skipLineLead(str: String, start: Int): Int =
-    if (start == str.length) start
+    if start == str.length then start
     else {
       val idx = skipWhitespace(str, start + 1)
-      if (idx < str.length && (str.charAt(idx)) == '*') skipWhitespace(str, idx + 1)
-      else if (idx + 2 < str.length && (str.charAt(idx)) == '/' && (str.charAt(idx + 1)) == '*' && (str.charAt(idx + 2)) == '*')
+      if idx < str.length && (str.charAt(idx)) == '*' then skipWhitespace(str, idx + 1)
+      else if idx + 2 < str.length && (str.charAt(idx)) == '/' && (str.charAt(idx + 1)) == '*' && (str.charAt(idx + 2)) == '*' then
         skipWhitespace(str, idx + 3)
       else idx
     }
@@ -59,8 +59,8 @@ object CommentParsing {
   /** Skips to next occurrence of `\n` or to the position after the `/``**` sequence following index `start`.
    */
   def skipToEol(str: String, start: Int): Int =
-    if (start + 2 < str.length && (str.charAt(start)) == '/' && (str.charAt(start + 1)) == '*' && (str.charAt(start + 2)) == '*') start + 3
-    else if (start < str.length && (str.charAt(start)) != '\n') skipToEol(str, start + 1)
+    if start + 2 < str.length && (str.charAt(start)) == '/' && (str.charAt(start + 1)) == '*' && (str.charAt(start + 2)) == '*' then start + 3
+    else if start < str.length && (str.charAt(start)) != '\n' then skipToEol(str, start + 1)
     else start
 
   /** Returns first index following `start` and starting a line (i.e. after skipLineLead) or starting the comment
@@ -68,7 +68,7 @@ object CommentParsing {
    */
   def findNext(str: String, start: Int)(p: Int => Boolean): Int = {
     val idx = skipLineLead(str, skipToEol(str, start))
-    if (idx < str.length && !p(idx)) findNext(str, idx)(p)
+    if idx < str.length && !p(idx) then findNext(str, idx)(p)
     else idx
   }
 
@@ -77,7 +77,7 @@ object CommentParsing {
    */
   def findAll(str: String, start: Int)(p: Int => Boolean): List[Int] = {
     val idx = findNext(str, start)(p)
-    if (idx == str.length) List()
+    if idx == str.length then List()
     else idx :: findAll(str, idx)(p)
   }
 
@@ -143,7 +143,7 @@ object CommentParsing {
    */
   def paramDocs(str: String, tag: String, sections: List[(Int, Int)]): Map[String, (Int, Int)] =
     Map() ++ {
-      for (section <- sections if startsWithTag(str, section, tag)) yield {
+      for section <- sections if startsWithTag(str, section, tag) yield {
         val start = skipWhitespace(str, section._1 + tag.length)
         str.substring(start, skipIdent(str, start)) -> section
       }
@@ -163,7 +163,7 @@ object CommentParsing {
 
   /** Extracts variable name from a string, stripping any pair of surrounding braces */
   def variableName(str: String): String =
-    if (str.length >= 2 && (str.charAt(0)) == '{' && (str.charAt(str.length - 1)) == '}')
+    if str.length >= 2 && (str.charAt(0)) == '{' && (str.charAt(str.length - 1)) == '}' then
       str.substring(1, str.length - 1)
     else
       str
@@ -172,16 +172,16 @@ object CommentParsing {
    */
   def skipVariable(str: String, start: Int): Int = {
     var idx = start
-    if (idx < str.length && (str.charAt(idx)) == '{') {
-      while ({
+    if idx < str.length && (str.charAt(idx)) == '{' then {
+      while {
         idx += 1
         idx < str.length && (str.charAt(idx)) != '}'
-      })
+      } do
       ()
-      if (idx < str.length) idx + 1 else start
+      if idx < str.length then idx + 1 else start
     }
     else {
-      while (idx < str.length && isVarPart(str.charAt(idx)))
+      while idx < str.length && isVarPart(str.charAt(idx)) do
         idx += 1
       idx
     }
@@ -190,7 +190,7 @@ object CommentParsing {
   /** A map from the section tag to section parameters */
   def sectionTagMap(str: String, sections: List[(Int, Int)]): Map[String, (Int, Int)] =
     Map() ++ {
-      for (section <- sections) yield
+      for section <- sections yield
         extractSectionTag(str, section) -> section
     }
 
@@ -214,9 +214,9 @@ object CommentParsing {
   /** Extract the section text, except for the tag and comment newlines */
   def extractSectionText(str: String, section: (Int, Int)): (Int, Int) = {
     val (beg, end) = section
-    if (str.startsWith("@param", beg) ||
+    if str.startsWith("@param", beg) ||
         str.startsWith("@tparam", beg) ||
-        str.startsWith("@throws", beg))
+        str.startsWith("@throws", beg) then
       (skipWhitespace(str, skipIdent(str, skipWhitespace(str, skipTag(str, beg)))), end)
     else
       (skipWhitespace(str, skipTag(str, beg)), end)
@@ -225,7 +225,7 @@ object CommentParsing {
   /** Cleanup section text */
   def cleanupSectionText(str: String): String = {
     var result = str.trim.replaceAll("\n\\s+\\*\\s+", " \n")
-    while (result.endsWith("\n"))
+    while result.endsWith("\n") do
       result = result.substring(0, str.length - 1)
     result
   }
@@ -243,14 +243,13 @@ object CommentParsing {
   def removeSections(raw: String, xs: String*): String = {
     val sections = tagIndex(raw)
 
-    val toBeRemoved = for {
+    val toBeRemoved = for
       section <- xs
       lines = sections filter { startsWithTag(raw, _, section) }
-    }
     yield lines
 
     val end = startTag(raw, toBeRemoved.flatten.sortBy(_._1).toList)
 
-    if (end == raw.length - 2) raw else raw.substring(0, end) + "*/"
+    if end == raw.length - 2 then raw else raw.substring(0, end) + "*/"
   }
 }

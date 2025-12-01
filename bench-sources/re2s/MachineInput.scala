@@ -49,7 +49,7 @@ object MachineInput {
   // |pos| and |width| are byte indices.
   private class UTF8Input(b: Array[Byte], start: Int, end: Int)
       extends MachineInput() {
-    if (end > b.length) {
+    if end > b.length then {
       throw new ArrayIndexOutOfBoundsException(
         "end is greater than length: " + end + " > " + b.length)
     }
@@ -57,7 +57,7 @@ object MachineInput {
     override def step(_i: Int): Int = {
       var i: Int = _i
       i += start
-      if (i >= end) {
+      if i >= end then {
         return EOF
       }
 
@@ -70,19 +70,19 @@ object MachineInput {
       // 010000-10FFFF (21 bits)   11110efg 10hijklm 10npqrst 10uvwxyz
       var x: Int = b(i) & 0xff // zero extend
       i += 1
-      if ((x & 0x80) == 0) {
+      if (x & 0x80) == 0 then {
         return x << 3 | 1
-      } else if ((x & 0xE0) == 0xC0) { // 110xxxxx
+      } else if (x & 0xE0) == 0xC0 then { // 110xxxxx
         x = x & 0x1F
-        if (i >= end) {
+        if i >= end then {
           return EOF
         }
         x = x << 6 | b(i) & 0x3F
         i += 1
         return x << 3 | 2
-      } else if ((x & 0xF0) == 0xE0) { // 1110xxxx
+      } else if (x & 0xF0) == 0xE0 then { // 1110xxxx
         x = x & 0x0F
-        if (i + 1 >= end) {
+        if i + 1 >= end then {
           return EOF
         }
         x = x << 6 | b(i) & 0x3F
@@ -92,7 +92,7 @@ object MachineInput {
         return x << 3 | 3
       } else { // 11110xxx
         x = x & 0x07
-        if (i + 2 >= end) {
+        if i + 2 >= end then {
           return EOF
         }
         x = x << 6 | b(i) & 0x3F
@@ -111,33 +111,33 @@ object MachineInput {
       var pos: Int = _pos
       pos += start
       val i: Int = Utils.indexOf(b, re2.prefixUTF8, pos)
-      if (i < 0) i else i - pos
+      if i < 0 then i else i - pos
     }
 
     override def context(_pos: Int): Int = {
       var pos: Int = _pos
       pos += this.start
       var r1: Int = -1
-      if (pos > this.start && pos <= this.end) {
+      if pos > this.start && pos <= this.end then {
         var start: Int = pos - 1
         r1 = b(start)
         start -= 1
-        if (r1 >= 0x80) { // decode UTF-8
+        if r1 >= 0x80 then { // decode UTF-8
           // Find start, up to 4 bytes earlier.
           var lim: Int = pos - 4
-          if (lim < this.start) {
+          if lim < this.start then {
             lim = this.start
           }
-          while (start >= lim && (b(start) & 0xC0) == 0x80) { // 10xxxxxx
+          while start >= lim && (b(start) & 0xC0) == 0x80 do { // 10xxxxxx
             start -= 1
           }
-          if (start < this.start) {
+          if start < this.start then {
             start = this.start
           }
           r1 = step(start) >> 3
         }
       }
-      val r2: Int = if (pos < this.end) step(pos) >> 3 else -1
+      val r2: Int = if pos < this.end then step(pos) >> 3 else -1
       return Utils.emptyOpContext(r1, r2)
     }
 
@@ -151,7 +151,7 @@ object MachineInput {
     override def step(_pos: Int): Int = {
       var pos: Int = _pos
       pos += start
-      if (pos < end) {
+      if pos < end then {
         val rune: Int    = Character.codePointAt(str, pos)
         val nextPos: Int = pos + Character.charCount(rune)
         val width: Int   = nextPos - pos
@@ -167,16 +167,16 @@ object MachineInput {
       var pos: Int = _pos
       pos += start
       val i: Int = indexOf(str, re2.prefix, pos)
-      if (i < 0) i else i - pos
+      if i < 0 then i else i - pos
     }
 
     override def context(_pos: Int): Int = {
       var pos: Int = _pos
       pos += start
       val r1: Int =
-        if (pos > start && pos <= end) Character.codePointBefore(str, pos)
+        if pos > start && pos <= end then Character.codePointBefore(str, pos)
         else -1
-      val r2: Int = if (pos < end) Character.codePointAt(str, pos) else -1
+      val r2: Int = if pos < end then Character.codePointAt(str, pos) else -1
       return Utils.emptyOpContext(r1, r2)
     }
 
@@ -200,13 +200,13 @@ object MachineInput {
                                 _fromIndex: Int): Int = {
       var fromIndex: Int = _fromIndex
 
-      if (fromIndex >= hayStack.length()) {
-        return if (needle.isEmpty()) 0 else -1
+      if fromIndex >= hayStack.length() then {
+        return if needle.isEmpty() then 0 else -1
       }
-      if (fromIndex < 0) {
+      if fromIndex < 0 then {
         fromIndex = 0
       }
-      if (needle.isEmpty()) {
+      if needle.isEmpty() then {
         return fromIndex
       }
 
@@ -214,22 +214,22 @@ object MachineInput {
       val max: Int   = hayStack.length() - needle.length()
       var i: Int     = fromIndex
 
-      while (i <= max) {
+      while i <= max do {
         /* Look for first character. */
-        if (hayStack.charAt(i) != first) {
-          while ({ i += 1; i } <= max && hayStack.charAt(i) != first) {}
+        if hayStack.charAt(i) != first then {
+          while { i += 1; i } <= max && hayStack.charAt(i) != first do {}
         }
 
         /* Found first character, now look at the rest of v2 */
-        if (i <= max) {
+        if i <= max then {
           var j: Int   = i + 1
           val end: Int = j + needle.length() - 1
           var k: Int   = 1
-          while (j < end && hayStack.charAt(j) == needle.charAt(k)) {
+          while j < end && hayStack.charAt(j) == needle.charAt(k) do {
             j += 1
             k += 1
           }
-          if (j == end) {
+          if j == end then {
             /* Found whole string. */
             return i
           }

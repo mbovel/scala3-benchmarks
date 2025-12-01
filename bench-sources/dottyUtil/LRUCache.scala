@@ -34,17 +34,17 @@ class LRUCache[Key >: Null <: AnyRef | Null : ClassTag, Value >: Null: ClassTag]
     @tailrec
     def lookupNext(prev: Int, current: Int, nx: SixteenNibbles): Value = {
       val follow = nx(current)
-      if (keys(current) eq key) {
+      if keys(current) eq key then {
         // arrange so that found element is at position `first`.
-        if (current == last) last = prev
-        else if (prev != last) {
+        if current == last then last = prev
+        else if prev != last then {
           next = next.updated(prev, follow)
           next = next.updated(current, first)
           next = next.updated(last, current)
         }
         values(current)
       }
-      else if (current == last) {
+      else if current == last then {
         lastButOne = prev
         null
       }
@@ -71,7 +71,7 @@ class LRUCache[Key >: Null <: AnyRef | Null : ClassTag, Value >: Null: ClassTag]
    *  the last in the queue.
    */
   def invalidate(key: Key): Unit =
-    if (lookup(key) != null) {
+    if lookup(key) != null then {
       keys(first) = null
       last = first
     }

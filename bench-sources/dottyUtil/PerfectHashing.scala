@@ -21,7 +21,7 @@ object PerfectHashing:
  *                           However, a table of size up to DenseLimit will be re-sized only
  *                           once the number of elements reaches the table's size.
  */
-class PerfectHashing[Key](initialCapacity: Int = 8, capacityMultiple: Int = 2):
+open class PerfectHashing[Key](initialCapacity: Int = 8, capacityMultiple: Int = 2):
   import PerfectHashing.DenseLimit
 
   private var used: Int = uninitialized
@@ -60,7 +60,7 @@ class PerfectHashing[Key](initialCapacity: Int = 8, capacityMultiple: Int = 2):
     // Part of the MurmurHash3 32 bit finalizer
     val i = (h ^ (h >>> 16)) * 0x85EBCA6B
     val j = (i ^ (i >>> 13)) & 0x7FFFFFFF
-    if (j==0) 0x41081989 else j
+    if j==0 then 0x41081989 else j
 
   /** Equality test, by default `equals`, can be overridden */
   protected def isEqual(x: Key, y: Key): Boolean = x.equals(y)

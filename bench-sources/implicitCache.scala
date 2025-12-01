@@ -10,8 +10,8 @@ object Foo {
 }
 
 object Test {
-  def getFooA(implicit foo: Foo[A]) = foo
-  def getA(implicit a: A) = a
+  def getFooA(using foo: Foo[A]) = foo
+  def getA(using a: A) = a
 
   getFooA
   getA

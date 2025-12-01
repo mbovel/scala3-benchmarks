@@ -2,7 +2,7 @@ package sourcecode
 
 object Synthetic {
   def run() = {
-    class EnumValue(implicit name: sourcecode.Name.Machine){
+    class EnumValue(using name: sourcecode.Name.Machine){
       override def toString = name.value
     }
     object Foo extends EnumValue

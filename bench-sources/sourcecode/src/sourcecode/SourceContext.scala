@@ -6,7 +6,7 @@ abstract class SourceValue[T]{
   def value: T
 }
 abstract class SourceCompanion[T, V <: SourceValue[T]](build: T => V){
-  def apply()(implicit s: V): T = s.value
+  def apply()(using s: V): T = s.value
   implicit def wrap(s: T): V = build(s)
 }
 case class Name(value: String) extends SourceValue[String]

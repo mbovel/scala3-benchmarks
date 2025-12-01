@@ -16,7 +16,7 @@ object YamlEncoder extends YamlEncoderCrossCompanionCompat {
   private val allowedExceptions = Set('\u0009', '\u000A', '\u000D', '\u0085')
 
   def isCharNonPrintable(c: Char): Boolean = {
-    if (allowedExceptions.contains(c)) false
+    if allowedExceptions.contains(c) then false
     else {
       (c >= '\u0000' && c <= '\u001F') || // C0 control block (except allowed exceptions above)
       c == '\u007F' ||                    // DEL
@@ -28,13 +28,13 @@ object YamlEncoder extends YamlEncoderCrossCompanionCompat {
 
   def escapeSpecialCharacters(scalar: String): String =
     scalar.flatMap { char =>
-      if (isCharNonPrintable(char))
+      if isCharNonPrintable(char) then
         f"\\u${char.toInt}%04X"
       else
         char.toString
     }
 
-  def apply[T](implicit self: YamlEncoder[T]): YamlEncoder[T] = self
+  def apply[T](using self: YamlEncoder[T]): YamlEncoder[T] = self
 
   implicit def forByte: YamlEncoder[Byte]       = v => Node.ScalarNode(v.toString)
   implicit def forChar: YamlEncoder[Char]       = v => Node.ScalarNode(v.toString)
@@ -46,22 +46,22 @@ object YamlEncoder extends YamlEncoderCrossCompanionCompat {
   implicit def forBoolean: YamlEncoder[Boolean] = v => Node.ScalarNode(v.toString)
   implicit def forString: YamlEncoder[String]   = v => Node.ScalarNode(escapeSpecialCharacters(v))
 
-  implicit def forOption[T](implicit encoder: YamlEncoder[T]): YamlEncoder[Option[T]] = {
+  implicit def forOption[T](using encoder: YamlEncoder[T]): YamlEncoder[Option[T]] = {
     case Some(t) => encoder.asNode(t)
     case None    => Node.ScalarNode("", Tag.nullTag)
   }
 
-  implicit def forSet[T](implicit encoder: YamlEncoder[T]): YamlEncoder[Set[T]] = (nodes) =>
+  implicit def forSet[T](using encoder: YamlEncoder[T]): YamlEncoder[Set[T]] = (nodes) =>
     Node.SequenceNode(nodes.map(encoder.asNode(_)).toSeq, Tag.seq)
 
-  implicit def forSeq[T](implicit encoder: YamlEncoder[T]): YamlEncoder[Seq[T]] = (nodes) =>
+  implicit def forSeq[T](using encoder: YamlEncoder[T]): YamlEncoder[Seq[T]] = (nodes) =>
     Node.SequenceNode(nodes.map(encoder.asNode(_)), Tag.seq)
 
-  implicit def forList[T](implicit encoder: YamlEncoder[T]): YamlEncoder[List[T]] = (nodes) =>
+  implicit def forList[T](using encoder: YamlEncoder[T]): YamlEncoder[List[T]] = (nodes) =>
     Node.SequenceNode(nodes.map(encoder.asNode(_)), Tag.seq)
 
   // todo support arbitrary node as key in KeyValueNode
-  implicit def forMap[K, V](implicit
+  implicit def forMap[K, V](using
       keyCodec: YamlEncoder[K],
       valueCodec: YamlEncoder[V]
   ): YamlEncoder[Map[K, V]] = { (nodes) =>

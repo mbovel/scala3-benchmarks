@@ -62,8 +62,8 @@ object DecoderMacros {
       valuesMap.get(label) match
         case Some(value) => c.construct(value)
         case None =>
-          if (isOptional) Right(None)
-          else if (defaultParams.contains(label))
+          if isOptional then Right(None)
+          else if defaultParams.contains(label) then
             val defaultParamCreator = defaultParams(label)
             val defaultParamValue   = defaultParamCreator()
             Right(defaultParamValue)
@@ -87,7 +87,7 @@ object DecoderMacros {
       }
     val (error, valuesSeq) = keyValueMap.partitionMap(identity)
 
-    if (error.nonEmpty) Left(error.head)
+    if error.nonEmpty then Left(error.head)
     else Right(valuesSeq.toMap)
   }
 
@@ -138,7 +138,7 @@ object DecoderMacros {
             ): Either[ConstructError, T] =
               node match
                 case Node.MappingNode(mappings, _) =>
-                  for {
+                  for
                     valuesMap <- extractKeyValues(mappings)
                     constructedValues <- constructValues(
                       allInstances,
@@ -147,7 +147,7 @@ object DecoderMacros {
                       mirror,
                       node
                     )
-                  } yield (constructedValues)
+                  yield (constructedValues)
                 case _ =>
                   Left(
                     ConstructError.from(

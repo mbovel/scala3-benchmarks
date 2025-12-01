@@ -19,7 +19,7 @@ final class ReusableInstance[T <: AnyRef] private (make: => T) {
   private var taken = 0
 
   inline def withInstance[R](action: T => R): R ={
-    if (taken == cache.size)
+    if taken == cache.size then
       cache += make
     taken += 1
     try action(cache(taken-1)) finally taken -= 1

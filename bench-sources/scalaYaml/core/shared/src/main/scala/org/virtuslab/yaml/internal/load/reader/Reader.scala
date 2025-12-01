@@ -56,17 +56,17 @@ private[yaml] class StringReader(in: String) extends Reader {
   override def range = Range(pos, lines)
 
   override def peek(n: Int = 0): Char =
-    if (offset + n < in.length) in.charAt(offset + n)
+    if offset + n < in.length then in.charAt(offset + n)
     else Reader.nullTerminator
 
   private def nextLine() = { column = 0; line += 1 }
   private def skipAndMantainPosition() = {
     val char = in.charAt(offset)
-    if (isWindowsNewline(char)) {
+    if isWindowsNewline(char) then {
       offset += 2
       nextLine()
       2
-    } else if (char == '\n') {
+    } else if char == '\n' then {
       offset += 1
       nextLine()
       1
@@ -79,7 +79,7 @@ private[yaml] class StringReader(in: String) extends Reader {
 
   override def skipN(n: Int): Unit = {
     @tailrec def loop(left: Int): Unit =
-      if (left <= 0) ()
+      if left <= 0 then ()
       else {
         val skipped = skipAndMantainPosition()
         loop(left - skipped)
@@ -90,7 +90,7 @@ private[yaml] class StringReader(in: String) extends Reader {
   override def skipCharacter(): Unit = skipAndMantainPosition()
 
   override def skipWhitespaces(): Unit =
-    while (isWhitespace)
+    while isWhitespace do
       skipCharacter()
 
   override def read(): Char = {

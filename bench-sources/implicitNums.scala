@@ -6,7 +6,7 @@ object Test {
   trait Zero extends Number
   trait Succ[N <: Number](n: N) extends Number
 
-  implicit def succ[N <: Number](implicit n: N): Succ[N] = new Succ[N](n) {}
+  implicit def succ[N <: Number](using n: N): Succ[N] = new Succ[N](n) {}
   implicit def zero: Zero = new Zero{}
 
   implicitly[Zero]

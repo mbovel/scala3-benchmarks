@@ -21,12 +21,12 @@ object Chars:
     */
   def digit2int(ch: Char, base: Int): Int = {
     val num = (
-      if (ch <= '9') ch - '0'
-      else if ('a' <= ch && ch <= 'z') ch - 'a' + 10
-      else if ('A' <= ch && ch <= 'Z') ch - 'A' + 10
+      if ch <= '9' then ch - '0'
+      else if 'a' <= ch && ch <= 'z' then ch - 'a' + 10
+      else if 'A' <= ch && ch <= 'Z' then ch - 'A' + 10
       else -1
       )
-    if (0 <= num && num < base) num else -1
+    if 0 <= num && num < base then num else -1
   }
   /** Buffer for creating '\ u XXXX' strings. */
   private val char2uescapeArray = Array[Char]('\\', 'u', 0, 0, 0, 0)
@@ -34,7 +34,7 @@ object Chars:
   /** Convert a character to a backslash-u escape */
   def char2uescape(c: Char): String = {
     inline def hexChar(ch: Int): Char =
-      (( if (ch < 10) '0' else 'A' - 10 ) + ch).toChar
+      (( if ch < 10 then '0' else 'A' - 10 ) + ch).toChar
 
     char2uescapeArray(2) = hexChar((c >> 12)     )
     char2uescapeArray(3) = hexChar((c >>  8) % 16)
@@ -148,7 +148,7 @@ object Chars:
       if i < 4 then
         quadNibble(x >> 4, i + 1)
         val n = x & 0xF
-        val c = if (n < 10) '0' + n else 'a' + (n - 10)
+        val c = if n < 10 then '0' + n else 'a' + (n - 10)
         b.append(c.toChar)
     val replace = (c: @switch) match
       case '\b' => "\\b"

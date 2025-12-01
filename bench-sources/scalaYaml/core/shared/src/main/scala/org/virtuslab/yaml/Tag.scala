@@ -13,7 +13,7 @@ final case class CoreSchemaTag(value: String) extends Tag
 final case class CustomTag(value: String)     extends Tag
 
 object Tag {
-  def apply[T](implicit classTag: ClassTag[T]): Tag = CustomTag(
+  def apply[T](using classTag: ClassTag[T]): Tag = CustomTag(
     s"!${classTag.runtimeClass.getName}"
   )
 

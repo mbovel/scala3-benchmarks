@@ -24,7 +24,7 @@ trait Positional {
    *  @return  the object itself
    */
   def setPos(newpos: Position): this.type = {
-    if (pos eq NoPosition) pos = newpos
+    if pos eq NoPosition then pos = newpos
     this
   }
 }

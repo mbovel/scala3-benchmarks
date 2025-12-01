@@ -4,7 +4,7 @@ import scala.deriving.Mirror
 
 private[yaml] trait YamlCodecCompanionCrossCompat {
 
-  def make[A](implicit decoder: YamlDecoder[A], encoder: YamlEncoder[A]): YamlCodec[A]
+  def make[A](using decoder: YamlDecoder[A], encoder: YamlEncoder[A]): YamlCodec[A]
 
   inline def derived[T](using m: Mirror.Of[T]): YamlCodec[T] =
     val decoder = YamlDecoder.derived[T]

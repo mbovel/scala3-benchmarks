@@ -8,7 +8,7 @@
 package java.util.regex
 
 import java.util.Arrays
-import java.util.regex.Regexp._
+import java.util.regex.Regexp.*
 
 /**
  * Regular expression abstract syntax tree.
@@ -52,8 +52,8 @@ class Regexp() {
         out.append("(?:)")
       case Op.STAR | Op.PLUS | Op.QUEST | Op.REPEAT =>
         val sub: Regexp = subs(0)
-        if (sub.op > Op.CAPTURE ||
-            sub.op == Op.LITERAL && sub.runes.length > 1) {
+        if sub.op > Op.CAPTURE ||
+            sub.op == Op.LITERAL && sub.runes.length > 1 then {
           out.append("(?:")
           sub.appendTo(out)
           out.append(')')
@@ -69,22 +69,22 @@ class Regexp() {
             out.append('?')
           case Op.REPEAT =>
             out.append('{').append(min)
-            if (min != max) {
+            if min != max then {
               out.append(',')
-              if (max >= 0) {
+              if max >= 0 then {
                 out.append(max)
               }
             }
             out.append('}')
         }
-        if ((flags & RE2.NON_GREEDY) != 0) {
+        if (flags & RE2.NON_GREEDY) != 0 then {
           out.append('?')
         }
       case Op.CONCAT =>
         var i: Int = 0
-        while (i <= subs.length) {
+        while i <= subs.length do {
           val sub: Regexp = subs(i)
-          if (sub.op == Op.ALTERNATE) {
+          if sub.op == Op.ALTERNATE then {
             out.append("(?:")
             sub.appendTo(out)
             out.append(')')
@@ -96,7 +96,7 @@ class Regexp() {
       case Op.ALTERNATE =>
         var sep: String = ""
         var i: Int   = 0
-        while (i <= subs.length) {
+        while i <= subs.length do {
           val sub: Regexp = subs(i)
           out.append(sep)
           sep = "|"
@@ -104,16 +104,16 @@ class Regexp() {
           i += 1
         }
       case Op.LITERAL =>
-        if ((flags & RE2.FOLD_CASE) != 0) {
+        if (flags & RE2.FOLD_CASE) != 0 then {
           out.append("(?i:")
         }
         var i: Int = 0
-        while (i < runes.length) {
+        while i < runes.length do {
           val rune: Int = runes(i)
           Utils.escapeRune(out, rune)
           i += 1
         }
-        if ((flags & RE2.FOLD_CASE) != 0) {
+        if (flags & RE2.FOLD_CASE) != 0 then {
           out.append(')')
         }
       case Op.ANY_CHAR_NOT_NL =>
@@ -121,21 +121,21 @@ class Regexp() {
       case Op.ANY_CHAR =>
         out.append("(?s:.)")
       case Op.CAPTURE =>
-        if (name == null || name.isEmpty()) {
+        if name == null || name.isEmpty() then {
           out.append('(')
         } else {
           out.append("(?P<")
           out.append(name)
           out.append(">")
         }
-        if (subs(0).op != Op.EMPTY_MATCH) {
+        if subs(0).op != Op.EMPTY_MATCH then {
           subs(0).appendTo(out)
         }
         out.append(')')
       case Op.BEGIN_TEXT =>
         out.append("\\A")
       case Op.END_TEXT =>
-        if ((flags & RE2.WAS_DOLLAR) != 0) {
+        if (flags & RE2.WAS_DOLLAR) != 0 then {
           out.append("(?-m:$)")
         } else {
           out.append("\\z")
@@ -149,24 +149,24 @@ class Regexp() {
       case Op.NO_WORD_BOUNDARY =>
         out.append("\\B")
       case Op.CHAR_CLASS =>
-        if (runes.length % 2 != 0) {
+        if runes.length % 2 != 0 then {
           out.append("[invalid char class]")
         } else {
           out.append('[')
-          if (runes.length == 0) {
+          if runes.length == 0 then {
             out.append("^\\x00-\\x{10FFFF}")
-          } else if (runes(0) == 0 &&
-                     runes(runes.length - 1) == Unicode.MAX_RUNE) {
+          } else if runes(0) == 0 &&
+                     runes(runes.length - 1) == Unicode.MAX_RUNE then {
             // Contains 0 and MAX_RUNE.  Probably a negated class.
             // Print the gaps.
             out.append('^')
             var i: Int = 1
-            while (i < runes.length - 1) {
+            while i < runes.length - 1 do {
               val lo: Int = runes(i) + 1
               val hi: Int = runes(i + 1) - 1
               quoteIfHyphen(out, lo)
               Utils.escapeRune(out, lo)
-              if (lo != hi) {
+              if lo != hi then {
                 out.append('-')
                 quoteIfHyphen(out, hi)
                 Utils.escapeRune(out, hi)
@@ -175,12 +175,12 @@ class Regexp() {
             }
           } else {
             var i: Int = 0
-            while (i < runes.length) {
+            while i < runes.length do {
               val lo: Int = runes(i)
               val hi: Int = runes(i + 1)
               quoteIfHyphen(out, lo)
               Utils.escapeRune(out, lo)
-              if (lo != hi) {
+              if lo != hi then {
                 out.append('-')
                 quoteIfHyphen(out, hi)
                 Utils.escapeRune(out, hi)
@@ -198,15 +198,15 @@ class Regexp() {
   // maxCap() walks the regexp to find the maximum capture index.
   def maxCap(): Int = {
     var m: Int = 0
-    if (op == Op.CAPTURE) {
+    if op == Op.CAPTURE then {
       m = cap
     }
-    if (subs != null) {
+    if subs != null then {
       var i: Int = 0
-      while (i < subs.length) {
+      while i < subs.length do {
         val sub: Regexp = subs(i)
         val n: Int   = sub.maxCap()
-        if (m < n) {
+        if m < n then {
           m = n
         }
         i += 1
@@ -217,47 +217,47 @@ class Regexp() {
 
   // equals() returns true if this and that have identical structure.
   override def equals(that: Any): Boolean = {
-    that match {
+    that.asInstanceOf[Matchable] match {
       case that: Regexp =>
         val x: Regexp = this
         val y: Regexp = that
-        if (x.op != y.op) {
+        if x.op != y.op then {
           return false
         }
         x.op match {
           case Op.END_TEXT =>
             // The parse flags remember whether this is \z or \Z.
-            if ((x.flags & RE2.WAS_DOLLAR) != (y.flags & RE2.WAS_DOLLAR)) {
+            if (x.flags & RE2.WAS_DOLLAR) != (y.flags & RE2.WAS_DOLLAR) then {
               return false
             }
           case Op.LITERAL | Op.CHAR_CLASS =>
-            if (!Arrays.equals(x.runes, y.runes)) {
+            if !Arrays.equals(x.runes, y.runes) then {
               return false
             }
           case Op.ALTERNATE | Op.CONCAT =>
-            if (x.subs.length != y.subs.length) {
+            if x.subs.length != y.subs.length then {
               return false
             }
             var i: Int = 0
-            while (i < x.subs.length) {
-              if (!x.subs(i).equals(y.subs(i))) {
+            while i < x.subs.length do {
+              if !x.subs(i).equals(y.subs(i)) then {
                 return false
               }
               i += 1
             }
           case Op.STAR | Op.PLUS | Op.QUEST =>
-            if ((x.flags & RE2.NON_GREEDY) != (y.flags & RE2.NON_GREEDY) ||
-                !x.subs(0).equals(y.subs(0))) {
+            if (x.flags & RE2.NON_GREEDY) != (y.flags & RE2.NON_GREEDY) ||
+                !x.subs(0).equals(y.subs(0)) then {
               return false
             }
           case Op.REPEAT =>
-            if ((x.flags & RE2.NON_GREEDY) != (y.flags & RE2.NON_GREEDY) ||
-                x.min != y.min || x.max != y.max || !x.subs(0).equals(y.subs(0))) {
+            if (x.flags & RE2.NON_GREEDY) != (y.flags & RE2.NON_GREEDY) ||
+                x.min != y.min || x.max != y.max || !x.subs(0).equals(y.subs(0)) then {
               return false
             }
           case Op.CAPTURE =>
-            if (x.cap != y.cap || x.name != y.name ||
-                !x.subs(0).equals(y.subs(0))) {
+            if x.cap != y.cap || x.name != y.name ||
+                !x.subs(0).equals(y.subs(0)) then {
               return false
             }
         }
@@ -302,7 +302,7 @@ object Regexp {
   final val EMPTY_SUBS: Array[Regexp] = new Array[Regexp](0)
 
   private def quoteIfHyphen(out: java.lang.StringBuilder, rune: Int): Unit = {
-    if (rune == '-') {
+    if rune == '-' then {
       out.append('\\')
     }
   }

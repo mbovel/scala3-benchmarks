@@ -14,7 +14,7 @@ package scala
 package util.parsing.combinator
 
 import scala.util.matching.Regex
-import scala.util.parsing.input._
+import scala.util.parsing.input.*
 import scala.language.implicitConversions
 
 /** The ''most important'' differences between `RegexParsers` and
@@ -73,7 +73,7 @@ trait RegexParsers extends Parsers {
    *  @return        The offset to be used for the next parser.
    */
   protected def handleWhiteSpace(source: java.lang.CharSequence, offset: Int): Int =
-    if (skipWhitespace)
+    if skipWhitespace then
       (whiteSpace findPrefixMatchOf (new SubSequence(source, offset))) match {
         case Some(matched) => offset + matched.end
         case None => offset
@@ -89,14 +89,14 @@ trait RegexParsers extends Parsers {
       val start = handleWhiteSpace(source, offset)
       var i = 0
       var j = start
-      while (i < s.length && j < source.length && s.charAt(i) == source.charAt(j)) {
+      while i < s.length && j < source.length && s.charAt(i) == source.charAt(j) do {
         i += 1
         j += 1
       }
-      if (i == s.length)
+      if i == s.length then
         Success(source.subSequence(start, j).toString, in.drop(j - offset), None)
       else  {
-        val found = if (start == source.length()) "end of source" else "'"+source.charAt(start)+"'"
+        val found = if start == source.length() then "end of source" else "'"+source.charAt(start)+"'"
         Failure("'"+s+"' expected but "+found+" found", in.drop(start - offset))
       }
     }
@@ -114,7 +114,7 @@ trait RegexParsers extends Parsers {
                   in.drop(start + matched.end - offset),
                   None)
         case None =>
-          val found = if (start == source.length()) "end of source" else "'"+source.charAt(start)+"'"
+          val found = if start == source.length() then "end of source" else "'"+source.charAt(start)+"'"
           Failure("string matching regex '"+r+"' expected but "+found+" found", in.drop(start - offset))
       }
     }

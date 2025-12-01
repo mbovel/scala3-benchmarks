@@ -160,11 +160,11 @@ trait PackratParsers extends Parsers {
       case None => /*no heads*/ cached
       case Some(h@Head(hp, involved, evalSet)) => {
         //heads found
-        if(cached.isEmpty && !(hp::involved contains p)) {
+        if cached.isEmpty && !(hp::involved contains p) then {
           //Nothing in the cache, and p is not involved
           return Some(MemoEntry(Right(Failure("dummy ",in))))
         }
-        if(evalSet contains p){
+        if evalSet contains p then {
           //something in cache, and p is in the evalSet
           //remove the rule from the evalSet of the Head
           h.evalSet = h.evalSet.filterNot(_==p)
@@ -185,7 +185,7 @@ trait PackratParsers extends Parsers {
    * the current parser again
    */
   private def setupLR(p: Parser[?], in: PackratReader[?], recDetect: LR): Unit = {
-    if(recDetect.head.isEmpty) recDetect.head = Some(Head(p, Nil, Nil))
+    if recDetect.head.isEmpty then recDetect.head = Some(Head(p, Nil, Nil))
 
     in.lrStack.takeWhile(_.rule != p).foreach {x =>
       x.head = recDetect.head
@@ -209,7 +209,7 @@ to update each parser involved in the recursion.
   private def lrAnswer[T](p: Parser[T], in: PackratReader[Elem], growable: LR): ParseResult[T] = growable match {
     //growable will always be having a head, we can't enter lrAnswer otherwise
     case LR(seed, _, Some(head)) =>
-      if(head.getHead != p) /*not head rule, so not growing*/ seed.asInstanceOf[ParseResult[T]]
+      if head.getHead != p then /*not head rule, so not growing*/ seed.asInstanceOf[ParseResult[T]]
       else {
         in.updateCacheAndGet(p, MemoEntry(Right(seed.asInstanceOf[ParseResult[T]])))
         seed match {
@@ -292,7 +292,7 @@ to update each parser involved in the recursion.
     head.evalSet = head.involvedSet
     val tempRes = p(rest); tempRes match {
       case s@Success(_,_) =>
-        if(getPosFromResult(oldRes) < getPosFromResult(tempRes)) {
+        if getPosFromResult(oldRes) < getPosFromResult(tempRes) then {
           rest.updateCacheAndGet(p, MemoEntry(Right(s)))
           grow(p, rest, head)
         } else {

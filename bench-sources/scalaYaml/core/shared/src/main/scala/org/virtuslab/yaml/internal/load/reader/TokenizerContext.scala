@@ -8,7 +8,7 @@ import org.virtuslab.yaml.Range
 import org.virtuslab.yaml.internal.load.reader.Reader
 import org.virtuslab.yaml.internal.load.reader.StringReader
 import org.virtuslab.yaml.internal.load.reader.token.Token
-import org.virtuslab.yaml.internal.load.reader.token.TokenKind._
+import org.virtuslab.yaml.internal.load.reader.token.TokenKind.*
 
 private[reader] case class TokenizerContext(reader: Reader) {
   val tokens = mutable.ArrayDeque.empty[Token]
@@ -20,7 +20,7 @@ private[reader] case class TokenizerContext(reader: Reader) {
 
   def indent: Int                     = indentations.lastOption.getOrElse(-1)
   def addIndent(newIndent: Int): Unit = indentations.append(newIndent)
-  def removeLastIndent(): Unit        = if (indentations.nonEmpty) indentations.removeLast()
+  def removeLastIndent(): Unit        = if indentations.nonEmpty then indentations.removeLast()
 
   /**
     * Stores tokens which might be assosiated with simple key (scalar). Such key might start with
@@ -38,7 +38,7 @@ private[reader] case class TokenizerContext(reader: Reader) {
     tokens.isEmpty || potentialKeys.nonEmpty
 
   def checkIndents(current: Int): List[Token] =
-    if (current < indent) {
+    if current < indent then {
       indentations.removeLast()
       Token(BlockEnd, reader.range) +: checkIndents(current)
     } else Nil
@@ -50,8 +50,8 @@ private[reader] case class TokenizerContext(reader: Reader) {
   def leaveFlowMapping: Unit = flowMappingLevel -= 1
 
   def isAllowedSpecialCharacter(char: Char): Boolean =
-    if ((char == ',' || char == '}') && flowMappingLevel > 0) false
-    else if ((char == ',' || char == ']') && flowSequenceLevel > 0) false
+    if (char == ',' || char == '}') && flowMappingLevel > 0 then false
+    else if (char == ',' || char == ']') && flowSequenceLevel > 0 then false
     else true
 
   def isInFlowMapping: Boolean    = flowMappingLevel > 0

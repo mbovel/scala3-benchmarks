@@ -25,9 +25,9 @@ object PagedSeqReader {
  * @param seq     the source sequence
  * @param offset  starting offset.
  */
-class PagedSeqReader(seq: PagedSeq[Char],
+open class PagedSeqReader(seq: PagedSeq[Char],
                      override val offset: Int) extends Reader[Char] { outer =>
-  import PagedSeqReader._
+  import PagedSeqReader.*
 
   override val source: java.lang.CharSequence = new SeqCharSequence(seq)
 
@@ -39,7 +39,7 @@ class PagedSeqReader(seq: PagedSeq[Char],
   /** Returns the first element of the reader, or EofCh if reader is at its end
    */
   def first =
-    if (seq.isDefinedAt(offset)) seq(offset) else EofCh
+    if seq.isDefinedAt(offset) then seq(offset) else EofCh
 
   /** Returns a PagedSeqReader consisting of all elements except the first
    *
@@ -47,7 +47,7 @@ class PagedSeqReader(seq: PagedSeq[Char],
    *         otherwise, it's a `PagedSeqReader` containing the rest of input.
    */
   def rest: PagedSeqReader =
-    if (seq.isDefinedAt(offset)) new PagedSeqReader(seq, offset + 1) {
+    if seq.isDefinedAt(offset) then new PagedSeqReader(seq, offset + 1) {
       override val source: java.lang.CharSequence = outer.source
     }
     else this

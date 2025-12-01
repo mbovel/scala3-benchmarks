@@ -7,8 +7,8 @@
 
 package java.util.regex
 
-import java.util.regex.Inst._
-import java.util.regex.Inst.Op._
+import java.util.regex.Inst.*
+import java.util.regex.Inst.Op.*
 
 /**
  * A single instruction in the regular expression virtual machine.
@@ -36,15 +36,15 @@ class Inst(var op: Inst.Op) {
   def matchRune(r: Int): Boolean = {
     // Special case: single-rune slice is from literal string, not char
     // class.
-    if (runes.length == 1) {
+    if runes.length == 1 then {
       val r0: Int = runes(0)
-      if (r == r0) {
+      if r == r0 then {
         return true
       }
-      if ((arg & RE2.FOLD_CASE) != 0) {
+      if (arg & RE2.FOLD_CASE) != 0 then {
         var r1: Int = Unicode.simpleFold(r0)
-        while (r1 != r0) {
-          if (r == r1) {
+        while r1 != r0 do {
+          if r == r1 then {
             return true
           }
           r1 = Unicode.simpleFold(r1)
@@ -56,11 +56,11 @@ class Inst(var op: Inst.Op) {
     // Peek at the first few pairs.
     // Should handle ASCII well.
     var j: Int = 0
-    while (j < runes.length && j <= 8) {
-      if (r < runes(j)) {
+    while j < runes.length && j <= 8 do {
+      if r < runes(j) then {
         return false
       }
-      if (r <= runes(j + 1)) {
+      if r <= runes(j + 1) then {
         return true
       }
       j += 2
@@ -69,11 +69,11 @@ class Inst(var op: Inst.Op) {
     // Otherwise binary search.
     var lo: Int = 0
     var hi: Int = runes.length / 2
-    while (lo < hi) {
+    while lo < hi do {
       val m: Int = lo + (hi - lo) / 2
       val c: Int = runes(2 * m)
-      if (c <= r) {
-        if (r <= runes(2 * m + 1)) {
+      if c <= r then {
+        if r <= runes(2 * m + 1) then {
           return true
         }
         lo = m + 1
@@ -102,11 +102,11 @@ class Inst(var op: Inst.Op) {
       case NOP =>
         "nop -> " + out
       case RUNE =>
-        if (runes == null) {
+        if runes == null then {
           "rune <null>" // can't happen
         } else {
           "rune " + escapeRunes(runes) +
-            (if ((arg & RE2.FOLD_CASE) != 0) "/i" else "") + " -> " + out
+            (if (arg & RE2.FOLD_CASE) != 0 then "/i" else "") + " -> " + out
         }
       case RUNE1 =>
         "rune1 " + escapeRunes(runes) + " -> " + out
@@ -141,7 +141,7 @@ object Inst {
     val out: java.lang.StringBuilder = new java.lang.StringBuilder()
     out.append('"')
     var i: Int = 0
-    while (i < runes.length) {
+    while i < runes.length do {
       val rune: Int = runes(i)
       Utils.escapeRune(out, rune)
     }

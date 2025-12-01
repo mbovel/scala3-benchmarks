@@ -11,7 +11,7 @@ import org.virtuslab.yaml.syntax.YamlPrimitive
 sealed trait Node {
   def pos: Option[Range]
   def tag: Tag
-  def as[T](implicit
+  def as[T](using
       c: YamlDecoder[T],
       settings: LoadSettings = LoadSettings.empty
   ): Either[YamlError, T] =

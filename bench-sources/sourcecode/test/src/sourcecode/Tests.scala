@@ -3,7 +3,7 @@ package sourcecode
 object Tests{
 
   def logExample() = {
-    def log(foo: String)(implicit line: sourcecode.Line, file: sourcecode.File) = {
+    def log(foo: String)(using line: sourcecode.Line, file: sourcecode.File) = {
       println(s"${file.value}:${line.value} $foo")
     }
     log("Foooooo") // sourcecode/shared/src/test/scala/sourcecode/Tests.scala:86 Fooooo

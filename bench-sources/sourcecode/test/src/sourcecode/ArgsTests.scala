@@ -5,7 +5,7 @@ object ArgsTests {
 
     var args: Seq[Seq[(String, Any)]] = Seq()
 
-    def debug(implicit arguments: sourcecode.Args): Unit = args = arguments.value.map(_.map(t => t.source -> t.value))
+    def debug(using arguments: sourcecode.Args): Unit = args = arguments.value.map(_.map(t => t.source -> t.value))
 
     def check(expected: Seq[Seq[(String, Any)]]): Unit =
       assert(args == expected, s"Expected: $expected, got: $args")
@@ -25,7 +25,7 @@ object ArgsTests {
       debug
     }
 
-    def withImplicit(p1: String, p2: Long, p3: Boolean)(implicit foo: String): Unit = {
+    def withImplicit(p1: String, p2: Long, p3: Boolean)(using foo: String): Unit = {
       debug
     }
 

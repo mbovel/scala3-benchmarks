@@ -136,10 +136,10 @@ object ComposerImpl extends Composer {
           Left(ComposerError(s"Invalid event, got: ${e.kind}, expected Node"))
         case _ =>
           val mapping =
-            for {
+            for
               key <- composeNode(events, aliases)
               v   <- composeNode(key.remaining, aliases)
-            } yield Result((key.node, v.node), v.remaining)
+            yield Result((key.node, v.node), v.remaining)
           mapping match {
             case Right(Result(node @ (key, value), rest)) =>
               parseMappings(rest, mappings :+ node, key.pos)

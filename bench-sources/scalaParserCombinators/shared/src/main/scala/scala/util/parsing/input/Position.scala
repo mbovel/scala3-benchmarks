@@ -47,7 +47,7 @@ trait Position {
    *                 ^
    *  }}}
    */
-  def longString = lineContents+"\n"+lineContents.take(column-1).map{x => if (x == '\t') x else ' ' } + "^"
+  def longString = lineContents+"\n"+lineContents.take(column-1).map{x => if x == '\t' then x else ' ' } + "^"
 
   /** Compare this position to another, by first comparing their line numbers,
    * and then -- if necessary -- using the columns to break a tie.
@@ -67,7 +67,7 @@ trait Position {
    * @return true if the line numbers and column numbers are equal.
    */
   override def equals(other: Any) = {
-    other match {
+    other.asInstanceOf[Matchable] match {
       case that: Position => this.line == that.line && this.column == that.column
       case _ => false
     }

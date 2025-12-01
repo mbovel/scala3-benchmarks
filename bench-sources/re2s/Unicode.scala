@@ -40,13 +40,13 @@ object Unicode {
     // binary search over ranges
     var lo: Int = 0
     var hi: Int = ranges.length
-    while (lo < hi) {
+    while lo < hi do {
       val m: Int     = lo + (hi - lo) / 2
       val range: Array[Int] = ranges(m) // [lo, hi, stride]
-      if (range(0) <= r && r <= range(1)) {
+      if range(0) <= r && r <= range(1) then {
         return ((r - range(0)) % range(2)) == 0
       }
-      if (r < range(0)) {
+      if r < range(0) then {
         hi = m
       } else {
         lo = m + 1
@@ -58,14 +58,14 @@ object Unicode {
   // is tests whether rune is in the specified table of ranges.
   private def is(ranges: Array[Array[Int]], r: Int): Boolean = {
     // common case: rune is ASCII or Latin-1, so use linear search.
-    if (r <= MAX_LATIN1) {
+    if r <= MAX_LATIN1 then {
       var i: Int = 0
-      while (i < ranges.length) {
+      while i < ranges.length do {
         val range: Array[Int] = ranges(i) // range = [lo, hi, stride]
-        if (r > range(1)) {
+        if r > range(1) then {
           i += 1
         } else {
-          if (r < range(0)) {
+          if r < range(0) then {
             return false
           }
           return ((r - range(0)) % range(2)) == 0
@@ -80,7 +80,7 @@ object Unicode {
   // isUpper reports whether the rune is an upper case letter.
   def isUpper(r: Int): Boolean = {
     // See comment in isGraphic.
-    if (r <= MAX_LATIN1) {
+    if r <= MAX_LATIN1 then {
       Character.isUpperCase(r.toChar)
     } else {
       is(UnicodeTables.Upper, r)
@@ -90,7 +90,7 @@ object Unicode {
   // isLower reports whether the rune is a lower case letter.
   def isLower(r: Int): Boolean = {
     // See comment in isGraphic.
-    if (r <= MAX_LATIN1) {
+    if r <= MAX_LATIN1 then {
       Character.isLowerCase(r.toChar)
     } else {
       is(UnicodeTables.Lower, r)
@@ -99,7 +99,7 @@ object Unicode {
 
   // isTitle reports whether the rune is a title case letter.
   def isTitle(r: Int): Boolean = {
-    if (r <= MAX_LATIN1) {
+    if r <= MAX_LATIN1 then {
       false
     } else {
       is(UnicodeTables.Title, r)
@@ -108,7 +108,7 @@ object Unicode {
 
   // isPrint reports whether the rune is printable (Unicode L/M/N/P/S or ' ').
   def isPrint(r: Int): Boolean = {
-    if (r <= MAX_LATIN1) {
+    if r <= MAX_LATIN1 then {
       r >= 0x20 && r < 0x7F ||
       r >= 0xA1 && r != 0xAD
     } else {
@@ -129,20 +129,20 @@ object Unicode {
 
   // to maps the rune using the specified case mapping.
   private def to_3(kase: Int, r: Int, caseRange: Array[Array[Int]]): Int = {
-    if (kase < 0 || MAX_CASE <= kase) {
+    if kase < 0 || MAX_CASE <= kase then {
       return REPLACEMENT_CHAR // as reasonable an error as any
     }
     // binary search over ranges
     var lo: Int = 0
     var hi: Int = caseRange.length
-    while (lo < hi) {
+    while lo < hi do {
       val m: Int    = lo + (hi - lo) / 2
       val cr: Array[Int]   = caseRange(m) // cr = [lo, hi, upper, lower, title]
       val crlo: Int = cr(0)
       val crhi: Int = cr(1)
-      if (crlo <= r && r <= crhi) {
+      if crlo <= r && r <= crhi then {
         val delta: Int = cr(2 + kase)
-        if (delta > MAX_RUNE) {
+        if delta > MAX_RUNE then {
           // In an Upper-Lower sequence, which always starts with
           // an UpperCase letter, the real deltas always look like:
           //      {0, 1, 0}    UpperCase (Lower is next)
@@ -157,7 +157,7 @@ object Unicode {
         }
         return r + delta
       }
-      if (r < crlo) {
+      if r < crlo then {
         hi = m
       } else {
         lo = m + 1
@@ -172,9 +172,9 @@ object Unicode {
 
   // toUpper maps the rune to upper case.
   def toUpper(r: Int): Int = {
-    if (r <= MAX_ASCII) {
+    if r <= MAX_ASCII then {
       var res: Int = r
-      if ('a' <= r && r <= 'z') {
+      if 'a' <= r && r <= 'z' then {
         res -= 'a' - 'A'
       }
       res
@@ -185,9 +185,9 @@ object Unicode {
 
   // toLower maps the rune to lower case.
   def toLower(r: Int): Int = {
-    if (r <= MAX_ASCII) {
+    if r <= MAX_ASCII then {
       var res: Int = r
-      if ('A' <= r && r <= 'Z') {
+      if 'A' <= r && r <= 'Z' then {
         res += 'a' - 'A'
       }
       res
@@ -217,16 +217,16 @@ object Unicode {
     // Consult caseOrbit table for special cases.
     var lo: Int = 0
     var hi: Int = UnicodeTables.CASE_ORBIT.length
-    while (lo < hi) {
+    while lo < hi do {
       val m: Int = lo + (hi - lo) / 2
-      if (UnicodeTables.CASE_ORBIT(m)(0) < r) {
+      if UnicodeTables.CASE_ORBIT(m)(0) < r then {
         lo = m + 1
       } else {
         hi = m
       }
     }
-    if (lo < UnicodeTables.CASE_ORBIT.length &&
-        UnicodeTables.CASE_ORBIT(lo)(0) == r) {
+    if lo < UnicodeTables.CASE_ORBIT.length &&
+        UnicodeTables.CASE_ORBIT(lo)(0) == r then {
       return UnicodeTables.CASE_ORBIT(lo)(1)
     }
 
@@ -234,7 +234,7 @@ object Unicode {
     // equivalence class containing rune and toLower(rune)
     // and toUpper(rune) if they are different from rune.
     val l: Int = toLower(r)
-    if (l != r) {
+    if l != r then {
       return l
     }
     return toUpper(r)

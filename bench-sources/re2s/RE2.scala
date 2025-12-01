@@ -21,7 +21,7 @@ package java.util.regex
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.List
-import java.util.regex.RE2._
+import java.util.regex.RE2.*
 
 /**
  * An RE2 class instance is a compiled representation of an RE2 regular
@@ -65,7 +65,7 @@ class RE2() {
   // machine cache if possible, to avoid unnecessary allocation.
   def get(): Machine = synchronized[Machine]({
     val n: Int = machine.size()
-    if (n > 0) {
+    if n > 0 then {
       return machine.remove(n - 1)
     }
     return new Machine(this)
@@ -95,7 +95,7 @@ class RE2() {
                         ncap: Int): Array[Int] = {
     val m: Machine = get()
     m.init(ncap)
-    val cap: Array[Int] = if (m.match_(in, pos, anchor)) m.submatches() else null
+    val cap: Array[Int] = if m.match_(in, pos, anchor) then m.submatches() else null
     put(m)
     cap
   }
@@ -128,7 +128,7 @@ class RE2() {
              anchor: Int,
              group: Array[Int],
              ngroup: Int): Boolean = {
-    if (start > end) {
+    if start > end then {
       return false
     }
 
@@ -137,11 +137,11 @@ class RE2() {
                                anchor,
                                2 * ngroup)
 
-    if (groupMatch == null) {
+    if groupMatch == null then {
       return false
     }
 
-    if (group != null) {
+    if group != null then {
       System.arraycopy(groupMatch, 0, group, 0, groupMatch.length)
     }
 
@@ -196,9 +196,9 @@ class RE2() {
     var numReplaces: Int  = 0
     var break: Boolean        = false
 
-    while (!break && searchPos <= src.length()) {
+    while !break && searchPos <= src.length() do {
       val a: Array[Int] = doExecute(input, searchPos, UNANCHORED, 2)
-      if (a == null || a.length == 0) {
+      if a == null || a.length == 0 then {
         break = true // no more matches
       } else {
         // Copy the unmatched characters before this match.
@@ -208,7 +208,7 @@ class RE2() {
         // match of the empty string immediately after another match.
         // (Otherwise, we get double replacement for patterns that
         // match both empty and nonempty strings.)
-        if (a(1) > lastMatchEnd || a(0) == 0) {
+        if a(1) > lastMatchEnd || a(0) == 0 then {
           buf.append(f(src.substring(a(0), a(1))))
           // Increment the replace count.
           numReplaces += 1
@@ -217,16 +217,16 @@ class RE2() {
 
         // Advance past this match always advance at least one character.
         val width: Int = input.step(searchPos) & 0x7
-        if (searchPos + width > a(1)) {
+        if searchPos + width > a(1) then {
           searchPos += width
-        } else if (searchPos + 1 > a(1)) {
+        } else if searchPos + 1 > a(1) then {
           // This clause is only needed at the end of the input
           // string.  In that case, DecodeRuneInString returns width=0.
           searchPos += 1
         } else {
           searchPos = a(1)
         }
-        if (numReplaces >= maxReplaces) {
+        if numReplaces >= maxReplaces then {
           // Should never be greater though.
           break = true
         }
@@ -246,11 +246,11 @@ class RE2() {
   // the result may alias a.
   private def pad(_a: Array[Int]): Array[Int] = {
     var a: Array[Int] = _a
-    if (a == null) {
+    if a == null then {
       return null // No match.
     }
     var n: Int = (1 + numSubexp) * 2
-    if (a.length < n) {
+    if a.length < n then {
       val a2: Array[Int] = new Array[Int](n)
       System.arraycopy(a, 0, a2, 0, a.length)
       Arrays.fill(a2, a.length, n, -1)
@@ -264,28 +264,28 @@ class RE2() {
       f: Array[Int] => Unit): Unit = {
     var n: Int   = _n
     val end: Int = input.endPos()
-    if (n < 0) {
+    if n < 0 then {
       n = end + 1
     }
     var pos: Int          = 0
     var i: Int            = 0
     var prevMatchEnd: Int = -1
     var break: Boolean        = false
-    while (!break && i < n && pos <= end) {
+    while !break && i < n && pos <= end do {
       val matches: Array[Int] = doExecute(input, pos, UNANCHORED, prog.numCap)
-      if (matches == null || matches.length == 0) {
+      if matches == null || matches.length == 0 then {
         break = true
       } else {
         var accept: Boolean = true
-        if (matches(1) == pos) {
+        if matches(1) == pos then {
           // We've found an empty match.
-          if (matches(0) == prevMatchEnd) {
+          if matches(0) == prevMatchEnd then {
             // We don't allow an empty match right
             // after a previous match, so ignore it.
             accept = false
           }
           val r: Int = input.step(pos)
-          if (r < 0) { // EOF
+          if r < 0 then { // EOF
             pos = end + 1
           } else {
             pos += r & 0x7
@@ -295,7 +295,7 @@ class RE2() {
         }
         prevMatchEnd = matches(1)
 
-        if (accept) {
+        if accept then {
           f(pad(matches))
           i += 1
         }
@@ -348,7 +348,7 @@ class RE2() {
   // This is visible for testing.
   def findUTF8(b: Array[Byte]): Array[Byte] = {
     val a: Array[Int] = doExecute(MachineInput.fromUTF8(b, 0, b.length), 0, UNANCHORED, 2)
-    if (a == null) {
+    if a == null then {
       return null
     }
     Utils.subarray_b(b, a(0), a(1))
@@ -364,7 +364,7 @@ class RE2() {
   // This is visible for testing.
   def findUTF8Index(b: Array[Byte]): Array[Int] = {
     val a: Array[Int] = doExecute(MachineInput.fromUTF8(b, 0, b.length), 0, UNANCHORED, 2)
-    if (a == null) {
+    if a == null then {
       return null
     }
     return Utils.subarray_i(a, 0, 2)
@@ -383,7 +383,7 @@ class RE2() {
   // This is visible for testing.
   def find(s: String): String = {
     val a: Array[Int] = doExecute(MachineInput.fromUTF16(s, 0, s.length()), 0, UNANCHORED, 2)
-    if (a == null) {
+    if a == null then {
       return ""
     }
     return s.substring(a(0), a(1))
@@ -399,7 +399,7 @@ class RE2() {
   // This is visible for testing.
   def findIndex(s: String): Array[Int] = {
     val a: Array[Int] = doExecute(MachineInput.fromUTF16(s, 0, s.length()), 0, UNANCHORED, 2)
-    if (a == null) {
+    if a == null then {
       return null
     }
     return a
@@ -416,13 +416,13 @@ class RE2() {
   // This is visible for testing.
   def findUTF8Submatch(b: Array[Byte]): Array[Array[Byte]] = {
     val a: Array[Int] = doExecute(MachineInput.fromUTF8(b, 0, b.length), 0, UNANCHORED, prog.numCap)
-    if (a == null) {
+    if a == null then {
       return null
     }
     val ret: Array[Array[Byte]] = new Array[Array[Byte]](1 + numSubexp)
     var i: Int   = 0
-    while (i < ret.length) {
-      if (2 * i < a.length && a(2 * i) >= 0) {
+    while i < ret.length do {
+      if 2 * i < a.length && a(2 * i) >= 0 then {
         ret(i) = Utils.subarray_b(b, a(2 * i), a(2 * i + 1))
       }
       i += 1
@@ -454,13 +454,13 @@ class RE2() {
   // This is visible for testing.
   def findSubmatch(s: String): Array[String] = {
     val a: Array[Int] = doExecute(MachineInput.fromUTF16(s, 0, s.length()), 0, UNANCHORED, prog.numCap)
-    if (a == null) {
+    if a == null then {
       return null
     }
     val ret: Array[String] = new Array[String](1 + numSubexp)
     var i: Int   = 0
-    while (i < ret.length) {
-      if (2 * i < a.length && a(2 * i) >= 0) {
+    while i < ret.length do {
+      if 2 * i < a.length && a(2 * i) >= 0 then {
         ret(i) = s.substring(a(2 * i), a(2 * i + 1))
       }
       i += 1
@@ -497,7 +497,7 @@ class RE2() {
     allMatches(MachineInput.fromUTF8(b, 0, b.length), n, (_match: Array[Int]) => {
       result.add(Utils.subarray_b(b, _match(0), _match(1)))
     })
-    if (result.isEmpty()) {
+    if result.isEmpty() then {
       return null
     }
     result
@@ -517,7 +517,7 @@ class RE2() {
     allMatches(MachineInput.fromUTF8(b, 0, b.length), n, (_match: Array[Int]) => {
       result.add(Utils.subarray_i(_match, 0, 2))
     })
-    if (result.isEmpty()) {
+    if result.isEmpty() then {
       return null
     }
     return result
@@ -537,7 +537,7 @@ class RE2() {
     allMatches(MachineInput.fromUTF16(s, 0, s.length()), n, (_match: Array[Int]) => {
       result.add(s.substring(_match(0), _match(1)))
     })
-    if (result.isEmpty()) {
+    if result.isEmpty() then {
       return null
     }
     return result
@@ -557,7 +557,7 @@ class RE2() {
     allMatches(MachineInput.fromUTF16(s, 0, s.length()), n, (_match: Array[Int]) => {
       result.add(Utils.subarray_i(_match, 0, 2))
     })
-    if (result.isEmpty()) {
+    if result.isEmpty() then {
       return null
     }
     return result
@@ -577,15 +577,15 @@ class RE2() {
     allMatches(MachineInput.fromUTF8(b, 0, b.length), n, (_match: Array[Int]) => {
       val slice: Array[Array[Byte]] = new Array[Array[Byte]](_match.length / 2)
       var j: Int     = 0
-      while (j < slice.length) {
-        if (_match(2 * j) >= 0) {
+      while j < slice.length do {
+        if _match(2 * j) >= 0 then {
           slice(j) = Utils.subarray_b(b, _match(2 * j), _match(2 * j + 1))
         }
         j += 1
       }
       result.add(slice)
     })
-    if (result.isEmpty()) {
+    if result.isEmpty() then {
       return null
     }
     return result
@@ -605,7 +605,7 @@ class RE2() {
     allMatches(MachineInput.fromUTF8(b, 0, b.length), n, (_match: Array[Int]) => {
       result.add(_match)
     })
-    if (result.isEmpty()) {
+    if result.isEmpty() then {
       return null
     }
     return result
@@ -625,15 +625,15 @@ class RE2() {
     allMatches(MachineInput.fromUTF16(s, 0, s.length()), n, (_match: Array[Int]) => {
       val slice: Array[String] = new Array[String](_match.length / 2)
       var j: Int     = 0
-      while (j < slice.length) {
-        if (_match(2 * j) >= 0) {
+      while j < slice.length do {
+        if _match(2 * j) >= 0 then {
           slice(j) = s.substring(_match(2 * j), _match(2 * j + 1))
         }
         j += 1
       }
       result.add(slice)
     })
-    if (result.isEmpty()) {
+    if result.isEmpty() then {
       return null
     }
     return result
@@ -653,7 +653,7 @@ class RE2() {
     allMatches(MachineInput.fromUTF16(s, 0, s.length()), n, (_match: Array[Int]) => {
       result.add(_match)
     })
-    if (result.isEmpty()) {
+    if result.isEmpty() then {
       return null
     }
     return result
@@ -771,7 +771,7 @@ object RE2 {
     re2.prefixComplete = prog.prefix(prefixBuilder)
     re2.prefix = prefixBuilder.toString()
     re2.prefixUTF8 = re2.prefix.getBytes("UTF-8")
-    if (!re2.prefix.isEmpty()) {
+    if !re2.prefix.isEmpty() then {
       re2.prefixRune = re2.prefix.codePointAt(0)
     }
     re2
@@ -799,9 +799,9 @@ object RE2 {
     // A char loop is correct because all metacharacters fit in one UTF-16 code.
     var i: Int   = 0
     var len: Int = s.length()
-    while (i < len) {
+    while i < len do {
       val c: Char = s.charAt(i)
-      if ("\\.+*?()|[]{}^$".indexOf(c) >= 0) {
+      if "\\.+*?()|[]{}^$".indexOf(c) >= 0 then {
         b.append('\\')
       }
       b.append(c)

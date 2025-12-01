@@ -14,12 +14,12 @@ trait YamlCodec[T] extends YamlDecoder[T] with YamlEncoder[T] { self =>
 
 object YamlCodec extends YamlCodecCompanionCrossCompat {
 
-  def apply[T](implicit self: YamlCodec[T]): YamlCodec[T] = self
+  def apply[T](using self: YamlCodec[T]): YamlCodec[T] = self
 
-  def make[A](implicit decoder: YamlDecoder[A], encoder: YamlEncoder[A]): YamlCodec[A] =
+  def make[A](using decoder: YamlDecoder[A], encoder: YamlEncoder[A]): YamlCodec[A] =
     new YamlCodec[A] {
 
-      override def construct(node: Node)(implicit
+      override def construct(node: Node)(using
           settings: LoadSettings
       ): Either[ConstructError, A] =
         decoder.construct(node)

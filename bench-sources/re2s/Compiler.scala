@@ -7,9 +7,9 @@
 
 package java.util.regex
 
-import java.util.regex.Compiler._
-import java.util.regex.Inst.{Op => IOP}
-import java.util.regex.Regexp.{Op => ROP}
+import java.util.regex.Compiler.*
+import java.util.regex.Inst.{Op as IOP}
+import java.util.regex.Regexp.{Op as ROP}
 
 /**
  * Compiler from {@code Regexp} (RE2 abstract syntax) to {@code RE2}
@@ -41,7 +41,7 @@ class Compiler private () {
     val f: Compiler.Frag = newInst(IOP.CAPTURE)
     f.out = f.i << 1
     prog.getInst(f.i).arg = arg
-    if (prog.numCap < arg + 1) {
+    if prog.numCap < arg + 1 then {
       prog.numCap = arg + 1
     }
     f
@@ -50,7 +50,7 @@ class Compiler private () {
   // Given fragments a and b, returns ab a|b
   private def cat(f1: Frag, f2: Frag): Frag = {
     // concat of failure is failure
-    if (f1.i == 0 || f2.i == 0) {
+    if f1.i == 0 || f2.i == 0 then {
       return fail()
     }
     prog.patch(f1.out, f2.i)
@@ -60,10 +60,10 @@ class Compiler private () {
   // Given fragments for a and b, returns fragment for a|b.
   private def alt(f1: Frag, f2: Frag): Frag = {
     // alt of failure is other
-    if (f1.i == 0) {
+    if f1.i == 0 then {
       return f2
     }
-    if (f2.i == 0) {
+    if f2.i == 0 then {
       return f1
     }
     val f: Compiler.Frag = newInst(IOP.ALT)
@@ -78,7 +78,7 @@ class Compiler private () {
   private def quest(f1: Frag, nongreedy: Boolean): Frag = {
     val f: Compiler.Frag = newInst(IOP.ALT)
     val i: Inst = prog.getInst(f.i)
-    if (nongreedy) {
+    if nongreedy then {
       i.arg = f1.i
       f.out = f.i << 1
     } else {
@@ -93,7 +93,7 @@ class Compiler private () {
   private def star(f1: Frag, nongreedy: Boolean): Frag = {
     val f: Compiler.Frag = newInst(IOP.ALT)
     val i: Inst = prog.getInst(f.i)
-    if (nongreedy) {
+    if nongreedy then {
       i.arg = f1.i
       f.out = f.i << 1
     } else {
@@ -123,25 +123,25 @@ class Compiler private () {
     val i: Inst     = prog.getInst(f.i)
     i.runes = runes
     flags &= RE2.FOLD_CASE // only relevant flag is FoldCase
-    if (runes.length != 1 || Unicode.simpleFold(runes(0)) == runes(0)) {
+    if runes.length != 1 || Unicode.simpleFold(runes(0)) == runes(0) then {
       flags &= ~RE2.FOLD_CASE // and sometimes not even that
     }
     i.arg = flags
     f.out = f.i << 1
     // Special cases for exec machine.
-    if ((flags & RE2.FOLD_CASE) == 0 && runes.length == 1 ||
+    if (flags & RE2.FOLD_CASE) == 0 && runes.length == 1 ||
         runes.length == 2 &&
-        runes(0) == runes(1)) {
+        runes(0) == runes(1) then {
       i.op = IOP.RUNE1
-    } else if (runes.length == 2 &&
+    } else if runes.length == 2 &&
                runes(0) == 0 &&
-               runes(1) == Unicode.MAX_RUNE) {
+               runes(1) == Unicode.MAX_RUNE then {
       i.op = IOP.RUNE_ANY
-    } else if (runes.length == 4 &&
+    } else if runes.length == 4 &&
                runes(0) == 0 &&
                runes(1) == '\n' - 1 &&
                runes(2) == '\n' + 1 &&
-               runes(3) == Unicode.MAX_RUNE) {
+               runes(3) == Unicode.MAX_RUNE then {
       i.op = IOP.RUNE_ANY_NOT_NL
     }
     f
@@ -154,16 +154,16 @@ class Compiler private () {
       case ROP.EMPTY_MATCH =>
         nop()
       case ROP.LITERAL =>
-        if (re.runes.length == 0) {
+        if re.runes.length == 0 then {
           nop()
         } else {
           val runes: Array[Int]   = re.runes
           var f: Frag = null
           var i: Int       = 0
-          while (i < runes.length) {
+          while i < runes.length do {
             val r: Int  = runes(i)
             val f1: Compiler.Frag = rune(Array[Int](r), re.flags)
-            f = if (f == null) f1 else cat(f, f1)
+            f = if f == null then f1 else cat(f, f1)
             i += 1
           }
           f
@@ -198,31 +198,31 @@ class Compiler private () {
       case ROP.QUEST =>
         quest(compile(re.subs(0)), (re.flags & RE2.NON_GREEDY) != 0)
       case ROP.CONCAT =>
-        if (re.subs.length == 0) {
+        if re.subs.length == 0 then {
           nop()
         } else {
           val subs: Array[Regexp]    = re.subs
           var f: Frag = null
           var i: Int       = 0
-          while (i < subs.length) {
+          while i < subs.length do {
             val sub: Regexp = subs(i)
             val f1: Compiler.Frag  = compile(sub)
-            f = if (f == null) f1 else cat(f, f1)
+            f = if f == null then f1 else cat(f, f1)
             i += 1
           }
           f
         }
       case ROP.ALTERNATE =>
-        if (re.subs.length == 0) {
+        if re.subs.length == 0 then {
           nop()
         } else {
           val subs: Array[Regexp]    = re.subs
           var f: Frag = null
           var i: Int       = 0
-          while (i < subs.length) {
+          while i < subs.length do {
             val sub: Regexp = subs(i)
             val f1: Compiler.Frag  = compile(sub)
-            f = if (f == null) f1 else alt(f, f1)
+            f = if f == null then f1 else alt(f, f1)
             i += 1
           }
           f

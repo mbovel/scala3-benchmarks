@@ -19,10 +19,10 @@ import java.io.Serializable
  */
 final class Pattern(val pattern: String, val flags: Int, val re2: RE2)
     extends Serializable() {
-  if (pattern == null) {
+  if pattern == null then {
     throw new NullPointerException("pattern is null")
   }
-  if (re2 == null) {
+  if re2 == null then {
     throw new NullPointerException("re2 is null")
   }
 
@@ -78,20 +78,20 @@ final class Pattern(val pattern: String, val flags: Int, val re2: RE2)
     var matchCount: Int = 0
     var arraySize: Int  = 0
     var last: Int       = 0
-    while (m.find_0()) {
+    while m.find_0() do {
       matchCount += 1
-      if (limit != 0 || last < m.start_0()) {
+      if limit != 0 || last < m.start_0() then {
         arraySize = matchCount
       }
       last = m.end_0()
     }
-    if (last < m.inputLength() || limit != 0) {
+    if last < m.inputLength() || limit != 0 then {
       matchCount += 1
       arraySize = matchCount
     }
 
     var trunc: Int = 0
-    if (limit > 0 && arraySize > limit) {
+    if limit > 0 && arraySize > limit then {
       arraySize = limit
       trunc = 1
     }
@@ -99,12 +99,12 @@ final class Pattern(val pattern: String, val flags: Int, val re2: RE2)
     var i: Int     = 0
     last = 0
     m.reset_0()
-    while (m.find_0() && i < arraySize - trunc) {
+    while m.find_0() && i < arraySize - trunc do {
       array(i) = m.substring(last, m.start_0())
       i += 1
       last = m.end_0()
     }
-    if (i < arraySize) {
+    if i < arraySize then {
       array(i) = m.substring(last, m.inputLength())
     }
     array
@@ -163,16 +163,16 @@ object Pattern {
    */
   def compile_2(regex: String, flags: Int): Pattern = {
     var flregex: String = regex
-    if ((flags & CASE_INSENSITIVE) != 0) {
+    if (flags & CASE_INSENSITIVE) != 0 then {
       flregex = "(?i)" + flregex
     }
-    if ((flags & DOTALL) != 0) {
+    if (flags & DOTALL) != 0 then {
       flregex = "(?s)" + flregex
     }
-    if ((flags & MULTILINE) != 0) {
+    if (flags & MULTILINE) != 0 then {
       flregex = "(?m)" + flregex
     }
-    if ((flags & ~(MULTILINE | DOTALL | CASE_INSENSITIVE | DISABLE_UNICODE_GROUPS)) != 0) {
+    if (flags & ~(MULTILINE | DOTALL | CASE_INSENSITIVE | DISABLE_UNICODE_GROUPS)) != 0 then {
       throw new IllegalArgumentException(
         "Flags should only be a combination " +
           "of MULTILINE, DOTALL, CASE_INSENSITIVE, DISABLE_UNICODE_GROUPS")
@@ -186,7 +186,7 @@ object Pattern {
    */
   private def compile_3(flregex: String, regex: String, flags: Int): Pattern = {
     var re2Flags: Int = RE2.PERL
-    if ((flags & DISABLE_UNICODE_GROUPS) != 0) {
+    if (flags & DISABLE_UNICODE_GROUPS) != 0 then {
       re2Flags &= ~RE2.UNICODE_GROUPS
     }
     new Pattern(regex,

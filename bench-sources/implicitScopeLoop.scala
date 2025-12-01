@@ -11,8 +11,8 @@ object B {
 }
 
 object Test {
-  def getB(implicit b: B) = b
-  def getA[T](implicit a: A[T]) = a
+  def getB(using b: B) = b
+  def getA[T](using a: A[T]) = a
 
   getB
   getA

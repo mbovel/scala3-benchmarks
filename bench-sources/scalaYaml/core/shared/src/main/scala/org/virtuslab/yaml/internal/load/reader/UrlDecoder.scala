@@ -20,7 +20,7 @@ object UrlDecoder {
     }
 
     var i = 0
-    while (i < len) {
+    while i < len do {
       s.charAt(i) match {
         case '+' =>
           charBuffer.append(' ')
@@ -35,11 +35,11 @@ object UrlDecoder {
           buffer.clear()
           decoder.reset()
 
-          while (i + 3 <= len && s.charAt(i) == '%') {
+          while i + 3 <= len && s.charAt(i) == '%' do {
             val c1 = Character.digit(s.charAt(i + 1), 16)
             val c2 = Character.digit(s.charAt(i + 2), 16)
 
-            if (c1 < 0 || c2 < 0)
+            if c1 < 0 || c2 < 0 then
               throwIllegalHex()
 
             buffer.put(((c1 << 4) + c2).toByte)
@@ -50,7 +50,7 @@ object UrlDecoder {
           val decodeResult = decoder.decode(buffer, charBuffer, true)
           val flushResult  = decoder.flush(charBuffer)
 
-          if (decodeResult.isError() || flushResult.isError())
+          if decodeResult.isError() || flushResult.isError() then
             throwIllegalHex()
 
         case c =>

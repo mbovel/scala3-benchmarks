@@ -17,13 +17,13 @@ object Utils {
 
   // If |c| is an ASCII hex digit, returns its value, otherwise -1.
   def unhex(c: Int): Int = {
-    if ('0' <= c && c <= '9') {
+    if '0' <= c && c <= '9' then {
       return c - '0'
     }
-    if ('a' <= c && c <= 'f') {
+    if 'a' <= c && c <= 'f' then {
       return c - 'a' + 10
     }
-    if ('A' <= c && c <= 'F') {
+    if 'A' <= c && c <= 'F' then {
       return c - 'A' + 10
     }
     return -1
@@ -34,8 +34,8 @@ object Utils {
   // Appends a RE2 literal to |out| for rune |rune|,
   // with regexp metacharacters escaped.
   def escapeRune(out: java.lang.StringBuilder, rune: Int): Unit = {
-    if (Unicode.isPrint(rune)) {
-      if (METACHARACTERS.indexOf(rune.toChar) >= 0) {
+    if Unicode.isPrint(rune) then {
+      if METACHARACTERS.indexOf(rune.toChar) >= 0 then {
         out.append('\\')
       }
       out.appendCodePoint(rune)
@@ -59,9 +59,9 @@ object Utils {
         out.append("\\f")
       case _ =>
         val s: String = Integer.toHexString(rune)
-        if (rune < 0x100) {
+        if rune < 0x100 then {
           out.append("\\x")
-          if (s.length() == 1) {
+          if s.length() == 1 then {
             out.append('0')
           }
           out.append(s)
@@ -78,7 +78,7 @@ object Utils {
     val runes: Array[Int]   = new Array[Int](runelen)
     var r: Int       = 0
     var c: Int       = 0
-    while (c < charlen) {
+    while c < charlen do {
       val rune: Int = str.codePointAt(c)
       runes(r) = rune
       r += 1
@@ -90,7 +90,7 @@ object Utils {
   // Returns the Java UTF-16 string containing the single rune |r|.
   def runeToString(r: Int): String = {
     val c: Char = r.toChar
-    if (r == c) {
+    if r == c then {
       String.valueOf(c)
     } else {
       new String(Character.toChars(c))
@@ -101,7 +101,7 @@ object Utils {
   def subarray_i(array: Array[Int], start: Int, end: Int): Array[Int] = {
     val r: Array[Int] = new Array[Int](end - start)
     var i: Int = start
-    while (i < end) {
+    while i < end do {
       r(i - start) = array(i)
       i += 1
     }
@@ -112,7 +112,7 @@ object Utils {
   def subarray_b(array: Array[Byte], start: Int, end: Int): Array[Byte] = {
     val r: Array[Byte] = new Array[Byte](end - start)
     var i: Int = start
-    while (i < end) {
+    while i < end do {
       r(i - start) = array(i)
       i += 1
     }
@@ -123,33 +123,33 @@ object Utils {
   // array |source| after |fromIndex|, or -1 if not found.
   def indexOf(source: Array[Byte], target: Array[Byte], _fromIndex: Int): Int = {
     var fromIndex: Int = _fromIndex
-    if (fromIndex >= source.length) {
-      return (if (target.length == 0) source.length else -1)
+    if fromIndex >= source.length then {
+      return (if target.length == 0 then source.length else -1)
     }
-    if (fromIndex < 0) {
+    if fromIndex < 0 then {
       fromIndex = 0
     }
-    if (target.length == 0) {
+    if target.length == 0 then {
       return fromIndex
     }
 
     val first: Byte = target(0)
     val max: Int   = source.length - target.length
     var i: Int     = fromIndex
-    while (i <= max) {
+    while i <= max do {
       // Look for first byte.
-      if (source(i) != first) {
-        while ({ i += 1; i } <= max && source(i) != first) {}
+      if source(i) != first then {
+        while { i += 1; i } <= max && source(i) != first do {}
       }
 
       // Found first byte, now look at the rest of v2.
-      if (i <= max) {
+      if i <= max then {
         var j: Int   = i + 1
         val end: Int = j + target.length - 1
         var k: Int   = 1
-        while (j < end && source(j) == target(k)) { j += 1; k += 1 }
+        while j < end && source(j) == target(k) do { j += 1; k += 1 }
 
-        if (j == end) {
+        if j == end then {
           return i // found whole array
         }
       }
@@ -185,19 +185,19 @@ object Utils {
   // Passing r2 == -1 indicates that the position is at the end of the text.
   final def emptyOpContext(r1: Int, r2: Int): Int = {
     var op: Int = 0
-    if (r1 < 0) {
+    if r1 < 0 then {
       op |= EMPTY_BEGIN_TEXT | EMPTY_BEGIN_LINE
     }
-    if (r1 == '\n') {
+    if r1 == '\n' then {
       op |= EMPTY_BEGIN_LINE
     }
-    if (r2 < 0) {
+    if r2 < 0 then {
       op |= EMPTY_END_TEXT | EMPTY_END_LINE
     }
-    if (r2 == '\n') {
+    if r2 == '\n' then {
       op |= EMPTY_END_LINE
     }
-    if (isWordRune(r1) != isWordRune(r2)) {
+    if isWordRune(r1) != isWordRune(r2) then {
       op |= EMPTY_WORD_BOUNDARY
     } else {
       op |= EMPTY_NO_WORD_BOUNDARY

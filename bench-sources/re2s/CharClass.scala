@@ -7,7 +7,7 @@
 
 package java.util.regex
 
-import java.util.regex.CharClass._
+import java.util.regex.CharClass.*
 
 /**
  * A "builder"-style helper class for manipulating character classes
@@ -25,9 +25,9 @@ class CharClass(private var r: Array[Int]) {
   // After a call to ensureCapacity(), |r.length| is at least |newLen|.
   private def ensureCapacity(_newLen: Int): Unit = {
     var newLen: Int = _newLen
-    if (r.length < newLen) {
+    if r.length < newLen then {
       // Expand by at least doubling, except when len == 0.
-      if (newLen < len * 2) {
+      if newLen < len * 2 then {
         newLen = len * 2
       }
       val r2: Array[Int] = new Array[Int](newLen)
@@ -40,7 +40,7 @@ class CharClass(private var r: Array[Int]) {
   // operations may mutate this array, so typically this is the last operation
   // performed on a given CharClass instance.
   def toArray(): Array[Int] = {
-    if (this.len == r.length) {
+    if this.len == r.length then {
       r
     } else {
       val r2: Array[Int] = new Array[Int](len)
@@ -52,7 +52,7 @@ class CharClass(private var r: Array[Int]) {
   // cleanClass() sorts the ranges (pairs of elements) of this CharClass,
   // merges them, and eliminates duplicates.
   def cleanClass(): CharClass = {
-    if (len < 4) {
+    if len < 4 then {
       return this
     }
 
@@ -62,12 +62,12 @@ class CharClass(private var r: Array[Int]) {
     // Merge abutting, overlapping.
     var w: Int = 2 // write index
     var i: Int = 2
-    while (i < len) {
+    while i < len do {
       val lo: Int = r(i)
       val hi: Int = r(i + 1)
-      if (lo <= r(w - 1) + 1) {
+      if lo <= r(w - 1) + 1 then {
         // merge with previous range
-        if (hi > r(w - 1)) {
+        if hi > r(w - 1) then {
           r(w - 1) = hi
         }
       } else {
@@ -85,7 +85,7 @@ class CharClass(private var r: Array[Int]) {
 
   // appendLiteral() appends the literal |x| to this CharClass.
   def appendLiteral(x: Int, flags: Int): CharClass = {
-    if ((flags & RE2.FOLD_CASE) != 0) {
+    if (flags & RE2.FOLD_CASE) != 0 then {
       appendFoldedRange(x, x)
     } else {
       appendRange(x, x)
@@ -98,17 +98,17 @@ class CharClass(private var r: Array[Int]) {
     // Checking two ranges helps when appending case-folded
     // alphabets, so that one range can be expanding A-Z and the
     // other expanding a-z.
-    if (len > 0) {
+    if len > 0 then {
       var i: Int = 2
-      while (i <= 4) {
-        if (len >= i) {
+      while i <= 4 do {
+        if len >= i then {
           val rlo: Int = r(len - i)
           val rhi: Int = r(len - i + 1)
-          if (lo <= rhi + 1 && rlo <= hi + 1) {
-            if (lo < rlo) {
+          if lo <= rhi + 1 && rlo <= hi + 1 then {
+            if lo < rlo then {
               r(len - i) = lo
             }
-            if (hi > rhi) {
+            if hi > rhi then {
               r(len - i + 1) = hi
             }
             return this
@@ -135,20 +135,20 @@ class CharClass(private var r: Array[Int]) {
     var hi: Int = _hi
 
     // Optimizations.
-    if (lo <= Unicode.MIN_FOLD && hi >= Unicode.MAX_FOLD) {
+    if lo <= Unicode.MIN_FOLD && hi >= Unicode.MAX_FOLD then {
       // Range is full: folding can't add more.
       return appendRange(lo, hi)
     }
-    if (hi < Unicode.MIN_FOLD || lo > Unicode.MAX_FOLD) {
+    if hi < Unicode.MIN_FOLD || lo > Unicode.MAX_FOLD then {
       // Range is outside folding possibilities.
       return appendRange(lo, hi)
     }
-    if (lo < Unicode.MIN_FOLD) {
+    if lo < Unicode.MIN_FOLD then {
       // [lo, minFold-1] needs no folding.
       appendRange(lo, Unicode.MIN_FOLD - 1)
       lo = Unicode.MIN_FOLD
     }
-    if (hi > Unicode.MAX_FOLD) {
+    if hi > Unicode.MAX_FOLD then {
       // [maxFold+1, hi] needs no folding.
       appendRange(Unicode.MAX_FOLD + 1, hi)
       hi = Unicode.MAX_FOLD
@@ -156,10 +156,10 @@ class CharClass(private var r: Array[Int]) {
 
     // Brute force.  Depend on appendRange to coalesce ranges on the fly.
     var c: Int = lo
-    while (c <= hi) {
+    while c <= hi do {
       appendRange(c, c)
       var f: Int = Unicode.simpleFold(c)
-      while (f != c) {
+      while f != c do {
         appendRange(f, f)
         f = Unicode.simpleFold(f)
       }
@@ -173,7 +173,7 @@ class CharClass(private var r: Array[Int]) {
   // It assumes |x| is clean.  Does not mutate |x|.
   def appendClass(x: Array[Int]): CharClass = {
     var i: Int = 0
-    while (i < x.length) {
+    while i < x.length do {
       appendRange(x(i), x(i + 1))
       i += 2
     }
@@ -185,7 +185,7 @@ class CharClass(private var r: Array[Int]) {
   // CharClass.  Does not mutate |x|.
   def appendFoldedClass(x: Array[Int]): CharClass = {
     var i: Int = 0
-    while (i < x.length) {
+    while i < x.length do {
       appendFoldedRange(x(i), x(i + 1))
       i += 2
     }
@@ -198,16 +198,16 @@ class CharClass(private var r: Array[Int]) {
   def appendNegatedClass(x: Array[Int]): CharClass = {
     var nextLo: Int = 0
     var i: Int      = 0
-    while (i < x.length) {
+    while i < x.length do {
       val lo: Int = x(i)
       val hi: Int = x(i + 1)
-      if (nextLo <= lo - 1) {
+      if nextLo <= lo - 1 then {
         appendRange(nextLo, lo - 1)
       }
       nextLo = hi + 1
       i += 2
     }
-    if (nextLo <= Unicode.MAX_RUNE) {
+    if nextLo <= Unicode.MAX_RUNE then {
       appendRange(nextLo, Unicode.MAX_RUNE)
     }
 
@@ -218,16 +218,16 @@ class CharClass(private var r: Array[Int]) {
   // Does not mutate |table|.
   def appendTable(table: Array[Array[Int]]): CharClass = {
     var i: Int = 0
-    while (i <= table.length) {
+    while i <= table.length do {
       val triple: Array[Int] = table(i)
       val lo: Int     = triple(0)
       val hi: Int     = triple(1)
       val stride: Int = triple(2)
-      if (stride == 1) {
+      if stride == 1 then {
         appendRange(lo, hi)
       } else {
         var c: Int = lo
-        while (c <= hi) {
+        while c <= hi do {
           appendRange(c, c)
           c += stride
         }
@@ -243,20 +243,20 @@ class CharClass(private var r: Array[Int]) {
   def appendNegatedTable(table: Array[Array[Int]]): CharClass = {
     var nextLo: Int = 0 // lo end of next class to add
     var i: Int      = 0
-    while (i <= table.length) {
+    while i <= table.length do {
       val triple: Array[Int] = table(i)
       val lo: Int     = triple(0)
       val hi: Int     = triple(1)
       val stride: Int = triple(2)
-      if (stride == 1) {
-        if (nextLo <= lo - 1) {
+      if stride == 1 then {
+        if nextLo <= lo - 1 then {
           appendRange(nextLo, lo - 1)
         }
         nextLo = hi + 1
       } else {
         var c: Int = lo
-        while (c <= hi) {
-          if (nextLo <= c - 1) {
+        while c <= hi do {
+          if nextLo <= c - 1 then {
             appendRange(nextLo, c - 1)
           }
           nextLo = c + 1
@@ -265,7 +265,7 @@ class CharClass(private var r: Array[Int]) {
       }
       i += 1
     }
-    if (nextLo <= Unicode.MAX_RUNE) {
+    if nextLo <= Unicode.MAX_RUNE then {
       appendRange(nextLo, Unicode.MAX_RUNE)
     }
 
@@ -275,7 +275,7 @@ class CharClass(private var r: Array[Int]) {
   // appendTableWithSign() calls append{,Negated}Table depending on sign.
   // Does not mutate |table|.
   def appendTableWithSign(table: Array[Array[Int]], sign: Int): CharClass = {
-    if (sign < 0) {
+    if sign < 0 then {
       appendNegatedTable(table)
     } else {
       appendTable(table)
@@ -287,10 +287,10 @@ class CharClass(private var r: Array[Int]) {
     var nextLo: Int = 0 // lo end of next class to add
     var w: Int      = 0 // write index
     var i: Int      = 0
-    while (i < len) {
+    while i < len do {
       val lo: Int = r(i)
       val hi: Int = r(i + 1)
-      if (nextLo <= lo - 1) {
+      if nextLo <= lo - 1 then {
         r(w) = nextLo
         r(w + 1) = lo - 1
         w += 2
@@ -300,7 +300,7 @@ class CharClass(private var r: Array[Int]) {
     }
     len = w
 
-    if (nextLo <= Unicode.MAX_RUNE) {
+    if nextLo <= Unicode.MAX_RUNE then {
       // It's possible for the negation to have one more
       // range - this one - than the original class, so use append.
       ensureCapacity(len + 2)
@@ -316,7 +316,7 @@ class CharClass(private var r: Array[Int]) {
   // appendClassWithSign() calls appendClass() if sign is +1 or
   // appendNegatedClass if sign is -1.  Does not mutate |x|.
   def appendClassWithSign(x: Array[Int], sign: Int): CharClass = {
-    if (sign < 0) {
+    if sign < 0 then {
       appendNegatedClass(x)
     } else {
       appendClass(x)
@@ -327,7 +327,7 @@ class CharClass(private var r: Array[Int]) {
   // |foldCase|.  Does not mutate |g|.
   def appendGroup(g: CharGroup, foldCase: Boolean): CharClass = {
     var cls: Array[Int] = g.cls
-    if (foldCase) {
+    if foldCase then {
       cls = new CharClass(Utils.EMPTY_INTS).appendFoldedClass(cls).cleanClass().toArray()
     }
 
@@ -349,7 +349,7 @@ object CharClass {
                           pivotTo: Int): Int = {
     val cmp: Int = array(i) - pivotFrom
 
-    if (cmp != 0) cmp else pivotTo - array(i + 1)
+    if cmp != 0 then cmp else pivotTo - array(i + 1)
   }
 
   // qsortIntPair() quicksorts pairs of ints in |array| according to lt().
@@ -361,15 +361,15 @@ object CharClass {
     var i: Int          = left
     var j: Int          = right
 
-    while (i <= j) {
-      while (i < right && cmp(array, i, pivotFrom, pivotTo) < 0) {
+    while i <= j do {
+      while i < right && cmp(array, i, pivotFrom, pivotTo) < 0 do {
         i += 2
       }
-      while (j > left && cmp(array, j, pivotFrom, pivotTo) > 0) {
+      while j > left && cmp(array, j, pivotFrom, pivotTo) > 0 do {
         j -= 2
       }
-      if (i <= j) {
-        if (i != j) {
+      if i <= j then {
+        if i != j then {
           var temp: Int = array(i)
           array(i) = array(j)
           array(j) = temp
@@ -381,10 +381,10 @@ object CharClass {
         j -= 2
       }
     }
-    if (left < j) {
+    if left < j then {
       qsortIntPair(array, left, j)
     }
-    if (i < right) {
+    if i < right then {
       qsortIntPair(array, i, right)
     }
   }
@@ -394,15 +394,15 @@ object CharClass {
     val b: java.lang.StringBuilder = new java.lang.StringBuilder()
     b.append('[')
     var i: Int = 0
-    while (i < len) {
-      if (i > 0) {
+    while i < len do {
+      if i > 0 then {
         b.append(' ')
       }
       val lo: Int = r(i)
       val hi: Int = r(i + 1)
       // Avoid String.format (not available on GWT).
       // Cf. https://code.google.com/p/google-web-toolkit/issues/detail?id=3945
-      if (lo == hi) {
+      if lo == hi then {
         b.append("0x")
         b.append(Integer.toHexString(lo))
       } else {

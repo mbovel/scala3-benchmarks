@@ -13,7 +13,7 @@
 package scala
 package util.parsing.input
 
-import java.io.{File, FileReader, Reader => JReader}
+import java.io.{File, FileReader, Reader as JReader}
 import scala.reflect.ClassTag
 
 /** The `PagedSeq` object defines a lazy implementations of
@@ -29,11 +29,11 @@ object PagedSeq {
   def fromIterator[T: ClassTag](source: Iterator[T]): PagedSeq[T] =
     new PagedSeq[T]((data: Array[T], start: Int, len: Int) => {
       var i = 0
-      while (i < len && source.hasNext) {
+      while i < len && source.hasNext do {
         data(start + i) = source.next()
         i += 1
       }
-      if (i == 0) -1 else i
+      if i == 0 then -1 else i
     })
 
   /** Constructs a paged sequence from an iterable */
@@ -55,7 +55,7 @@ object PagedSeq {
   def fromLines(source: Iterator[String]): PagedSeq[Char] = {
     var isFirst = true
     fromStrings(source map { line =>
-      if (isFirst) {
+      if isFirst then {
         isFirst = false
         line
       } else "\n"+line
@@ -91,7 +91,7 @@ object PagedSeq {
 }
 
 
-import PagedSeq._
+import PagedSeq.*
 
 /** An implementation of lazily computed sequences, where elements are stored
  *  in "pages", i.e. arrays of fixed size.
@@ -128,11 +128,11 @@ extends scala.collection.AbstractSeq[T]
   private def addMore() = latest.addMore(more)
 
   private def page(absindex: Int) = {
-    if (absindex < current.start)
+    if absindex < current.start then
       current = first1
-    while (absindex >= current.end && current.next != null)
+    while absindex >= current.end && current.next != null do
       current = current.next
-    while (absindex >= current.end && !current.isLast) {
+    while absindex >= current.end && !current.isLast do {
       current = addMore()
     }
     current
@@ -142,14 +142,14 @@ extends scala.collection.AbstractSeq[T]
    *  @note Calling this method will force the entire sequence to be read.
    */
   def length: Int = {
-    while (!latest.isLast && latest.end < end) addMore()
+    while !latest.isLast && latest.end < end do addMore()
     (latest.end min end) - start
   }
 
   /** The element at position `index`.
    */
   def apply(index: Int) =
-    if (isDefinedAt(index)) page(index + start)(index + start)
+    if isDefinedAt(index) then page(index + start)(index + start)
     else throw new IndexOutOfBoundsException(index.toString)
 
   /** Predicate method to check if an element is defined
@@ -171,10 +171,10 @@ extends scala.collection.AbstractSeq[T]
   override def slice(_start: Int, _end: Int): PagedSeq[T] = {
     page(start)
     val s = start + _start
-    val e = if (_end == UndeterminedEnd) _end else start + _end
+    val e = if _end == UndeterminedEnd then _end else start + _end
     var f = first1
-    while (f.end <= s && !f.isLast) {
-      if (f.next eq null) f = f.addMore(more)
+    while f.end <= s && !f.isLast do {
+      if f.next eq null then f = f.addMore(more)
       else f = f.next
     }
     // Warning -- not refining `more` means that slices can freely request and obtain
@@ -191,7 +191,7 @@ extends scala.collection.AbstractSeq[T]
   /** Convert sequence to string */
   override def toString = {
     val buf = new StringBuilder
-    for (ch <- PagedSeq.this.iterator) buf append ch
+    for ch <- PagedSeq.this.iterator do buf append ch
     buf.toString
   }
 }
@@ -230,8 +230,8 @@ private class Page[T: ClassTag](val num: Int) {
    *  elements get appended to the sequence.  */
   final def latest: Page[T] = {
     var oldLater = later
-    while (later.next != null) later = later.next
-    while (oldLater.next != null) {
+    while later.next != null do later = later.next
+    while oldLater.next != null do {
       oldLater = oldLater.next
       oldLater.later = later
     }
@@ -241,7 +241,7 @@ private class Page[T: ClassTag](val num: Int) {
   /** The element at the given sequence index.
    *  That index is relative to the whole sequence, not the page. */
   def apply(index: Int) = {
-    if (index < start || index - start >= filled) throw new IndexOutOfBoundsException(index.toString)
+    if index < start || index - start >= filled then throw new IndexOutOfBoundsException(index.toString)
     data(index - start)
   }
 
@@ -249,12 +249,12 @@ private class Page[T: ClassTag](val num: Int) {
    *  or fills a subsequent page if current page is full.
    *  @note If current page is full, it is the last one in the sequence.  */
   final def addMore(more: (Array[T], Int, Int) => Int): Page[T] =
-    if (filled == PageSize) {
+    if filled == PageSize then {
       next = new Page[T](num + 1)
       next.addMore(more)
     } else {
       val count = more(data, filled, PageSize - filled)
-      if (count < 0) isLast = true
+      if count < 0 then isLast = true
       else filled += count
       this
     }

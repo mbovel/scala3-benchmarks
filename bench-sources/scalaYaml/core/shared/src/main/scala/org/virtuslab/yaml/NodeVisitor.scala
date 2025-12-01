@@ -1,12 +1,12 @@
 package org.virtuslab.yaml
 
 import org.virtuslab.yaml.Node
-import org.virtuslab.yaml.Node._
+import org.virtuslab.yaml.Node.*
 import org.virtuslab.yaml.Range
 import org.virtuslab.yaml.ModifyError
 import org.virtuslab.yaml.YamlError
 import org.virtuslab.yaml.syntax.NodeSelector
-import org.virtuslab.yaml.syntax.NodeSelector._
+import org.virtuslab.yaml.syntax.NodeSelector.*
 
 class NodeVisitor(node: Node, selectors: List[NodeSelector]) {
   def apply(index: Int): NodeVisitor =
@@ -74,7 +74,7 @@ class NodeVisitor(node: Node, selectors: List[NodeSelector]) {
   ): Either[ModifyError, SequenceNode] =
     selectors match {
       case IntSelector(index) :: rest =>
-        if (rest.isEmpty) {
+        if rest.isEmpty then {
           Right(
             sequence.copy(
               nodes = sequence.nodes.patch(index, Nil, 1)
@@ -131,7 +131,7 @@ class NodeVisitor(node: Node, selectors: List[NodeSelector]) {
   private def removeMappingNode(mapping: MappingNode) =
     selectors match {
       case StringSelector(field) :: rest =>
-        if (rest.isEmpty) {
+        if rest.isEmpty then {
           Right(
             mapping.copy(
               mappings = mapping.mappings.filter {

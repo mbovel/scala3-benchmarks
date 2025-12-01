@@ -47,17 +47,17 @@ object SimpleIdentityMap {
   class Map1[K <: AnyRef, +V <: AnyRef] (k1: K, v1: V) extends SimpleIdentityMap[K, V] {
     def size: Int = 1
     def apply(k: K): V | Null =
-      if (k eq k1) v1
+      if k eq k1 then v1
       else null
     def remove(k: K): SimpleIdentityMap[K, V] =
-      if (k eq k1) empty
+      if k eq k1 then empty
       else this
     def updated[V1 >: V <: AnyRef](k: K, v: V1): SimpleIdentityMap[K, V1] =
-      if (k eq k1) new Map1(k, v)
+      if k eq k1 then new Map1(k, v)
       else new Map2(k1, v1, k, v)
     def mapValuesNow[V1 >: V <: AnyRef](f: (K, V1) => V1): SimpleIdentityMap[K, V1] = {
       val w1 = f(k1, v1)
-      if (v1 eq w1) this else new Map1(k1, w1)
+      if v1 eq w1 then this else new Map1(k1, w1)
     }
     def foreachBinding(f: (K, V) => Unit): Unit = f(k1, v1)
     def forallBinding(f: (K, V) => Boolean): Boolean = f(k1, v1)
@@ -66,20 +66,20 @@ object SimpleIdentityMap {
   class Map2[K <: AnyRef, +V <: AnyRef] (k1: K, v1: V, k2: K, v2: V) extends SimpleIdentityMap[K, V] {
     def size: Int = 2
     def apply(k: K): V | Null =
-      if (k eq k1) v1
-      else if (k eq k2) v2
+      if k eq k1 then v1
+      else if k eq k2 then v2
       else null
     def remove(k: K): SimpleIdentityMap[K, V] =
-      if (k eq k1) new Map1(k2, v2)
-      else if (k eq k2) new Map1(k1, v1)
+      if k eq k1 then new Map1(k2, v2)
+      else if k eq k2 then new Map1(k1, v1)
       else this
     def updated[V1 >: V <: AnyRef](k: K, v: V1): SimpleIdentityMap[K, V1] =
-      if (k eq k1) new Map2(k, v, k2, v2)
-      else if (k eq k2) new Map2(k1, v1, k, v)
+      if k eq k1 then new Map2(k, v, k2, v2)
+      else if k eq k2 then new Map2(k1, v1, k, v)
       else new Map3(k1, v1, k2, v2, k, v)
     def mapValuesNow[V1 >: V <: AnyRef](f: (K, V1) => V1): SimpleIdentityMap[K, V1] = {
       val w1 = f(k1, v1); val w2 = f(k2, v2)
-      if ((v1 eq w1) && (v2 eq w2)) this
+      if (v1 eq w1) && (v2 eq w2) then this
       else new Map2(k1, w1, k2, w2)
     }
     def foreachBinding(f: (K, V) => Unit): Unit = { f(k1, v1); f(k2, v2) }
@@ -89,23 +89,23 @@ object SimpleIdentityMap {
   class Map3[K <: AnyRef, +V <: AnyRef] (k1: K, v1: V, k2: K, v2: V, k3: K, v3: V) extends SimpleIdentityMap[K, V] {
     def size: Int = 3
     def apply(k: K): V | Null =
-      if (k eq k1) v1
-      else if (k eq k2) v2
-      else if (k eq k3) v3
+      if k eq k1 then v1
+      else if k eq k2 then v2
+      else if k eq k3 then v3
       else null
     def remove(k: K): SimpleIdentityMap[K, V] =
-      if (k eq k1) new Map2(k2, v2, k3, v3)
-      else if (k eq k2) new Map2(k1, v1, k3, v3)
-      else if (k eq k3) new Map2(k1, v1, k2, v2)
+      if k eq k1 then new Map2(k2, v2, k3, v3)
+      else if k eq k2 then new Map2(k1, v1, k3, v3)
+      else if k eq k3 then new Map2(k1, v1, k2, v2)
       else this
     def updated[V1 >: V <: AnyRef](k: K, v: V1): SimpleIdentityMap[K, V1] =
-      if (k eq k1) new Map3(k, v, k2, v2, k3, v3)
-      else if (k eq k2) new Map3(k1, v1, k, v, k3, v3)
-      else if (k eq k3) new Map3(k1, v1, k2, v2, k, v)
+      if k eq k1 then new Map3(k, v, k2, v2, k3, v3)
+      else if k eq k2 then new Map3(k1, v1, k, v, k3, v3)
+      else if k eq k3 then new Map3(k1, v1, k2, v2, k, v)
       else new Map4(k1, v1, k2, v2, k3, v3, k, v)
     def mapValuesNow[V1 >: V <: AnyRef](f: (K, V1) => V1): SimpleIdentityMap[K, V1] = {
       val w1 = f(k1, v1); val w2 = f(k2, v2); val w3 = f(k3, v3)
-      if ((v1 eq w1) && (v2 eq w2) && (v3 eq w3)) this
+      if (v1 eq w1) && (v2 eq w2) && (v3 eq w3) then this
       else new Map3(k1, w1, k2, w2, k3, w3)
     }
     def foreachBinding(f: (K, V) => Unit): Unit = { f(k1, v1); f(k2, v2); f(k3, v3) }
@@ -115,26 +115,26 @@ object SimpleIdentityMap {
   class Map4[K <: AnyRef, +V <: AnyRef] (k1: K, v1: V, k2: K, v2: V, k3: K, v3: V, k4: K, v4: V) extends SimpleIdentityMap[K, V] {
     def size: Int = 4
     def apply(k: K): V | Null =
-      if (k eq k1) v1
-      else if (k eq k2) v2
-      else if (k eq k3) v3
-      else if (k eq k4) v4
+      if k eq k1 then v1
+      else if k eq k2 then v2
+      else if k eq k3 then v3
+      else if k eq k4 then v4
       else null
     def remove(k: K): SimpleIdentityMap[K, V] =
-      if (k eq k1) new Map3(k2, v2, k3, v3, k4, v4)
-      else if (k eq k2) new Map3(k1, v1, k3, v3, k4, v4)
-      else if (k eq k3) new Map3(k1, v1, k2, v2, k4, v4)
-      else if (k eq k4) new Map3(k1, v1, k2, v2, k3, v3)
+      if k eq k1 then new Map3(k2, v2, k3, v3, k4, v4)
+      else if k eq k2 then new Map3(k1, v1, k3, v3, k4, v4)
+      else if k eq k3 then new Map3(k1, v1, k2, v2, k4, v4)
+      else if k eq k4 then new Map3(k1, v1, k2, v2, k3, v3)
       else this
     def updated[V1 >: V <: AnyRef](k: K, v: V1): SimpleIdentityMap[K, V1] =
-      if (k eq k1) new Map4(k, v, k2, v2, k3, v3, k4, v4)
-      else if (k eq k2) new Map4(k1, v1, k, v, k3, v3, k4, v4)
-      else if (k eq k3) new Map4(k1, v1, k2, v2, k, v, k4, v4)
-      else if (k eq k4) new Map4(k1, v1, k2, v2, k3, v3, k, v)
+      if k eq k1 then new Map4(k, v, k2, v2, k3, v3, k4, v4)
+      else if k eq k2 then new Map4(k1, v1, k, v, k3, v3, k4, v4)
+      else if k eq k3 then new Map4(k1, v1, k2, v2, k, v, k4, v4)
+      else if k eq k4 then new Map4(k1, v1, k2, v2, k3, v3, k, v)
       else new MapMore(Array[AnyRef](k1, v1, k2, v2, k3, v3, k4, v4, k, v))
     def mapValuesNow[V1 >: V <: AnyRef](f: (K, V1) => V1): SimpleIdentityMap[K, V1] = {
       val w1 = f(k1, v1); val w2 = f(k2, v2); val w3 = f(k3, v3); val w4 = f(k4, v4)
-      if ((v1 eq w1) && (v2 eq w2) && (v3 eq w3) && (v4 eq w4)) this
+      if (v1 eq w1) && (v2 eq w2) && (v3 eq w3) && (v4 eq w4) then this
       else new Map4(k1, w1, k2, w2, k3, w3, k4, w4)
     }
     def foreachBinding(f: (K, V) => Unit): Unit = { f(k1, v1); f(k2, v2); f(k3, v3); f(k4, v4) }
@@ -150,8 +150,8 @@ object SimpleIdentityMap {
 
     def apply(k: K): V | Null = {
       var i = 0
-      while (i < bindings.length) {
-        if (bindings(i) eq k) return value(i)
+      while i < bindings.length do {
+        if bindings(i) eq k then return value(i)
         i += 2
       }
       null
@@ -159,13 +159,13 @@ object SimpleIdentityMap {
 
     def remove(k: K): SimpleIdentityMap[K, V] = {
       var i = 0
-      while (i < bindings.length) {
-        if (bindings(i) eq k)
+      while i < bindings.length do {
+        if bindings(i) eq k then
           return {
-            if (size == CompactifyThreshold) {
+            if size == CompactifyThreshold then {
               var m: SimpleIdentityMap[K, V] = empty[K]
-              for (j <- 0 until bindings.length by 2)
-                if (j != i) m = m.updated(key(j), value(j))
+              for j <- 0 until bindings.length by 2 do
+                if j != i then m = m.updated(key(j), value(j))
               m
             }
             else {
@@ -182,10 +182,10 @@ object SimpleIdentityMap {
 
     def updated[V1 >: V <: AnyRef](k: K, v: V1): SimpleIdentityMap[K, V] = {
       var i = 0
-      while (i < bindings.length) {
-        if (bindings(i) eq k)
+      while i < bindings.length do {
+        if bindings(i) eq k then
           return {
-            if (v eq bindings(i + 1)) this
+            if v eq bindings(i + 1) then this
             else {
               val bindings1 = bindings.clone
               bindings1(i + 1) = v
@@ -203,8 +203,8 @@ object SimpleIdentityMap {
 
     override def contains(k: K): Boolean = {
       var i = 0
-      while (i < bindings.length) {
-        if (bindings(i) eq k) return true
+      while i < bindings.length do {
+        if bindings(i) eq k then return true
         i += 2
       }
       false
@@ -213,21 +213,21 @@ object SimpleIdentityMap {
     def mapValuesNow[V1 >: V <: AnyRef](f: (K, V1) => V1): SimpleIdentityMap[K, V1] = {
       var bindings1: Array[AnyRef] = bindings
       var i = 0
-      while (i < bindings.length) {
+      while i < bindings.length do {
         val v = value(i)
         val v1 = f(key(i), v)
-        if ((v1 ne v) && (bindings1 eq bindings))
+        if (v1 ne v) && (bindings1 eq bindings) then
           bindings1 = bindings.clone
         bindings1(i) = bindings(i)
         bindings1(i + 1) = v1
         i += 2
       }
-      if (bindings1 eq bindings) this else new MapMore(bindings1)
+      if bindings1 eq bindings then this else new MapMore(bindings1)
     }
 
     def foreachBinding(f: (K, V) => Unit): Unit = {
       var i = 0
-      while (i < bindings.length) {
+      while i < bindings.length do {
         f(key(i), value(i))
         i += 2
       }
@@ -235,8 +235,8 @@ object SimpleIdentityMap {
 
     def forallBinding(f: (K, V) => Boolean): Boolean = {
       var i = 0
-      while (i < bindings.length) {
-        if (!f(key(i), value(i)))
+      while i < bindings.length do {
+        if !f(key(i), value(i)) then
           return false
         i += 2
       }

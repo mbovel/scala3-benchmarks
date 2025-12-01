@@ -12,18 +12,18 @@ object DiffUtil {
   val ansiColorToken: Char = '\u001b'
 
   @tailrec private def splitTokens(str: String, acc: List[String] = Nil): List[String] =
-      if (str == "")
+      if str == "" then
         acc.reverse
       else {
         val head = str.charAt(0)
         val (token, rest) =
-          if (head == ansiColorToken) { // ansi color token
+          if head == ansiColorToken then { // ansi color token
             val splitIndex = str.indexOf('m') + 1
             (str.substring(0, splitIndex), str.substring(splitIndex))
           }
-          else if (Character.isAlphabetic(head) || Character.isDigit(head))
+          else if Character.isAlphabetic(head) || Character.isDigit(head) then
             str.span(c => Character.isAlphabetic(c) || Character.isDigit(c) && c != ansiColorToken)
-          else if (Character.isMirrored(head) || Character.isWhitespace(head))
+          else if Character.isMirrored(head) || Character.isWhitespace(head) then
             str.splitAt(1)
           else
             str.span { c =>
@@ -86,7 +86,7 @@ object DiffUtil {
     }
 
     val expectedDiff =
-      if (expected eq EOF) eof()
+      if expected eq EOF then eof()
       else diff.collect {
         case Unmodified(str) => str
         case Inserted(str) => added(str)
@@ -95,7 +95,7 @@ object DiffUtil {
       }.mkString
 
     val actualDiff =
-      if (actual eq EOF) eof()
+      if actual eq EOF then eof()
       else diff.collect {
         case Unmodified(str) => str
         case Inserted(_) => ""
@@ -189,10 +189,10 @@ object DiffUtil {
   private def added(str: String): String = bgColored(str, Console.GREEN)
   private def deleted(str: String) = bgColored(str, Console.RED)
   private def bgColored(str: String, color: String): String =
-    if (str.isEmpty) ""
+    if str.isEmpty then ""
     else {
       val (spaces, rest) = str.span(_ == '\n')
-      if (spaces.isEmpty) {
+      if spaces.isEmpty then {
         val (text, rest2) = str.span(_ != '\n')
         Console.BOLD + color + text + Console.RESET + bgColored(rest2, color)
       }
@@ -208,11 +208,11 @@ object DiffUtil {
 
   private def hirschberg(a: Array[String], b: Array[String]): Array[Patch] = {
     def build(x: Array[String], y: Array[String], builder: mutable.ArrayBuilder[Patch]): Unit =
-      if (x.isEmpty)
+      if x.isEmpty then
         builder += Inserted(y.mkString)
-      else if (y.isEmpty)
+      else if y.isEmpty then
         builder += Deleted(x.mkString)
-      else if (x.length == 1 || y.length == 1)
+      else if x.length == 1 || y.length == 1 then
         needlemanWunsch(x, y, builder)
       else {
         val xlen = x.length
@@ -240,14 +240,14 @@ object DiffUtil {
   private def nwScore(x: Array[String], y: Array[String]): Array[Int] = {
     def ins(s: String) = -2
     def del(s: String) = -2
-    def sub(s1: String, s2: String) = if (s1 == s2) 2 else -1
+    def sub(s1: String, s2: String) = if s1 == s2 then 2 else -1
 
     val score = Array.fill(x.length + 1, y.length + 1)(0)
-    for (j <- 1 to y.length)
+    for j <- 1 to y.length do
       score(0)(j) = score(0)(j - 1) + ins(y(j - 1))
-    for (i <- 1 to x.length) {
+    for i <- 1 to x.length do {
       score(i)(0) = score(i - 1)(0) + del(x(i - 1))
-      for (j <- 1 to y.length) {
+      for j <- 1 to y.length do {
         val scoreSub = score(i - 1)(j - 1) + sub(x(i - 1), y(j - 1))
         val scoreDel = score(i - 1)(j) + del(x(i - 1))
         val scoreIns = score(i)(j - 1) + ins(y(j - 1))
@@ -258,15 +258,15 @@ object DiffUtil {
   }
 
   private def needlemanWunsch(x: Array[String], y: Array[String], builder: mutable.ArrayBuilder[Patch]): Unit = {
-    def similarity(a: String, b: String) = if (a == b) 3 else -1
+    def similarity(a: String, b: String) = if a == b then 3 else -1
     val d = 1
     val score = Array.tabulate(x.length + 1, y.length + 1) { (i, j) =>
-      if (i == 0) d * j
-      else if (j == 0) d * i
+      if i == 0 then d * j
+      else if j == 0 then d * i
       else 0
     }
-    for (i <- 1 to x.length)
-      for (j <- 1 to y.length) {
+    for i <- 1 to x.length do
+      for j <- 1 to y.length do {
         val mtch = score(i - 1)(j - 1) + similarity(x(i - 1), y(j - 1))
         val delete = score(i - 1)(j) + d
         val insert = score(i)(j - 1) + d
@@ -276,16 +276,16 @@ object DiffUtil {
     var alignment = List.empty[Patch]
     var i = x.length
     var j = y.length
-    while (i > 0 || j > 0)
-      if (i > 0 && j > 0 && score(i)(j) == score(i - 1)(j - 1) + similarity(x(i - 1), y(j - 1))) {
+    while i > 0 || j > 0 do
+      if i > 0 && j > 0 && score(i)(j) == score(i - 1)(j - 1) + similarity(x(i - 1), y(j - 1)) then {
         val newHead =
-          if (x(i - 1) == y(j - 1)) Unmodified(x(i - 1))
+          if x(i - 1) == y(j - 1) then Unmodified(x(i - 1))
           else Modified(x(i - 1), y(j - 1))
         alignment = newHead :: alignment
         i = i - 1
         j = j - 1
       }
-      else if (i > 0 && score(i)(j) == score(i - 1)(j) + d) {
+      else if i > 0 && score(i)(j) == score(i - 1)(j) + d then {
         alignment = Deleted(x(i - 1)) :: alignment
         i = i - 1
       }

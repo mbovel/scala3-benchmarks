@@ -47,20 +47,20 @@ sealed class StreamReader private (seq: PagedSeq[Char], off: Int, lnum: Int, nex
   import StreamReader.EofCh
 
   override def rest: StreamReader =
-    if (!seq.isDefinedAt(off)) this
-    else if (seq(off) == '\n')
+    if !seq.isDefinedAt(off) then this
+    else if seq(off) == '\n' then
       new StreamReader(seq.slice(off + 1), 0, lnum + 1, -1)
     else new StreamReader(seq, off + 1, lnum, nextEol0)
 
-  private def nextEol = if (nextEol0 == -1) {
+  private def nextEol = if nextEol0 == -1 then {
     var i = off
-    while (seq.isDefinedAt(i) && seq(i) != '\n' && seq(i) != EofCh) i += 1
+    while seq.isDefinedAt(i) && seq(i) != '\n' && seq(i) != EofCh do i += 1
     i
   } else nextEol0
 
   override def drop(n: Int): StreamReader = {
     val eolPos = nextEol
-    if (eolPos < off + n && seq.isDefinedAt(eolPos))
+    if eolPos < off + n && seq.isDefinedAt(eolPos) then
       new StreamReader(seq.slice(eolPos + 1), 0, lnum + 1, -1).drop(off + n - (eolPos + 1))
     else
       new StreamReader(seq, off + n, lnum, eolPos)

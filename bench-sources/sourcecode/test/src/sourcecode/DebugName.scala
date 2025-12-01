@@ -2,7 +2,7 @@ package sourcecode
 
 object DebugName {
   def main() = {
-    def debug[V](value: sourcecode.Text[V])(implicit name: sourcecode.Name) = {
+    def debug[V](value: sourcecode.Text[V])(using name: sourcecode.Name) = {
       println(name.value + " [" + value.source + "]: " + value.value)
     }
 

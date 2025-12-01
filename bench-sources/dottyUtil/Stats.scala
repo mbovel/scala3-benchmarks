@@ -21,11 +21,11 @@ import collection.mutable
   val hits: mutable.Map[String, Int] = new mutable.HashMap[String, Int].withDefaultValue(0)
 
   inline def record(inline fn: String, inline n: Int = 1, inline skip: Boolean = timerOnly): Unit =
-    if (enabled && !skip) doRecord(fn, n)
+    if enabled && !skip then doRecord(fn, n)
 
   def doRecord(fn: String, n: Int) =
-    if (monitored) {
-      val name = if (fn.startsWith("member-")) "member" else fn
+    if monitored then {
+      val name = if fn.startsWith("member-") then "member" else fn
       hits(name) += n
     }
 
@@ -34,10 +34,10 @@ import collection.mutable
     coll
 
   inline def trackTime[T](fn: String)(inline op: T): T =
-    if (enabled) doTrackTime(fn)(op) else op
+    if enabled then doTrackTime(fn)(op) else op
 
   def doTrackTime[T](fn: String)(op: => T): T = {
-    if (monitored) {
+    if monitored then {
       val start = System.nanoTime
       try op finally record(fn, ((System.nanoTime - start) / 1000).toInt, skip = false)
     }
@@ -51,7 +51,7 @@ import collection.mutable
     val groups = hits.keys
       .filter(_.contains(GroupChar))
       .groupBy(_.takeWhile(_ != GroupChar))
-    for ((prefix, names) <- groups; name <- names)
+    for (prefix, names) <- groups; name <- names do
       hits(s"Total $prefix") += hits(name)
   }
 

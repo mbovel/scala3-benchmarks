@@ -45,7 +45,7 @@ abstract class Reader[+T] {
   def drop(n: Int): Reader[T] = {
     var r: Reader[T] = this
     var cnt = n
-    while (cnt > 0) {
+    while cnt > 0 do {
       r = r.rest; cnt -= 1
     }
     r

@@ -12,8 +12,8 @@
 package java.util.regex
 
 import java.util.ArrayList
-import java.util.regex.Parser._
-import java.util.regex.Regexp.{Op => ROP}
+import java.util.regex.Parser.*
+import java.util.regex.Regexp.{Op as ROP}
 
 /**
  * A parser of regular expression patterns.
@@ -33,7 +33,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
   // Allocate a Regexp, from the free list if possible.
   private def newRegexp(op: ROP): Regexp = {
     var re: Regexp = free
-    if (re != null && re.subs != null && re.subs.length > 0) {
+    if re != null && re.subs != null && re.subs.length > 0 then {
       free = re.subs(0)
       re.reinit()
       re.op = op
@@ -45,7 +45,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
   }
 
   private def reuse(re: Regexp): Unit = {
-    if (re.subs != null && re.subs.length > 0) {
+    if re.subs != null && re.subs.length > 0 then {
       re.subs(0) = free
     }
     free = re
@@ -59,7 +59,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
   private def popToPseudo(): Array[Regexp] = {
     var n: Int = stack.size()
     var i: Int = n
-    while (i > 0 && !ROP.isPseudo(stack.get(i - 1).op)) {
+    while i > 0 && !ROP.isPseudo(stack.get(i - 1).op) do {
       i -= 1
     }
     val r: Array[Regexp] = stack.subList(i, n).toArray(new Array[Regexp](n - i))
@@ -70,17 +70,17 @@ class Parser(wholeRegexp: String, _flags: Int) {
   // push pushes the regexp re onto the parse stack and returns the regexp.
   // Returns null for a CHAR_CLASS that can be merged with the top-of-stack.
   private def push(re: Regexp): Regexp = {
-    if (re.op == ROP.CHAR_CLASS &&
+    if re.op == ROP.CHAR_CLASS &&
         re.runes.length == 2 &&
-        re.runes(0) == re.runes(1)) {
+        re.runes(0) == re.runes(1) then {
       // Collapse range [x-x] -> single rune x.
-      if (maybeConcat(re.runes(0), flags & ~RE2.FOLD_CASE)) {
+      if maybeConcat(re.runes(0), flags & ~RE2.FOLD_CASE) then {
         return null
       }
       re.op = ROP.LITERAL
       re.runes = Array[Int](re.runes(0))
       re.flags = flags & ~RE2.FOLD_CASE
-    } else if ((re.op == ROP.CHAR_CLASS &&
+    } else if (re.op == ROP.CHAR_CLASS &&
                re.runes.length == 4 &&
                re.runes(0) == re.runes(1) &&
                re.runes(2) == re.runes(3) &&
@@ -90,9 +90,9 @@ class Parser(wholeRegexp: String, _flags: Int) {
                re.runes.length == 2 &&
                re.runes(0) + 1 == re.runes(1) &&
                Unicode.simpleFold(re.runes(0)) == re.runes(1) &&
-               Unicode.simpleFold(re.runes(1)) == re.runes(0))) {
+               Unicode.simpleFold(re.runes(1)) == re.runes(0)) then {
       // Case-insensitive rune like [Aa] or [Δδ].
-      if (maybeConcat(re.runes(0), flags | RE2.FOLD_CASE)) {
+      if maybeConcat(re.runes(0), flags | RE2.FOLD_CASE) then {
         return null
       }
 
@@ -120,14 +120,14 @@ class Parser(wholeRegexp: String, _flags: Int) {
   // maybeConcat reports whether r was pushed.
   private def maybeConcat(r: Int, flags: Int): Boolean = {
     val n: Int = stack.size()
-    if (n < 2) {
+    if n < 2 then {
       return false
     }
     val re1: Regexp = stack.get(n - 1)
     val re2: Regexp = stack.get(n - 2)
-    if (re1.op != ROP.LITERAL ||
+    if re1.op != ROP.LITERAL ||
         re2.op != ROP.LITERAL ||
-        (re1.flags & RE2.FOLD_CASE) != (re2.flags & RE2.FOLD_CASE)) {
+        (re1.flags & RE2.FOLD_CASE) != (re2.flags & RE2.FOLD_CASE) then {
       return false
     }
 
@@ -135,7 +135,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
     re2.runes = concatRunes(re2.runes, re1.runes)
 
     // Reuse re1 if possible.
-    if (r >= 0) {
+    if r >= 0 then {
       re1.runes = Array[Int](r)
       re1.flags = flags
       return true
@@ -151,7 +151,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
     var r: Int  = _r
     val re: Regexp = newRegexp(ROP.LITERAL)
     re.flags = flags
-    if ((flags & RE2.FOLD_CASE) != 0) {
+    if (flags & RE2.FOLD_CASE) != 0 then {
       r = minFoldRune(r)
     }
     re.runes = new Array[Int](r)
@@ -183,12 +183,12 @@ class Parser(wholeRegexp: String, _flags: Int) {
                      t: StringIterator,
                      lastRepeatPos: Int): Unit = {
     var flags: Int = this.flags
-    if ((flags & RE2.PERL_X) != 0) {
-      if (t.more() && t.lookingAt_c('?')) {
+    if (flags & RE2.PERL_X) != 0 then {
+      if t.more() && t.lookingAt_c('?') then {
         t.skip(1) // '?'
         flags ^= RE2.NON_GREEDY
       }
-      if (lastRepeatPos != -1) {
+      if lastRepeatPos != -1 then {
         // In Perl it is not allowed to stack repetition operators:
         // a** is a syntax error, not a doubled star, and a++ means
         // something else entirely, which we don't support!
@@ -197,12 +197,12 @@ class Parser(wholeRegexp: String, _flags: Int) {
       }
     }
     val n: Int = stack.size()
-    if (n == 0) {
+    if n == 0 then {
       throw new PatternSyntaxException(ERR_MISSING_REPEAT_ARGUMENT,
                                        t.from(beforePos))
     }
     val sub: Regexp = stack.get(n - 1)
-    if (ROP.isPseudo(sub.op)) {
+    if ROP.isPseudo(sub.op) then {
       throw new PatternSyntaxException(ERR_MISSING_REPEAT_ARGUMENT,
                                        t.from(beforePos))
     }
@@ -223,7 +223,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
     val subs: Array[Regexp] = popToPseudo()
 
     // Empty concatenation is special case.
-    if (subs.length == 0) {
+    if subs.length == 0 then {
       return push(newRegexp(ROP.EMPTY_MATCH))
     }
 
@@ -239,13 +239,13 @@ class Parser(wholeRegexp: String, _flags: Int) {
 
     // Make sure top class is clean.
     // All the others already are (see swapVerticalBar).
-    if (subs.length > 0) {
+    if subs.length > 0 then {
       cleanAlt(subs(subs.length - 1))
     }
 
     // Empty alternate is special case
     // (shouldn't happen but easy to handle).
-    if (subs.length == 0) {
+    if subs.length == 0 then {
       return push(newRegexp(ROP.NO_MATCH))
     }
 
@@ -257,18 +257,18 @@ class Parser(wholeRegexp: String, _flags: Int) {
     re.op match {
       case ROP.CHAR_CLASS =>
         re.runes = new CharClass(re.runes).cleanClass().toArray()
-        if (re.runes.length == 2 &&
+        if re.runes.length == 2 &&
             re.runes(0) == 0 &&
-            re.runes(1) == Unicode.MAX_RUNE) {
+            re.runes(1) == Unicode.MAX_RUNE then {
           re.runes = null
           re.op = ROP.ANY_CHAR
           return
         }
-        if (re.runes.length == 4 &&
+        if re.runes.length == 4 &&
             re.runes(0) == 0 &&
             re.runes(1) == '\n' - 1 &&
             re.runes(2) == '\n' + 1 &&
-            re.runes(3) == Unicode.MAX_RUNE) {
+            re.runes(3) == Unicode.MAX_RUNE then {
           re.runes = null
           re.op = ROP.ANY_CHAR_NOT_NL
           return
@@ -281,24 +281,24 @@ class Parser(wholeRegexp: String, _flags: Int) {
   // so that there is never a concat of a concat or an
   // alternate of an alternate.
   private def collapse(subs: Array[Regexp], op: ROP): Regexp = {
-    if (subs.length == 1) {
+    if subs.length == 1 then {
       return subs(0)
     }
     // Concatenate subs iff op is same.
     // Compute length in first pass.
     var len: Int = 0
     var i: Int   = 0
-    while (i < subs.length) {
+    while i < subs.length do {
       val sub: Regexp = subs(i)
-      len += (if (sub.op == op) sub.subs.length else 1)
+      len += (if sub.op == op then sub.subs.length else 1)
       i += 1
     }
     val newsubs: Array[Regexp] = new Array[Regexp](len)
     i = 0
     var j: Int = 0
-    while (j < subs.length) {
+    while j < subs.length do {
       val sub: Regexp = subs(j)
-      if (sub.op == op) {
+      if sub.op == op then {
         System.arraycopy(sub.subs, 0, newsubs, i, sub.subs.length)
         i += sub.subs.length
         reuse(sub)
@@ -311,9 +311,9 @@ class Parser(wholeRegexp: String, _flags: Int) {
     var re: Regexp = newRegexp(op)
     re.subs = newsubs
 
-    if (op == ROP.ALTERNATE) {
+    if op == ROP.ALTERNATE then {
       re.subs = factor(re.subs, re.flags)
-      if (re.subs.length == 1) {
+      if re.subs.length == 1 then {
         val old: Regexp = re
         re = re.subs(0)
         reuse(old)
@@ -334,7 +334,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
   //     A(B[CD]|EF)|BC[XY]
   //
   private def factor(array: Array[Regexp], flags: Int): Array[Regexp] = {
-    if (array.length < 2) {
+    if array.length < 2 then {
       return array
     }
 
@@ -364,7 +364,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
     var strflags: Int        = 0
     var start: Int           = 0
     var i: Int               = 0
-    while (i <= lensub) {
+    while i <= lensub do {
       // Invariant: the Regexps that were in sub[0:start] have been
       // used or marked for reuse, and the slice space has been reused
       // for out (len <= start).
@@ -375,13 +375,13 @@ class Parser(wholeRegexp: String, _flags: Int) {
       var istrlen: Int          = 0
       var iflags: Int           = 0
       var continue: Boolean         = false
-      if (i < lensub) {
+      if i < lensub then {
         // NB, we inlined Go's leadingString() since Java has no pair return.
         var re: Regexp = array(s + i)
-        if (re.op == ROP.CONCAT && re.subs.length > 0) {
+        if re.op == ROP.CONCAT && re.subs.length > 0 then {
           re = re.subs(0)
         }
-        if (re.op == ROP.LITERAL) {
+        if re.op == ROP.LITERAL then {
           istr = re.runes
           istrlen = re.runes.length
           iflags = re.flags & RE2.FOLD_CASE
@@ -389,14 +389,14 @@ class Parser(wholeRegexp: String, _flags: Int) {
         // istr is the leading literal string that re begins with.
         // The string refers to storage in re or its children.
 
-        if (iflags == strflags) {
+        if iflags == strflags then {
           var same: Int = 0
-          while (same < strlen &&
+          while same < strlen &&
                  same < istrlen &&
-                 str(same) == istr(same)) {
+                 str(same) == istr(same) do {
             same += 1
           }
-          if (same > 0) {
+          if same > 0 then {
             // Matches at least one rune in current range.
             // Keep going around.
             strlen = same
@@ -405,15 +405,15 @@ class Parser(wholeRegexp: String, _flags: Int) {
         }
       }
 
-      if (!continue) {
+      if !continue then {
         // Found end of a run with common leading literal string:
         // sub[start:i] all begin with str[0:strlen], but sub[i]
         // does not even begin with str[0].
         //
         // Factor out common string and append factored expression to out.
-        if (i == start) {
+        if i == start then {
           // Nothing to do - run of length 0.
-        } else if (i == start + 1) {
+        } else if i == start + 1 then {
           // Just one: don't bother factoring.
           array(lenout) = array(s + start)
           lenout += 1
@@ -424,7 +424,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
           prefix.runes = Utils.subarray_i(str, 0, strlen)
 
           var j: Int = start
-          while (j < i) {
+          while j < i do {
             array(s + j) = removeLeadingString(array(s + j), strlen)
             j += 1
           }
@@ -457,7 +457,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
     lenout = 0
     var first: Regexp = null
     i = 0
-    while (i <= lensub) {
+    while i <= lensub do {
       // Invariant: the Regexps that were in sub[0:start] have been
       // used or marked for reuse, and the slice space has been reused
       // for out (lenout <= start).
@@ -466,21 +466,21 @@ class Parser(wholeRegexp: String, _flags: Int) {
       // ifirst.
       var ifirst: Regexp = null
       var continue: Boolean       = false
-      if (i < lensub) {
+      if i < lensub then {
         ifirst = leadingRegexp(array(s + i))
-        if (first != null && first.equals(ifirst)) {
+        if first != null && first.equals(ifirst) then {
           continue = true
         }
       }
 
-      if (!continue) {
+      if !continue then {
         // Found end of a run with common leading regexp:
         // sub[start:i] all begin with first but sub[i] does not.
         //
         // Factor out common regexp and append factored expression to out.
-        if (i == start) {
+        if i == start then {
           // Nothing to do - run of length 0.
-        } else if (i == start + 1) {
+        } else if i == start + 1 then {
           // Just one: don't bother factoring.
           array(lenout) = array(s + start)
           lenout += 1
@@ -488,7 +488,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
           // Construct factored form: prefix(suffix1|suffix2|...)
           val prefix: Regexp = first
           var j: Int      = start
-          while (j < i) {
+          while j < i do {
             val reuse: Boolean = j != start // prefix came from sub[start]
             array(s + j) = removeLeadingRegexp(array(s + j), reuse)
             j += 1
@@ -517,7 +517,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
     start = 0
     lenout = 0
     i = 0
-    while (i <= lensub) {
+    while i <= lensub do {
       // Invariant: the Regexps that were in sub[0:start] have been
       // used or marked for reuse, and the slice space has been reused
       // for out (lenout <= start).
@@ -525,16 +525,16 @@ class Parser(wholeRegexp: String, _flags: Int) {
       // Invariant: sub[start:i] consists of regexps that are either
       // literal runes or character classes.
       var continue: Boolean = false
-      if (i < lensub && isCharClass(array(s + i))) {
+      if i < lensub && isCharClass(array(s + i)) then {
         continue = true
       }
 
-      if (!continue) {
+      if !continue then {
         // sub[i] is not a char or char class
         // emit char class for sub[start:i]...
-        if (i == start) {
+        if i == start then {
           // Nothing to do - run of length 0.
-        } else if (i == start + 1) {
+        } else if i == start + 1 then {
           array(lenout) = array(s + start)
           lenout += 1
         } else {
@@ -542,11 +542,11 @@ class Parser(wholeRegexp: String, _flags: Int) {
           // Start with most complex regexp in sub[start].
           var max: Int = start
           var j: Int   = start + 1
-          while (j < i) {
+          while j < i do {
             val subMax: Regexp = array(s + max)
             val subJ: Regexp   = array(s + j)
-            if (subMax.op < subJ.op ||
-                subMax.op == subJ.op && subMax.runes.length < subJ.runes.length) {
+            if subMax.op < subJ.op ||
+                subMax.op == subJ.op && subMax.runes.length < subJ.runes.length then {
               max = j
             }
             j += 1
@@ -557,7 +557,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
           array(s + max) = tmp
 
           j = start + 1
-          while (j < i) {
+          while j < i do {
             mergeCharClass(array(s + start), array(s + j))
             reuse(array(s + j))
             j += 1
@@ -568,7 +568,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
         }
 
         // ... and then emit sub[i].
-        if (i < lensub) {
+        if i < lensub then {
           array(lenout) = array(s + i)
           lenout += 1
         }
@@ -585,14 +585,14 @@ class Parser(wholeRegexp: String, _flags: Int) {
     start = 0
     lenout = 0
     i = 0
-    while (i < lensub) {
+    while i < lensub do {
       var continue: Boolean = false
-      if (i + 1 < lensub &&
+      if i + 1 < lensub &&
           array(s + i).op == ROP.EMPTY_MATCH &&
-          array(s + i + 1).op == ROP.EMPTY_MATCH) {
+          array(s + i + 1).op == ROP.EMPTY_MATCH then {
         continue = true
       }
-      if (!continue) {
+      if !continue then {
         array(lenout) = array(s + i)
         lenout += 1
       }
@@ -609,12 +609,12 @@ class Parser(wholeRegexp: String, _flags: Int) {
   // from the beginning of re.  It returns the replacement for re.
   private def removeLeadingString(_re: Regexp, n: Int): Regexp = {
     var re: Regexp = _re
-    if (re.op == ROP.CONCAT && re.subs.length > 0) {
+    if re.op == ROP.CONCAT && re.subs.length > 0 then {
       // Removing a leading string in a concatenation
       // might simplify the concatenation.
       val sub: Regexp = removeLeadingString(re.subs(0), n)
       re.subs(0) = sub
-      if (sub.op == ROP.EMPTY_MATCH) {
+      if sub.op == ROP.EMPTY_MATCH then {
         reuse(sub)
         re.subs.length match {
           case 0 | 1 =>
@@ -632,9 +632,9 @@ class Parser(wholeRegexp: String, _flags: Int) {
       return re
     }
 
-    if (re.op == ROP.LITERAL) {
+    if re.op == ROP.LITERAL then {
       re.runes = Utils.subarray_i(re.runes, n, re.runes.length)
-      if (re.runes.length == 0) {
+      if re.runes.length == 0 then {
         re.op = ROP.EMPTY_MATCH
       }
     }
@@ -647,8 +647,8 @@ class Parser(wholeRegexp: String, _flags: Int) {
   // reuse.
   private def removeLeadingRegexp(_re: Regexp, reuse: Boolean): Regexp = {
     var re: Regexp = _re
-    if (re.op == ROP.CONCAT && re.subs.length > 0) {
-      if (reuse) {
+    if re.op == ROP.CONCAT && re.subs.length > 0 then {
+      if reuse then {
         this.reuse(re.subs(0))
       }
       re.subs = subarray(re.subs, 1, re.subs.length)
@@ -663,7 +663,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
       }
       return re
     }
-    if (reuse) {
+    if reuse then {
       this.reuse(re)
     }
     return newRegexp(ROP.EMPTY_MATCH)
@@ -672,7 +672,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
   // Parsing.
 
   private def parseInternal(): Regexp = {
-    if ((flags & RE2.LITERAL) != 0) {
+    if (flags & RE2.LITERAL) != 0 then {
       // Trivial parser for literal string.
       return literalRegexp(wholeRegexp, flags)
     }
@@ -682,11 +682,11 @@ class Parser(wholeRegexp: String, _flags: Int) {
     var min: Int           = -1
     var max: Int           = -1
     var t: Parser.StringIterator             = new StringIterator(wholeRegexp)
-    while (t.more()) {
+    while t.more() do {
       var repeatPos: Int = -1
       t.peek() match {
         case '(' =>
-          if ((flags & RE2.PERL_X) != 0 && t.lookingAt_s("(?")) {
+          if (flags & RE2.PERL_X) != 0 && t.lookingAt_s("(?") then {
             // Flag changes and non-capturing groups.
             parsePerlFlags(t)
           } else {
@@ -704,7 +704,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
           t.skip(1) // ')'
 
         case '^' =>
-          if ((flags & RE2.ONE_LINE) != 0) {
+          if (flags & RE2.ONE_LINE) != 0 then {
             op(ROP.BEGIN_TEXT)
           } else {
             op(ROP.BEGIN_LINE)
@@ -712,7 +712,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
           t.skip(1) // '^'
 
         case '$' =>
-          if ((flags & RE2.ONE_LINE) != 0) {
+          if (flags & RE2.ONE_LINE) != 0 then {
             op(ROP.END_TEXT).flags |= RE2.WAS_DOLLAR
           } else {
             op(ROP.END_LINE)
@@ -720,7 +720,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
           t.skip(1) // '$'
 
         case '.' =>
-          if ((flags & RE2.DOT_NL) != 0) {
+          if (flags & RE2.DOT_NL) != 0 then {
             op(ROP.ANY_CHAR)
           } else {
             op(ROP.ANY_CHAR_NOT_NL)
@@ -744,7 +744,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
         case '{' =>
           repeatPos = t.pos()
           val minMax: Int = parseRepeat(t)
-          if (minMax < 0) {
+          if minMax < 0 then {
             // If the repeat cannot be parsed, { is a literal.
             t.rewindTo(repeatPos)
             literal(t.pop()) // '{'
@@ -758,7 +758,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
           var breakBigswitch: Boolean = false
           val savedPos: Int       = t.pos()
           t.skip(1) // '\\'
-          if ((flags & RE2.PERL_X) != 0 && t.more()) {
+          if (flags & RE2.PERL_X) != 0 && t.more() then {
             val c: Int = t.pop()
             c match {
               case 'A' =>
@@ -777,7 +777,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
                 // \Q ... \E: the ... is always literals
                 var lit: String = t.rest()
                 val i: Int   = lit.indexOf("\\E")
-                if (i >= 0) {
+                if i >= 0 then {
                   lit = lit.substring(0, i)
                 }
                 t.skipString(lit)
@@ -792,31 +792,31 @@ class Parser(wholeRegexp: String, _flags: Int) {
             }
           }
 
-          if (!breakBigswitch) {
+          if !breakBigswitch then {
             val re: Regexp = newRegexp(ROP.CHAR_CLASS)
             re.flags = flags
 
             // Look for Unicode character group like \p{Han}
-            if (t.lookingAt_s("\\p") || t.lookingAt_s("\\P")) {
+            if t.lookingAt_s("\\p") || t.lookingAt_s("\\P") then {
               val cc: CharClass = new CharClass(Utils.EMPTY_INTS)
-              if (parseUnicodeClass(t, cc)) {
+              if parseUnicodeClass(t, cc) then {
                 re.runes = cc.toArray()
                 push(re)
                 breakBigswitch = true
               }
             }
 
-            if (!breakBigswitch) {
+            if !breakBigswitch then {
               // Perl character class escape.
               val cc: CharClass = new CharClass(Utils.EMPTY_INTS)
-              if (parsePerlClassEscape(t, cc)) {
+              if parsePerlClassEscape(t, cc) then {
                 re.runes = cc.toArray()
                 push(re)
                 breakBigswitch = true
               }
             }
 
-            if (!breakBigswitch) {
+            if !breakBigswitch then {
               t.rewindTo(savedPos)
               this.reuse(re)
 
@@ -832,13 +832,13 @@ class Parser(wholeRegexp: String, _flags: Int) {
     }
 
     concat()
-    if (swapVerticalBar()) {
+    if swapVerticalBar() then {
       pop() // pop vertical bar
     }
     alternate()
 
     val n: Int = stack.size()
-    if (n != 1) {
+    if n != 1 then {
       throw new PatternSyntaxException(ERR_MISSING_PAREN, wholeRegexp)
     }
     stack.get(0)
@@ -867,16 +867,16 @@ class Parser(wholeRegexp: String, _flags: Int) {
     // Google source tree, (?P<expr>name) is the dominant form,
     // so that's the one we implement.  One is enough.
     val s: String = t.rest()
-    if (s.startsWith("(?P<")) {
+    if s.startsWith("(?P<") then {
       // Pull out name.
       val end: Int = s.indexOf('>')
-      if (end < 0) {
+      if end < 0 then {
         throw new PatternSyntaxException(ERR_INVALID_NAMED_CAPTURE, s)
       }
       val name: String = s.substring(4, end) // "name"
       t.skipString(name)
       t.skip(5) // "(?P<>"
-      if (!isValidCaptureName(name)) {
+      if !isValidCaptureName(name) then {
         throw new PatternSyntaxException(ERR_INVALID_NAMED_CAPTURE,
                                          s.substring(0, end)) // "(?P<name>"
       }
@@ -895,7 +895,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
     var sawFlag: Boolean = false
 
     var breakLoop: Boolean = false
-    while (t.more() && !breakLoop) {
+    while t.more() && !breakLoop do {
       val c: Int = t.pop()
       c match {
         // Flags.
@@ -914,7 +914,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
 
         // Switch to negation.
         case '-' =>
-          if (sign < 0) {
+          if sign < 0 then {
             breakLoop = true
           } else {
             sign = -1
@@ -926,16 +926,16 @@ class Parser(wholeRegexp: String, _flags: Int) {
 
         // End of flags, starting group or not.
         case ':' | ')' =>
-          if (sign < 0) {
-            if (!sawFlag) {
+          if sign < 0 then {
+            if !sawFlag then {
               breakLoop = true
             }
-            if (!breakLoop) {
+            if !breakLoop then {
               flags = ~flags
             }
           }
-          if (!breakLoop) {
-            if (c == ':') {
+          if !breakLoop then {
+            if c == ':' then {
               // Open new group
               op(ROP.LEFT_PAREN)
             }
@@ -959,7 +959,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
     // If it sits above an opVerticalBar, swap it below
     // (things below an opVerticalBar become an alternation).
     // Otherwise, push a new vertical bar.
-    if (!swapVerticalBar()) {
+    if !swapVerticalBar() then {
       op(ROP.VERTICAL_BAR)
     }
   }
@@ -971,14 +971,14 @@ class Parser(wholeRegexp: String, _flags: Int) {
     // If above and below vertical bar are literal or char class,
     // can merge into a single char class.
     val n: Int = stack.size()
-    if (n >= 3 &&
+    if n >= 3 &&
         stack.get(n - 2).op == ROP.VERTICAL_BAR &&
         isCharClass(stack.get(n - 1)) &&
-        isCharClass(stack.get(n - 3))) {
+        isCharClass(stack.get(n - 3)) then {
       var re1: Regexp = stack.get(n - 1)
       var re3: Regexp = stack.get(n - 3)
       // Make re3 the more complex of the two.
-      if (re1.op > re3.op) {
+      if re1.op > re3.op then {
         val tmp: Regexp = re3
         re3 = re1
         re1 = tmp
@@ -990,11 +990,11 @@ class Parser(wholeRegexp: String, _flags: Int) {
       return true
     }
 
-    if (n >= 2) {
+    if n >= 2 then {
       val re1: Regexp = stack.get(n - 1)
       val re2: Regexp = stack.get(n - 2)
-      if (re2.op == ROP.VERTICAL_BAR) {
-        if (n >= 3) {
+      if re2.op == ROP.VERTICAL_BAR then {
+        if n >= 3 then {
           // Now out of reach.
           // Clean opportunistically.
           cleanAlt(stack.get(n - 3))
@@ -1010,23 +1010,23 @@ class Parser(wholeRegexp: String, _flags: Int) {
   // parseRightParen handles a ')' in the input.
   private def parseRightParen(): Unit = {
     concat()
-    if (swapVerticalBar()) {
+    if swapVerticalBar() then {
       pop() // pop vertical bar
     }
     alternate()
 
     val n: Int = stack.size()
-    if (n < 2) {
+    if n < 2 then {
       throw new PatternSyntaxException(ERR_INTERNAL_ERROR, "stack underflow")
     }
     val re1: Regexp = pop()
     val re2: Regexp = pop()
-    if (re2.op != ROP.LEFT_PAREN) {
+    if re2.op != ROP.LEFT_PAREN then {
       throw new PatternSyntaxException(ERR_MISSING_PAREN, wholeRegexp)
     }
     // Restore flags at time of paren.
     this.flags = re2.flags
-    if (re2.cap == 0) {
+    if re2.cap == 0 then {
       // Just for grouping.
       push(re1)
     } else {
@@ -1042,14 +1042,14 @@ class Parser(wholeRegexp: String, _flags: Int) {
   // on success, undefined on failure, in which case false is returned.
   private def parsePerlClassEscape(t: StringIterator, cc: CharClass): Boolean = {
     val beforePos: Int = t.pos()
-    if ((flags & RE2.PERL_X) == 0 ||
+    if (flags & RE2.PERL_X) == 0 ||
         !t.more() || t.pop() != '\\' || // consume '\\'
-        !t.more()) {
+        !t.more() then {
       return false
     }
     t.pop() // e.g. advance past 'd' in "\\d"
     val g: CharGroup = CharGroup.PERL_GROUPS.get(t.from(beforePos))
-    if (g == null) {
+    if g == null then {
       return false
     }
     cc.appendGroup(g, (flags & RE2.FOLD_CASE) != 0)
@@ -1066,13 +1066,13 @@ class Parser(wholeRegexp: String, _flags: Int) {
     // (Go precondition check deleted.)
     val cls: String = t.rest()
     val i: Int   = cls.indexOf(":]")
-    if (i < 0) {
+    if i < 0 then {
       return false
     }
     val name: String = cls.substring(0, i + 2) // "[:alnum:]"
     t.skipString(name)
     val g: CharGroup = CharGroup.POSIX_GROUPS.get(name)
-    if (g == null) {
+    if g == null then {
       throw new PatternSyntaxException(ERR_INVALID_CHAR_RANGE, name)
     }
     cc.appendGroup(g, (flags & RE2.FOLD_CASE) != 0)
@@ -1088,27 +1088,27 @@ class Parser(wholeRegexp: String, _flags: Int) {
   // Indicates error by throwing PatternSyntaxException.
   private def parseUnicodeClass(t: StringIterator, cc: CharClass): Boolean = {
     val startPos: Int = t.pos()
-    if ((flags & RE2.UNICODE_GROUPS) == 0 ||
-        !t.lookingAt_s("\\p") && !t.lookingAt_s("\\P")) {
+    if (flags & RE2.UNICODE_GROUPS) == 0 ||
+        !t.lookingAt_s("\\p") && !t.lookingAt_s("\\P") then {
       return false
     }
     t.skip(1) // '\\'
     // Committed to parse or throw exception.
     var sign: Int = +1
     var c: Int    = t.pop() // 'p' or 'P'
-    if (c == 'P') {
+    if c == 'P' then {
       sign = -1
     }
     c = t.pop()
     var name: String = ""
-    if (c != '{') {
+    if c != '{' then {
       // Single-letter name.
       name = Utils.runeToString(c)
     } else {
       // Name is in braces.
       val rest: String = t.rest()
       val end: Int  = rest.indexOf('}')
-      if (end < 0) {
+      if end < 0 then {
         t.rewindTo(startPos)
         throw new PatternSyntaxException(ERR_INVALID_CHAR_RANGE, t.rest())
       }
@@ -1121,13 +1121,13 @@ class Parser(wholeRegexp: String, _flags: Int) {
 
     // Group can have leading negation too.
     //  \p{^Han} == \P{Han}, \P{^Han} == \p{Han}.
-    if (!name.isEmpty() && name.charAt(0) == '^') {
+    if !name.isEmpty() && name.charAt(0) == '^' then {
       sign = -sign
       name = name.substring(1)
     }
 
     val pair: Parser.Pair[Array[Array[Int]], Array[Array[Int]]] = unicodeTable(name)
-    if (pair == null) {
+    if pair == null then {
       throw new PatternSyntaxException(ERR_INVALID_CHAR_RANGE,
                                        t.from(startPos))
     }
@@ -1135,7 +1135,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
     val fold: Array[Array[Int]] = pair.second // fold-equivalent table
 
     // Variation of CharClass.appendGroup() for tables.
-    if ((flags & RE2.FOLD_CASE) == 0 || fold == null) {
+    if (flags & RE2.FOLD_CASE) == 0 || fold == null then {
       cc.appendTableWithSign(tab, sign)
     } else {
       // Merge and clean tab and fold in a temporary buffer.
@@ -1164,28 +1164,28 @@ class Parser(wholeRegexp: String, _flags: Int) {
     val cc: CharClass = new CharClass(Utils.EMPTY_INTS)
 
     var sign: Int = +1
-    if (t.more() && t.lookingAt_c('^')) {
+    if t.more() && t.lookingAt_c('^') then {
       sign = -1
       t.skip(1) // '^'
 
       // If character class does not match \n, add it here,
       // so that negation later will do the right thing.
-      if ((flags & RE2.CLASS_NL) == 0) {
+      if (flags & RE2.CLASS_NL) == 0 then {
         cc.appendRange('\n', '\n')
       }
     }
 
     var first: Boolean = true // ']' and '-' are okay as first char in class
-    while (!t.more() || t.peek() != ']' || first) {
+    while !t.more() || t.peek() != ']' || first do {
       var continue: Boolean = false
 
       // POSIX: - is only okay unescaped as first or last in class.
       // Perl: - is okay anywhere.
-      if (t.more() && t.lookingAt_c('-') &&
+      if t.more() && t.lookingAt_c('-') &&
           (flags & RE2.PERL_X) == 0 &&
-          !first) {
+          !first then {
         val s: String = t.rest()
-        if (s.equals("-") || !s.startsWith("-]")) {
+        if s.equals("-") || !s.startsWith("-]") then {
           t.rewindTo(startPos)
           throw new PatternSyntaxException(ERR_INVALID_CHAR_RANGE, t.rest())
         }
@@ -1195,22 +1195,22 @@ class Parser(wholeRegexp: String, _flags: Int) {
       val beforePos: Int = t.pos()
 
       // Look for POSIX [:alnum:] etc.
-      if (t.lookingAt_s("[:")) {
-        if (parseNamedClass(t, cc)) {
+      if t.lookingAt_s("[:") then {
+        if parseNamedClass(t, cc) then {
           continue = true
         }
-        if (!continue) {
+        if !continue then {
           t.rewindTo(beforePos)
         }
       }
 
-      if (!continue) {
+      if !continue then {
         // Look for Unicode character group like \p{Han}.
-        if (parseUnicodeClass(t, cc)) {
+        if parseUnicodeClass(t, cc) then {
           continue = true
         } else {
           // Look for Perl character class symbols (extension).
-          if (parsePerlClassEscape(t, cc)) {
+          if parsePerlClassEscape(t, cc) then {
             continue = true
           } else {
             t.rewindTo(beforePos)
@@ -1218,20 +1218,20 @@ class Parser(wholeRegexp: String, _flags: Int) {
             // Single character or simple range.
             var lo: Int = parseClassChar(t, startPos)
             var hi: Int = lo
-            if (t.more() && t.lookingAt_c('-')) {
+            if t.more() && t.lookingAt_c('-') then {
               t.skip(1) // '-'
-              if (t.more() && t.lookingAt_c(']')) {
+              if t.more() && t.lookingAt_c(']') then {
                 // [a-] means (a|-) so check for final ].
                 t.skip(-1)
               } else {
                 hi = parseClassChar(t, startPos)
-                if (hi < lo) {
+                if hi < lo then {
                   throw new PatternSyntaxException(ERR_INVALID_CHAR_RANGE,
                                                    t.from(beforePos))
                 }
               }
             }
-            if ((flags & RE2.FOLD_CASE) == 0) {
+            if (flags & RE2.FOLD_CASE) == 0 then {
               cc.appendRange(lo, hi)
             } else {
               cc.appendFoldedRange(lo, hi)
@@ -1243,7 +1243,7 @@ class Parser(wholeRegexp: String, _flags: Int) {
     t.skip(1) // ']'
 
     cc.cleanClass()
-    if (sign < 0) {
+    if sign < 0 then {
       cc.negateClass()
     }
     re.runes = cc.toArray()
@@ -1291,14 +1291,14 @@ object Parser {
   // minFoldRune returns the minimum rune fold-equivalent to r.
   private def minFoldRune(_r: Int): Int = {
     var r: Int = _r
-    if (r < Unicode.MIN_FOLD || r > Unicode.MAX_FOLD) {
+    if r < Unicode.MIN_FOLD || r > Unicode.MAX_FOLD then {
       return r
     }
     var min: Int = r
     var r0: Int  = r
     r = Unicode.simpleFold(r)
-    while (r != r0) {
-      if (min > r) {
+    while r != r0 do {
+      if min > r then {
         min = r
       }
       r = Unicode.simpleFold(r)
@@ -1309,12 +1309,12 @@ object Parser {
   // leadingRegexp returns the leading regexp that re begins with.
   // The regexp refers to storage in re or its children.
   private def leadingRegexp(re: Regexp): Regexp = {
-    if (re.op == ROP.EMPTY_MATCH) {
+    if re.op == ROP.EMPTY_MATCH then {
       return null
     }
-    if (re.op == ROP.CONCAT && re.subs.length > 0) {
+    if re.op == ROP.CONCAT && re.subs.length > 0 then {
       val sub: Regexp = re.subs(0)
-      if (sub.op == ROP.EMPTY_MATCH) {
+      if sub.op == ROP.EMPTY_MATCH then {
         return null
       }
       return sub
@@ -1412,37 +1412,37 @@ object Parser {
   // undefined.
   private def parseRepeat(t: StringIterator): Int = {
     val start: Int = t.pos()
-    if (!t.more() || !t.lookingAt_c('{')) {
+    if !t.more() || !t.lookingAt_c('{') then {
       return -1
     }
     t.skip(1) // '{'
     val min: Int = parseInt(t) // (can be -2)
-    if (min == -1) {
+    if min == -1 then {
       return -1
     }
-    if (!t.more()) {
+    if !t.more() then {
       return -1
     }
     var max: Int = 0
-    if (!t.lookingAt_c(',')) {
+    if !t.lookingAt_c(',') then {
       max = min
     } else {
       t.skip(1) // ','
-      if (!t.more()) {
+      if !t.more() then {
         return -1
       }
-      if (t.lookingAt_c('}')) {
+      if t.lookingAt_c('}') then {
         max = -1
-      } else if ({ max = parseInt(t); max } == -1) { // (can be -2)
+      } else if { max = parseInt(t); max } == -1 then { // (can be -2)
         return -1
       }
     }
-    if (!t.more() || !t.lookingAt_c('}')) {
+    if !t.more() || !t.lookingAt_c('}') then {
       return -1
     }
     t.skip(1) // '}'
-    if (min < 0 || min > 1000 ||
-        max == -2 || max > 1000 || max >= 0 && min > max) {
+    if min < 0 || min > 1000 ||
+        max == -2 || max > 1000 || max >= 0 && min > max then {
       // Numbers were negative or too big, or max is present and min > max.
       throw new PatternSyntaxException(ERR_INVALID_REPEAT_SIZE, t.from(start))
     }
@@ -1455,13 +1455,13 @@ object Parser {
   // Python rejects names starting with digits.
   // We don't enforce either of those.
   private def isValidCaptureName(name: String): Boolean = {
-    if (name.isEmpty()) {
+    if name.isEmpty() then {
       return false
     }
     var i: Int = 0
-    while (i < name.length()) {
+    while i < name.length() do {
       val c: Char = name.charAt(i)
-      if (c != '_' && !Utils.isalnum(c)) {
+      if c != '_' && !Utils.isalnum(c) then {
         return false
       }
       i += 1
@@ -1474,15 +1474,15 @@ object Parser {
   private def parseInt(t: StringIterator): Int = {
     var start: Int = t.pos()
     var c: Int     = 0
-    while (t.more() && { c = t.peek(); c } >= '0' && c <= '9') {
+    while t.more() && { c = t.peek(); c } >= '0' && c <= '9' do {
       t.skip(1) // digit
     }
     val n: String = t.from(start)
-    if (n.isEmpty() ||
-        n.length() > 1 && n.charAt(0) == '0') { // disallow leading zeros
+    if n.isEmpty() ||
+        n.length() > 1 && n.charAt(0) == '0' then { // disallow leading zeros
       return -1 // bad format
     }
-    if (n.length() > 8) {
+    if n.length() > 8 then {
       return -2 // overflow
     }
     return Integer.valueOf(n, 10) // can't fail
@@ -1503,8 +1503,8 @@ object Parser {
         re.runes.length == 1 && re.runes(0) == r
       case ROP.CHAR_CLASS =>
         var i: Int = 0
-        while (i < re.runes.length) {
-          if (re.runes(i) <= r && r <= re.runes(i + 1)) {
+        while i < re.runes.length do {
+          if re.runes(i) <= r && r <= re.runes(i + 1) then {
             return true
           }
           i += 2
@@ -1529,12 +1529,12 @@ object Parser {
         ()
       case ROP.ANY_CHAR_NOT_NL =>
         // src might add \n
-        if (matchRune(src, '\n')) {
+        if matchRune(src, '\n') then {
           dst.op = ROP.ANY_CHAR
         }
       case ROP.CHAR_CLASS =>
         // src is simpler, so either literal or char class
-        if (src.op == ROP.LITERAL) {
+        if src.op == ROP.LITERAL then {
           dst.runes = new CharClass(dst.runes)
             .appendLiteral(src.runes(0), src.flags)
             .toArray()
@@ -1543,7 +1543,7 @@ object Parser {
         }
       case ROP.LITERAL =>
         // both literal
-        if (src.runes(0) == dst.runes(0) && src.flags == dst.flags) {
+        if src.runes(0) == dst.runes(0) && src.flags == dst.flags then {
           ()
         } else {
           dst.op = ROP.CHAR_CLASS
@@ -1561,7 +1561,7 @@ object Parser {
   private def parseEscape(t: StringIterator): Int = {
     val startPos: Int = t.pos()
     t.skip(1) // '\\'
-    if (!t.more()) {
+    if !t.more() then {
       throw new PatternSyntaxException(ERR_TRAILING_BACKSLASH, "")
     }
     var c: Int = t.pop()
@@ -1578,8 +1578,8 @@ object Parser {
         var r: Int          = c - '0'
         var i: Int          = 1
         var breakInner: Boolean = false
-        while (i < 3 && !breakInner) {
-          if (!t.more() || t.peek() < '0' || t.peek() > '7') {
+        while i < 3 && !breakInner do {
+          if !t.more() || t.peek() < '0' || t.peek() > '7' then {
             breakInner = true
           } else {
             r = r * 8 + t.peek() - '0'
@@ -1591,11 +1591,11 @@ object Parser {
 
       // Hexadecimal escapes.
       case 'x' =>
-        if (!t.more()) {
+        if !t.more() then {
           throw new PatternSyntaxException(ERR_INVALID_ESCAPE, t.from(startPos))
         }
         c = t.pop()
-        if (c == '{') {
+        if c == '{' then {
           // Any number of digits in braces.
           // Perl accepts any text at all it ignores all text
           // after the first non-hex digit.  We require only hex digits,
@@ -1603,27 +1603,27 @@ object Parser {
           var nhex: Int       = 0
           var r: Int          = 0
           var breakInner: Boolean = false
-          while (!breakInner) {
-            if (!t.more()) {
+          while !breakInner do {
+            if !t.more() then {
               throw new PatternSyntaxException(ERR_INVALID_ESCAPE, t.from(startPos))
             }
             c = t.pop()
-            if (c == '}') {
+            if c == '}' then {
               breakInner = true
             }
-            if (!breakInner) {
+            if !breakInner then {
               val v: Int = Utils.unhex(c)
-              if (v < 0) {
+              if v < 0 then {
                 throw new PatternSyntaxException(ERR_INVALID_ESCAPE, t.from(startPos))
               }
               r = r * 16 + v
-              if (r > Unicode.MAX_RUNE) {
+              if r > Unicode.MAX_RUNE then {
                 throw new PatternSyntaxException(ERR_INVALID_ESCAPE, t.from(startPos))
               }
               nhex += 1
             }
           }
-          if (nhex == 0) {
+          if nhex == 0 then {
             throw new PatternSyntaxException(ERR_INVALID_ESCAPE, t.from(startPos))
           }
           r
@@ -1632,7 +1632,7 @@ object Parser {
           val x: Int = Utils.unhex(c)
           c = t.pop()
           val y: Int = Utils.unhex(c)
-          if (x < 0 || y < 0) {
+          if x < 0 || y < 0 then {
             throw new PatternSyntaxException(ERR_INVALID_ESCAPE, t.from(startPos))
           }
           x * 16 + y
@@ -1659,7 +1659,7 @@ object Parser {
 
       // Default case.
       case _ =>
-        if (!Utils.isalnum(c)) {
+        if !Utils.isalnum(c) then {
           // Escaped non-word characters are always themselves.
           // PCRE is not quite so rigorous: it accepts things like
           // \q, but we don't.  We once rejected \_, but too many
@@ -1675,14 +1675,14 @@ object Parser {
   // wholeClassPos is the position of the start of the entire class "[...".
   // Pre: t at class char Post: t after it.
   private def parseClassChar(t: StringIterator, wholeClassPos: Int): Int = {
-    if (!t.more()) {
+    if !t.more() then {
       throw new PatternSyntaxException(ERR_MISSING_BRACKET,
                                        t.from(wholeClassPos))
     }
 
     // Allow regular escape sequences even though
     // many need not be escaped in this context.
-    if (t.lookingAt_c('\\')) {
+    if t.lookingAt_c('\\') then {
       return parseEscape(t)
     }
 
@@ -1701,15 +1701,15 @@ object Parser {
   private def unicodeTable(
       name: String): Pair[Array[Array[Int]], Array[Array[Int]]] = {
     // Special case: "Any" means any.
-    if (name.equals("Any")) {
+    if name.equals("Any") then {
       return Pair.of[Array[Array[Int]], Array[Array[Int]]](ANY_TABLE, ANY_TABLE)
     }
     var table: Array[Array[Int]] = UnicodeTables.CATEGORIES.get(name)
-    if (table != null) {
+    if table != null then {
       return Pair.of[Array[Array[Int]], Array[Array[Int]]](table, UnicodeTables.FOLD_CATEGORIES.get(name))
     }
     table = UnicodeTables.SCRIPTS.get(name)
-    if (table != null) {
+    if table != null then {
       return Pair.of[Array[Array[Int]], Array[Array[Int]]](table, UnicodeTables.FOLD_SCRIPT.get(name))
     }
     return null
@@ -1721,7 +1721,7 @@ object Parser {
   def subarray(array: Array[Regexp], start: Int, end: Int): Array[Regexp] = {
     val r: Array[Regexp] = new Array[Regexp](end - start)
     var i: Int = start
-    while (i < end) {
+    while i < end do {
       r(i - start) = array(i)
       i += 1
     }

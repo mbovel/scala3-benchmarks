@@ -32,7 +32,7 @@ package java.util.regex
  * @author rsc@google.com (Russ Cox)
  */
 final class Matcher(private val _pattern: Pattern, private var _inputSequence: CharSequence) {
-  if (_pattern == null) {
+  if _pattern == null then {
     throw new NullPointerException("pattern is null")
   }
 
@@ -81,7 +81,7 @@ final class Matcher(private val _pattern: Pattern, private var _inputSequence: C
    * @return the {@code Matcher} itself, for chained method calls
    */
   def reset_1(input: CharSequence): Matcher = {
-    if (input == null) {
+    if input == null then {
       throw new NullPointerException("input is null")
     }
     reset_0()
@@ -147,7 +147,7 @@ final class Matcher(private val _pattern: Pattern, private var _inputSequence: C
   def group_1(group: Int): String = {
     val start: Int = this.start_1(group)
     val end: Int   = this.end_1(group)
-    if (start < 0 && end < 0) {
+    if start < 0 && end < 0 then {
       // Means the subpattern didn't get matched at all.
       return null
     }
@@ -163,14 +163,14 @@ final class Matcher(private val _pattern: Pattern, private var _inputSequence: C
 
   /** Helper: finds subgroup information if needed for group. */
   private def loadGroup(group: Int): Unit = {
-    if (group < 0 || group > _groupCount) {
+    if group < 0 || group > _groupCount then {
       throw new IndexOutOfBoundsException(
         "Group index out of bounds: " + group)
     }
-    if (!_hasMatch) {
+    if !_hasMatch then {
       throw new IllegalStateException("perhaps no match attempted")
     }
-    if (group == 0 || _hasGroups) {
+    if group == 0 || _hasGroups then {
       return
     }
 
@@ -182,7 +182,7 @@ final class Matcher(private val _pattern: Pattern, private var _inputSequence: C
     // We know it won't affect the total matched because the previous call
     // to match included the extra character, and it was not matched then.
     var end: Int = _groups(1) + 1
-    if (end > _inputLength) {
+    if end > _inputLength then {
       end = _inputLength
     }
 
@@ -194,7 +194,7 @@ final class Matcher(private val _pattern: Pattern, private var _inputSequence: C
                                  1 + _groupCount)
     // Must match - hasMatch says that the last call with these
     // parameters worked just fine.
-    if (!ok) {
+    if !ok then {
       throw new IllegalStateException("inconsistency in matching group data")
     } else {
       _hasGroups = true
@@ -227,9 +227,9 @@ final class Matcher(private val _pattern: Pattern, private var _inputSequence: C
    */
   def find_0(): Boolean = {
     var start: Int = 0
-    if (_hasMatch) {
+    if _hasMatch then {
       start = _groups(1)
-      if (_groups(0) == _groups(1)) { // empty match - nudge forward
+      if _groups(0) == _groups(1) then { // empty match - nudge forward
         start += 1
       }
     }
@@ -246,7 +246,7 @@ final class Matcher(private val _pattern: Pattern, private var _inputSequence: C
    * @throws IndexOutOfBoundsException if start is not a valid input position
    */
   def find_1(start: Int): Boolean = {
-    if (start < 0 || start > _inputLength) {
+    if start < 0 || start > _inputLength then {
       throw new IndexOutOfBoundsException(
         "start index out of bounds: " + start)
     }
@@ -262,7 +262,7 @@ final class Matcher(private val _pattern: Pattern, private var _inputSequence: C
                                  anchor,
                                  _groups,
                                  1)
-    if (!ok) {
+    if !ok then {
       false
     } else {
       _hasMatch = true
@@ -307,43 +307,43 @@ final class Matcher(private val _pattern: Pattern, private var _inputSequence: C
   def appendReplacement(sb: StringBuffer, replacement: String): Matcher = {
     val s: Int = start_0()
     val e: Int = end_0()
-    if (_appendPos < s) {
+    if _appendPos < s then {
       sb.append(substring(_appendPos, s))
     }
     _appendPos = e
     var last: Int = 0
     var i: Int    = 0
     val m: Int    = replacement.length()
-    while (i < m - 1) {
-      if (replacement.charAt(i) == '\\') {
-        if (last < i) {
+    while i < m - 1 do {
+      if replacement.charAt(i) == '\\' then {
+        if last < i then {
           sb.append(replacement.substring(last, i))
         }
         i += 1
         last = i
-      } else if (replacement.charAt(i) == '$') {
+      } else if replacement.charAt(i) == '$' then {
         var c: Char = replacement.charAt(i + 1)
-        if ('0' <= c && c <= '9') {
+        if '0' <= c && c <= '9' then {
           var n: Int = c - '0'
-          if (last < i) {
+          if last < i then {
             sb.append(replacement.substring(last, i))
           }
           i += 2
           var break: Boolean = false
-          while (!break && i < m) {
+          while !break && i < m do {
             c = replacement.charAt(i)
-            if (c < '0' || c > '9' || n * 10 + c - '0' > _groupCount) {
+            if c < '0' || c > '9' || n * 10 + c - '0' > _groupCount then {
               break = true
             } else {
               n = n * 10 + c - '0'
               i += 1
             }
           }
-          if (n > _groupCount) {
+          if n > _groupCount then {
             throw new IndexOutOfBoundsException("n > number of groups: " + n)
           }
           val group: String = this.group_1(n)
-          if (group != null) {
+          if group != null then {
             sb.append(group)
           }
           last = i
@@ -352,7 +352,7 @@ final class Matcher(private val _pattern: Pattern, private var _inputSequence: C
       }
       i += 1
     }
-    if (last < m) {
+    if last < m then {
       sb.append(replacement.substring(last, m))
     }
     this
@@ -397,9 +397,9 @@ final class Matcher(private val _pattern: Pattern, private var _inputSequence: C
     reset_0()
     val sb: StringBuffer    = new StringBuffer()
     var break: Boolean = false
-    while (!break && find_0()) {
+    while !break && find_0() do {
       appendReplacement(sb, replacement)
-      if (!all) {
+      if !all then {
         break = true
       }
     }
@@ -418,14 +418,14 @@ object Matcher {
    * @return the quoted string
    */
   def quoteReplacement(s: String): String = {
-    if (s.indexOf('\\') < 0 && s.indexOf('$') < 0) {
+    if s.indexOf('\\') < 0 && s.indexOf('$') < 0 then {
       return s
     }
     val sb: java.lang.StringBuilder = new java.lang.StringBuilder()
     var i: Int  = 0
-    while (i < s.length()) {
+    while i < s.length() do {
       val c: Char = s.charAt(i)
-      if (c == '\\' || c == '$') {
+      if c == '\\' || c == '$' then {
         sb.append('\\')
       }
       sb.append(c)

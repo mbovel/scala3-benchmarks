@@ -15,7 +15,7 @@ package util.parsing
 package combinator
 package lexical
 
-import token._
+import token.*
 import input.CharArrayReader.EofCh
 import scala.collection.mutable
 
@@ -73,7 +73,7 @@ class StdLexical extends Lexical with StdTokens {
   val delimiters = new mutable.HashSet[String]
 
   protected def processIdent(name: String) =
-    if (reserved contains name) Keyword(name) else Identifier(name)
+    if reserved contains name then Keyword(name) else Identifier(name)
 
   private lazy val _delim: Parser[Token] = {
     // construct parser for delimiters by |'ing together the parsers for the individual delimiters,

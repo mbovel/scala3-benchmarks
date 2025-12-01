@@ -15,7 +15,7 @@ package util.parsing
 package combinator
 package syntactical
 
-import token._
+import token.*
 import scala.collection.mutable
 import scala.language.implicitConversions
 

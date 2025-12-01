@@ -8,7 +8,7 @@
 package java.util.regex
 
 import java.util.ArrayList
-import java.util.regex.Inst.{Op => IOP}
+import java.util.regex.Inst.{Op as IOP}
 
 /**
  * A Prog is a compiled regular expression program.
@@ -36,7 +36,7 @@ class Prog() {
   def skipNop(_pc: Int): Inst = {
     var pc: Int = _pc
     var i: Inst  = inst.get(pc)
-    while (i.op == IOP.NOP || i.op == IOP.CAPTURE) {
+    while i.op == IOP.NOP || i.op == IOP.CAPTURE do {
       i = inst.get(pc)
       pc = i.out
     }
@@ -50,14 +50,14 @@ class Prog() {
     var i: Inst = skipNop(start)
 
     // Avoid allocation of buffer if prefix is empty.
-    if (i.runeOp() != IOP.RUNE || i.runes.length != 1) {
+    if i.runeOp() != IOP.RUNE || i.runes.length != 1 then {
       return i.op == IOP.MATCH // (append "" to prefix)
     }
 
     // Have prefix gather characters.
-    while (i.runeOp() == IOP.RUNE &&
+    while i.runeOp() == IOP.RUNE &&
            i.runes.length == 1 &&
-           (i.arg & RE2.FOLD_CASE) == 0) {
+           (i.arg & RE2.FOLD_CASE) == 0 do {
       prefix.appendCodePoint(i.runes(0)) // an int, not a byte.
       i = skipNop(i.out)
     }
@@ -71,7 +71,7 @@ class Prog() {
     var flag: Int  = 0 // bitmask of EMPTY_* flags
     var pc: Int    = start
     var break: Boolean = false
-    while (!break) {
+    while !break do {
       val i: Inst = inst.get(pc)
       i.op match {
         case IOP.EMPTY_WIDTH =>
@@ -83,7 +83,7 @@ class Prog() {
         case _ =>
           break = true
       }
-      if (!break) {
+      if !break then {
         pc = i.out
       }
     }
@@ -105,7 +105,7 @@ class Prog() {
 
   def next(l: Int): Int = {
     val i: Inst = inst.get(l >> 1)
-    if ((l & 1) == 0) {
+    if (l & 1) == 0 then {
       i.out
     } else {
       i.arg
@@ -114,9 +114,9 @@ class Prog() {
 
   def patch(_l: Int, value: Int): Unit = {
     var l: Int = _l
-    while (l != 0) {
+    while l != 0 do {
       var i: Inst = inst.get(l >> 1)
-      if ((l & 1) == 0) {
+      if (l & 1) == 0 then {
         l = i.out
         i.out = value
       } else {
@@ -127,24 +127,24 @@ class Prog() {
   }
 
   def append(l1: Int, l2: Int): Int = {
-    if (l1 == 0) {
+    if l1 == 0 then {
       return l2
     }
-    if (l2 == 0) {
+    if l2 == 0 then {
       return l1
     }
     var last: Int  = l1
     var break: Boolean = false
-    while (!break) {
+    while !break do {
       val next: Int = this.next(last)
-      if (next == 0) {
+      if next == 0 then {
         break = true
       } else {
         last = next
       }
     }
     val i: Inst = inst.get(last >> 1)
-    if ((last & 1) == 0) {
+    if (last & 1) == 0 then {
       i.out = l2
     } else {
       i.arg = l2
@@ -157,10 +157,10 @@ class Prog() {
   override def toString(): String = {
     val out: java.lang.StringBuilder = new java.lang.StringBuilder()
     var pc: Int  = 0
-    while (pc < inst.size()) {
+    while pc < inst.size() do {
       val len: Int = out.length()
       out.append(pc)
-      if (pc == start) {
+      if pc == start then {
         out.append('*')
       }
       out

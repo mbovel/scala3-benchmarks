@@ -37,9 +37,9 @@ case class OffsetPosition(source: CharSequence, offset: Int) extends Position {
   private def genIndex: Array[Int] = {
     val lineStarts = new ArrayBuffer[Int]
     lineStarts += 0
-    for (i <- 0 until source.length)
-      if (source.charAt(i) == '\n' ||
-        (source.charAt(i) == '\r' && (i == (source.length - 1) || source.charAt(i + 1) != '\n'))) {
+    for i <- 0 until source.length do
+      if source.charAt(i) == '\n' ||
+        (source.charAt(i) == '\r' && (i == (source.length - 1) || source.charAt(i + 1) != '\n')) then {
         lineStarts += (i + 1)
       }
     lineStarts += source.length
@@ -50,9 +50,9 @@ case class OffsetPosition(source: CharSequence, offset: Int) extends Position {
   def line: Int = {
     var lo = 0
     var hi = index.length - 1
-    while (lo + 1 < hi) {
+    while lo + 1 < hi do {
       val mid = lo + ((hi - lo) / 2)
-      if (offset < index(mid)) hi = mid
+      if offset < index(mid) then hi = mid
       else lo = mid
     }
     lo + 1
@@ -69,9 +69,9 @@ case class OffsetPosition(source: CharSequence, offset: Int) extends Position {
     val lineStart = index(line - 1)
     val lineEnd = index(line)
     val endIndex =
-      if (lineStart < lineEnd - 1 && source.charAt(lineEnd - 2) == '\r' && source.charAt(lineEnd - 1) == '\n') {
+      if lineStart < lineEnd - 1 && source.charAt(lineEnd - 2) == '\r' && source.charAt(lineEnd - 1) == '\n' then {
         lineEnd - 2
-      } else if (lineStart < lineEnd && (source.charAt(lineEnd - 1) == '\r' || source.charAt(lineEnd - 1) == '\n')) {
+      } else if lineStart < lineEnd && (source.charAt(lineEnd - 1) == '\r' || source.charAt(lineEnd - 1) == '\n') then {
         lineEnd - 1
       } else {
         lineEnd

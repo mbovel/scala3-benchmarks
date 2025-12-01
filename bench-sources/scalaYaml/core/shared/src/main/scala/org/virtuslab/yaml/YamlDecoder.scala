@@ -4,20 +4,20 @@ import scala.reflect.ClassTag
 import scala.util.Try
 
 import org.virtuslab.yaml.Node
-import org.virtuslab.yaml.Node._
+import org.virtuslab.yaml.Node.*
 
 /**
  * A type class that provides a conversion from a [[Node]] into given type [[T]]
  */
 trait YamlDecoder[T] { self =>
-  def construct(node: Node)(implicit
+  def construct(node: Node)(using
       settings: LoadSettings = LoadSettings.empty
   ): Either[ConstructError, T]
 
   final def orElse[T1 >: T](that: => YamlDecoder[T1]): YamlDecoder[T1] = new YamlDecoder[T1] {
     override def construct(
         node: Node
-    )(implicit settings: LoadSettings): Either[ConstructError, T1] =
+    )(using settings: LoadSettings): Either[ConstructError, T1] =
       self.construct(node) match {
         case result @ Right(_) => result
         case Left(_)           => that.construct(node)
@@ -27,7 +27,7 @@ trait YamlDecoder[T] { self =>
   final def widen[T1 >: T]: YamlDecoder[T1] = self.asInstanceOf[YamlDecoder[T1]]
 
   final def map[T1](f: T => T1): YamlDecoder[T1] = new YamlDecoder[T1] {
-    override def construct(node: Node)(implicit
+    override def construct(node: Node)(using
         settings: LoadSettings
     ): Either[ConstructError, T1] =
       self.construct(node).map(f)
@@ -35,14 +35,14 @@ trait YamlDecoder[T] { self =>
 
   final def mapError[T1](f: T => Either[ConstructError, T1]): YamlDecoder[T1] =
     new YamlDecoder[T1] {
-      override def construct(node: Node)(implicit
+      override def construct(node: Node)(using
           settings: LoadSettings
       ): Either[ConstructError, T1] =
         self.construct(node).flatMap(f)
     }
 
   final def flatMap[T1](f: T => YamlDecoder[T1]): YamlDecoder[T1] = new YamlDecoder[T1] {
-    override def construct(node: Node)(implicit
+    override def construct(node: Node)(using
         settings: LoadSettings
     ): Either[ConstructError, T1] =
       self.construct(node) match {
@@ -54,20 +54,20 @@ trait YamlDecoder[T] { self =>
 
 object YamlDecoder extends YamlDecoderCompanionCrossCompat {
 
-  def apply[T](implicit self: YamlDecoder[T]): YamlDecoder[T] = self
+  def apply[T](using self: YamlDecoder[T]): YamlDecoder[T] = self
 
-  def from[T](pf: PartialFunction[Node, Either[ConstructError, T]])(implicit
+  def from[T](pf: PartialFunction[Node, Either[ConstructError, T]])(using
       classTag: ClassTag[T]
   ): YamlDecoder[T] = apply[T](pf)
 
   def apply[T](
       pf: PartialFunction[Node, Either[ConstructError, T]]
-  )(implicit classTag: ClassTag[T]): YamlDecoder[T] =
+  )(using classTag: ClassTag[T]): YamlDecoder[T] =
     new YamlDecoder[T] {
       override def construct(
           node: Node
-      )(implicit settings: LoadSettings = LoadSettings.empty): Either[ConstructError, T] =
-        if (node.tag == Tag.nullTag)
+      )(using settings: LoadSettings = LoadSettings.empty): Either[ConstructError, T] =
+        if node.tag == Tag.nullTag then
           Left(
             ConstructError.from(
               s"""|Could't construct ${classTag.runtimeClass.getName} from null (${node.tag.value})
@@ -75,7 +75,7 @@ object YamlDecoder extends YamlDecoderCompanionCrossCompat {
                   |""".stripMargin
             )
           )
-        else if (pf.isDefinedAt(node)) pf(node)
+        else if pf.isDefinedAt(node) then pf(node)
         else
           Left(
             ConstructError.from(
@@ -93,7 +93,7 @@ object YamlDecoder extends YamlDecoderCompanionCrossCompat {
   )
 
   private def normalizeInt(string: String): String = {
-    val octal = if (string.startsWith("0o")) string.stripPrefix("0o").prepended('0') else string
+    val octal = if string.startsWith("0o") then string.stripPrefix("0o").prepended('0') else string
     octal.replaceAll("_", "")
   }
 
@@ -108,11 +108,11 @@ object YamlDecoder extends YamlDecoderCompanionCrossCompat {
   }
 
   implicit def forDouble: YamlDecoder[Double] = YamlDecoder { case s @ ScalarNode(value, _) =>
-    if (Tag.nan.matches(value)) {
+    if Tag.nan.matches(value) then {
       Right(Double.NaN)
-    } else if (Tag.plusInfinity.matches(value)) {
+    } else if Tag.plusInfinity.matches(value) then {
       Right(Double.PositiveInfinity)
-    } else if (Tag.minusInfinity.matches(value)) {
+    } else if Tag.minusInfinity.matches(value) then {
       Right(Double.NegativeInfinity)
     } else {
       Try(java.lang.Double.parseDouble(value.replaceAll("_", ""))).toEither.left
@@ -123,16 +123,16 @@ object YamlDecoder extends YamlDecoderCompanionCrossCompat {
   def forDoublePrecise: YamlDecoder[Double] = YamlDecoder { case s @ ScalarNode(value, _) =>
     forDouble.construct(s).flatMap { n =>
       val ns = n.toString
-      if (ns == value) Right(n) else Left(ConstructError.from(s"Double, decoded $ns", s))
+      if ns == value then Right(n) else Left(ConstructError.from(s"Double, decoded $ns", s))
     }
   }
 
   implicit def forFloat: YamlDecoder[Float] = YamlDecoder { case s @ ScalarNode(value, _) =>
-    if (Tag.nan.matches(value)) {
+    if Tag.nan.matches(value) then {
       Right(Float.NaN)
-    } else if (Tag.plusInfinity.matches(value)) {
+    } else if Tag.plusInfinity.matches(value) then {
       Right(Float.PositiveInfinity)
-    } else if (Tag.minusInfinity.matches(value)) {
+    } else if Tag.minusInfinity.matches(value) then {
       Right(Float.NegativeInfinity)
     } else {
       Try(java.lang.Float.parseFloat(value.replaceAll("_", ""))).toEither.left
@@ -143,7 +143,7 @@ object YamlDecoder extends YamlDecoderCompanionCrossCompat {
   def forFloatPrecise: YamlDecoder[Float] = YamlDecoder { case s @ ScalarNode(value, _) =>
     forFloat.construct(s).flatMap { n =>
       val ns = n.toString
-      if (ns == value) Right(n) else Left(ConstructError.from(s"Float, decoded $ns", s))
+      if ns == value then Right(n) else Left(ConstructError.from(s"Float, decoded $ns", s))
     }
   }
 
@@ -158,9 +158,9 @@ object YamlDecoder extends YamlDecoderCompanionCrossCompat {
   }
 
   implicit def forBoolean: YamlDecoder[Boolean] = YamlDecoder { case s @ ScalarNode(value, _) =>
-    if (Tag.falsePattern.matches(value)) {
+    if Tag.falsePattern.matches(value) then {
       Right(false)
-    } else if (Tag.truePattern.matches(value)) {
+    } else if Tag.truePattern.matches(value) then {
       Right(true)
     } else {
       Left(cannotParse(value, "Boolean", s))
@@ -179,7 +179,7 @@ object YamlDecoder extends YamlDecoderCompanionCrossCompat {
   }
 
   implicit def forAny: YamlDecoder[Any] = new YamlDecoder[Any] {
-    def construct(node: Node)(implicit settings: LoadSettings = LoadSettings.empty) = node match {
+    def construct(node: Node)(using settings: LoadSettings = LoadSettings.empty) = node match {
       case ScalarNode(_, Tag.nullTag) =>
         Right(None)
       case node @ ScalarNode(_, Tag.boolean) =>
@@ -223,16 +223,16 @@ object YamlDecoder extends YamlDecoderCompanionCrossCompat {
     }
   }
 
-  implicit def forOption[T](implicit c: YamlDecoder[T]): YamlDecoder[Option[T]] =
+  implicit def forOption[T](using c: YamlDecoder[T]): YamlDecoder[Option[T]] =
     new YamlDecoder[Option[T]] {
       override def construct(
           node: Node
-      )(implicit settings: LoadSettings): Either[ConstructError, Option[T]] =
-        if (node.tag == Tag.nullTag) Right(None)
+      )(using settings: LoadSettings): Either[ConstructError, Option[T]] =
+        if node.tag == Tag.nullTag then Right(None)
         else c.construct(node).map(Option(_))
     }
 
-  private def constructFromNodes[T](nodes: Seq[Node])(implicit
+  private def constructFromNodes[T](nodes: Seq[Node])(using
       c: YamlDecoder[T]
   ): Either[ConstructError, Seq[T]] = {
     val constructed = nodes.map(c.construct(_))
@@ -243,22 +243,22 @@ object YamlDecoder extends YamlDecoderCompanionCrossCompat {
     }
   }
 
-  implicit def forList[T](implicit c: YamlDecoder[T]): YamlDecoder[List[T]] = YamlDecoder {
+  implicit def forList[T](using c: YamlDecoder[T]): YamlDecoder[List[T]] = YamlDecoder {
     case SequenceNode(nodes, _) =>
       constructFromNodes[T](nodes).map(_.toList)
   }
 
-  implicit def forSeq[T](implicit c: YamlDecoder[T]): YamlDecoder[Seq[T]] = YamlDecoder {
+  implicit def forSeq[T](using c: YamlDecoder[T]): YamlDecoder[Seq[T]] = YamlDecoder {
     case SequenceNode(nodes, _) =>
       constructFromNodes[T](nodes)
   }
 
-  implicit def forSet[T](implicit c: YamlDecoder[T]): YamlDecoder[Set[T]] = YamlDecoder {
+  implicit def forSet[T](using c: YamlDecoder[T]): YamlDecoder[Set[T]] = YamlDecoder {
     case SequenceNode(nodes, _) =>
       constructFromNodes[T](nodes).map(_.toSet)
   }
 
-  implicit def forMap[K, V](implicit
+  implicit def forMap[K, V](using
       keyDecoder: YamlDecoder[K],
       valueDecoder: YamlDecoder[V]
   ): YamlDecoder[Map[K, V]] = YamlDecoder { case MappingNode(mappings, _) =>
@@ -269,10 +269,10 @@ object YamlDecoder extends YamlDecoderCompanionCrossCompat {
         (keyDecoder.construct(key) -> valueDecoder.construct(value))
       }
       .map { case (key, value) =>
-        for {
+        for
           k <- key
           v <- value
-        } yield (k -> v)
+        yield (k -> v)
       }
 
     decoded.partitionMap(identity) match {

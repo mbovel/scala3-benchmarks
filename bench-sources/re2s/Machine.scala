@@ -10,8 +10,8 @@ package java.util.regex
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.List
-import java.util.regex.Inst.{Op => IOP}
-import java.util.regex.Machine._
+import java.util.regex.Inst.{Op as IOP}
+import java.util.regex.Machine.*
 
 // A Machine matches an input string of Unicode characters against an
 // RE2 instance using a simple NFA.
@@ -34,12 +34,12 @@ class Machine(re2: RE2) {
 
   // Capture information for the match.
   private var matchcap: Array[Int] =
-    new Array[Int](if (prog.numCap < 2) 2 else prog.numCap)
+    new Array[Int](if prog.numCap < 2 then 2 else prog.numCap)
 
   // init() reinitializes an existing Machine for re-use on a new input.
   def init(ncap: Int): Unit = {
     val iter: java.util.Iterator[Machine.Thread] = pool.iterator()
-    while (iter.hasNext()) {
+    while iter.hasNext() do {
       val t: Machine.Thread = iter.next()
       t.cap = new Array[Int](ncap)
     }
@@ -47,7 +47,7 @@ class Machine(re2: RE2) {
   }
 
   def submatches(): Array[Int] = {
-    if (matchcap.length == 0) {
+    if matchcap.length == 0 then {
       return Utils.EMPTY_INTS
     }
     val cap: Array[Int] = new Array[Int](matchcap.length)
@@ -59,7 +59,7 @@ class Machine(re2: RE2) {
   // It uses the free pool if possible.
   private def alloc(inst: Inst): Thread = {
     val n: Int = pool.size()
-    val t: Machine.Thread = if (n > 0) pool.remove(n - 1) else new Thread(matchcap.length)
+    val t: Machine.Thread = if n > 0 then pool.remove(n - 1) else new Thread(matchcap.length)
     t.inst = inst
     t
   }
@@ -75,11 +75,11 @@ class Machine(re2: RE2) {
   def match_(in: MachineInput, _pos: Int, anchor: Int): Boolean = {
     var pos: Int       = _pos
     val startCond: Int = re2.cond
-    if (startCond == Utils.EMPTY_ALL) { // impossible
+    if startCond == Utils.EMPTY_ALL then { // impossible
       return false
     }
-    if ((anchor == RE2.ANCHOR_START || anchor == RE2.ANCHOR_BOTH) &&
-        pos != 0) {
+    if (anchor == RE2.ANCHOR_START || anchor == RE2.ANCHOR_BOTH) &&
+        pos != 0 then {
       return false
     }
     matched = false
@@ -91,34 +91,34 @@ class Machine(re2: RE2) {
     var width: Int  = r & 7
     var rune1: Int  = -1
     var width1: Int = 0
-    if (r != MachineInput.EOF) {
+    if r != MachineInput.EOF then {
       r = in.step(pos + width)
       rune1 = r >> 3
       width1 = r & 7
     }
     var flag: Int = 0 // bitmask of EMPTY_* flags
-    if (pos == 0) {
+    if pos == 0 then {
       flag = Utils.emptyOpContext(-1, rune)
     } else {
       flag = in.context(pos)
     }
     var stop: Boolean = false
-    while (!stop) {
-      if (runq.isEmpty()) {
-        if ((startCond & Utils.EMPTY_BEGIN_TEXT) != 0 && pos != 0) {
+    while !stop do {
+      if runq.isEmpty() then {
+        if (startCond & Utils.EMPTY_BEGIN_TEXT) != 0 && pos != 0 then {
           // Anchored match, past beginning of text.
           stop = true
         }
-        if (matched) {
+        if matched then {
           // Have match finished exploring alternatives.
           stop = true
         }
-        if (!re2.prefix.isEmpty() &&
+        if !re2.prefix.isEmpty() &&
             rune1 != re2.prefixRune &&
-            in.canCheckPrefix()) {
+            in.canCheckPrefix() then {
           // Match requires literal prefix fast search for it.
           val advance: Int = in.index(re2, pos)
-          if (advance < 0) {
+          if advance < 0 then {
             stop = true
           }
           pos += advance
@@ -130,10 +130,10 @@ class Machine(re2: RE2) {
           width1 = r & 7
         }
       }
-      if (!matched && (pos == 0 || anchor == RE2.UNANCHORED)) {
+      if !matched && (pos == 0 || anchor == RE2.UNANCHORED) then {
         // If we are anchoring at begin then only add threads that begin
         // at |pos| = 0.
-        if (matchcap.length > 0) {
+        if matchcap.length > 0 then {
           matchcap(0) = pos
         }
         this.add(runq, prog.start, pos, matchcap, flag, null)
@@ -147,10 +147,10 @@ class Machine(re2: RE2) {
            flag,
            anchor,
            pos == in.endPos())
-      if (width == 0) { // EOF
+      if width == 0 then { // EOF
         stop = true
       }
-      if (matchcap.length == 0 && matched) {
+      if matchcap.length == 0 && matched then {
         // Found a match and not paying attention
         // to where it is, so any match will do.
         stop = true
@@ -158,7 +158,7 @@ class Machine(re2: RE2) {
       pos += width
       rune = rune1
       width = width1
-      if (rune != -1) {
+      if rune != -1 then {
         r = in.step(pos + width)
         rune1 = r >> 3
         width1 = r & 7
@@ -188,16 +188,16 @@ class Machine(re2: RE2) {
                    atEnd: Boolean): Unit = {
     val longest: Boolean = re2.longest
     var j: Int       = 0
-    while (j < runq.size) {
+    while j < runq.size do {
       val entry: Machine.Entry = runq.dense(j)
-      if (entry == null) {
+      if entry == null then {
         () // continue
       } else {
         var t: Machine.Thread = entry.thread
-        if (t == null) {
+        if t == null then {
           () //continue
         } else {
-          if (longest && matched && t.cap.length > 0 && matchcap(0) < t.cap(0)) {
+          if longest && matched && t.cap.length > 0 && matchcap(0) < t.cap(0) then {
             // free(t)
             pool.add(t)
             () // continue
@@ -206,21 +206,21 @@ class Machine(re2: RE2) {
             var add: Boolean = false
             i.op match {
               case IOP.MATCH =>
-                if (anchor == RE2.ANCHOR_BOTH && !atEnd) {
+                if anchor == RE2.ANCHOR_BOTH && !atEnd then {
                   // Don't match if we anchor at both start and end and those
                   // expectations aren't met.
                   () // break switch
                 } else {
-                  if (t.cap.length > 0 && (!longest || !matched || matchcap(1) < pos)) {
+                  if t.cap.length > 0 && (!longest || !matched || matchcap(1) < pos) then {
                     t.cap(1) = pos
                     System.arraycopy(t.cap, 0, matchcap, 0, t.cap.length)
                   }
-                  if (!longest) {
+                  if !longest then {
                     // First-match mode: cut off all lower-priority threads.
                     var k: Int = j + 1
-                    while (k < runq.size) {
+                    while k < runq.size do {
                       val d: Machine.Entry = runq.dense(k)
-                      if (d.thread != null) {
+                      if d.thread != null then {
                         // free(d.thread)
                         pool.add(d.thread)
                       }
@@ -241,10 +241,10 @@ class Machine(re2: RE2) {
               case _ =>
                 throw new IllegalStateException("bad inst")
             }
-            if (add) {
+            if add then {
               t = this.add(nextq, i.out, nextPos, t.cap, nextCond, t)
             }
-            if (t != null) {
+            if t != null then {
               // free(t)
               pool.add(t)
             }
@@ -268,10 +268,10 @@ class Machine(re2: RE2) {
                   cond: Int,
                   _t: Thread): Thread = {
     var t: Machine.Thread = _t
-    if (pc == 0) {
+    if pc == 0 then {
       return t
     }
-    if (q.contains(pc)) {
+    if q.contains(pc) then {
       return t
     }
     val d: Machine.Entry    = q.add(pc)
@@ -283,13 +283,13 @@ class Machine(re2: RE2) {
         t = this.add(q, inst.out, pos, cap, cond, t)
         t = this.add(q, inst.arg, pos, cap, cond, t)
       case IOP.EMPTY_WIDTH =>
-        if ((inst.arg & ~cond) == 0) {
+        if (inst.arg & ~cond) == 0 then {
           t = this.add(q, inst.out, pos, cap, cond, t)
         }
       case IOP.NOP =>
         t = this.add(q, inst.out, pos, cap, cond, t)
       case IOP.CAPTURE =>
-        if (inst.arg < cap.length) {
+        if inst.arg < cap.length then {
           val opos: Int = cap(inst.arg)
           cap(inst.arg) = pos
           this.add(q, inst.out, pos, cap, cond, null)
@@ -299,12 +299,12 @@ class Machine(re2: RE2) {
         }
       case IOP.MATCH | IOP.RUNE | IOP.RUNE1 | IOP.RUNE_ANY |
           IOP.RUNE_ANY_NOT_NL =>
-        if (t == null) {
+        if t == null then {
           t = alloc(inst)
         } else {
           t.inst = inst
         }
-        if (cap.length > 0 && t.cap != cap) {
+        if cap.length > 0 && t.cap != cap then {
           System.arraycopy(cap, 0, t.cap, 0, cap.length)
         }
         d.thread = t
@@ -333,7 +333,7 @@ object Machine {
 
     def contains(pc: Int): Boolean = {
       val j: Int = sparse(pc) // (non-negative)
-      if (j >= size) {
+      if j >= size then {
         return false
       }
       val d: Machine.Entry = dense(j)
@@ -347,7 +347,7 @@ object Machine {
       size += 1
       sparse(pc) = j
       var e: Machine.Entry = dense(j)
-      if (e == null) { // recycle previous Entry if any
+      if e == null then { // recycle previous Entry if any
         val entry: Machine.Entry = new Entry()
         dense(j) = entry
         e = entry
@@ -360,9 +360,9 @@ object Machine {
     // Frees all threads on the thread queue, returning them to the free pool.
     def clear(freePool: List[Thread]): Unit = {
       var i: Int = 0
-      while (i < size) {
+      while i < size do {
         val entry: Machine.Entry = dense(i)
-        if (entry != null && entry.thread != null) {
+        if entry != null && entry.thread != null then {
           // free(entry.thread)
           freePool.add(entry.thread)
         }
@@ -376,8 +376,8 @@ object Machine {
       val out: java.lang.StringBuilder = new java.lang.StringBuilder()
       out.append('{')
       var i: Int = 0
-      while (i < size) {
-        if (i != 0) {
+      while i < size do {
+        if i != 0 then {
           out.append(", ")
         }
         out.append(dense(i).pc)

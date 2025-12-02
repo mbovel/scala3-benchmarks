@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Visualize benchmark results as box plots using Plotly Express."""
 
+import argparse
 import json
 from pathlib import Path
 
@@ -8,7 +9,6 @@ import pandas as pd
 import plotly.express as px
 
 RESULTS_DIR = Path("results")
-BASELINE_VERSION = "3.3.4"
 LAST_N_MEASUREMENTS = 20  # Keep only last 20 measurements per run (after warmup)
 
 
@@ -53,11 +53,11 @@ def load_all_data() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def compute_relative_speeds(df: pd.DataFrame) -> pd.DataFrame:
+def compute_relative_speeds(df: pd.DataFrame, baseline_version: str) -> pd.DataFrame:
     """Compute speed relative to the baseline version (higher = faster)."""
     # Compute median time for each benchmark in the baseline version
     baseline_medians = (
-        df[df["version"] == BASELINE_VERSION]
+        df[df["version"] == baseline_version]
         .groupby("benchmark")["time_ms"]
         .median()
         .to_dict()
@@ -73,29 +73,50 @@ def compute_relative_speeds(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def main():
+    parser = argparse.ArgumentParser(
+        description="Visualize benchmark results as box plots."
+    )
+    parser.add_argument(
+        "--versions",
+        nargs="+",
+        help="Ordered list of versions to compare. The first version is used as the baseline.",
+    )
+    parser.add_argument(
+        "-o", "--output",
+        default="benchmark_results.html",
+        help="Output HTML file (default: benchmark_results.html)",
+    )
+    args = parser.parse_args()
+
+    versions = args.versions
+    baseline_version = versions[0]
+
     df = load_all_data()
+
+    # Filter to only requested versions
+    df = df[df["version"].isin(versions)]
+
     print(f"Loaded {len(df)} data points")
-    print(f"Versions: {sorted(df['version'].unique())}")
+    print(f"Versions: {versions} (baseline: {baseline_version})")
     print(f"Benchmarks: {sorted(df['benchmark'].unique())}")
 
-    df = compute_relative_speeds(df)
+    df = compute_relative_speeds(df, baseline_version)
 
-    # Sort versions for consistent ordering
-    version_order = ["3.3.4", "3.7.4", "3.8.0-RC2", "3.8.1-RC1-bin-SNAPSHOT"]
-    df["version"] = pd.Categorical(df["version"], categories=version_order, ordered=True)
+    # Use the provided version order
+    df["version"] = pd.Categorical(df["version"], categories=versions, ordered=True)
 
     fig = px.box(
         df,
         x="benchmark",
         y="relative_speed",
         color="version",
-        title="Benchmark Performance Relative to 3.3.4 (higher = faster)",
+        title=f"Benchmark Performance Relative to {baseline_version} (higher = faster)",
         labels={
             "benchmark": "Benchmark",
-            "relative_speed": "Relative Speed (vs 3.3.4)",
+            "relative_speed": f"Relative Speed (vs {baseline_version})",
             "version": "Version",
         },
-        category_orders={"version": version_order},
+        category_orders={"version": versions},
     )
 
     fig.update_layout(
@@ -107,9 +128,8 @@ def main():
     # Add a horizontal line at y=1 (baseline)
     fig.add_hline(y=1, line_dash="dash", line_color="gray", opacity=0.5)
 
-    output_file = "benchmark_results.html"
-    fig.write_html(output_file, include_plotlyjs="cdn")
-    print(f"Output written to {output_file}")
+    fig.write_html(args.output, include_plotlyjs="cdn")
+    print(f"Output written to {args.output}")
 
 
 if __name__ == "__main__":

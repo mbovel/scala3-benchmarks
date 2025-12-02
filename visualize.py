@@ -88,6 +88,11 @@ def main():
         default="benchmark_results.html",
         help="Output HTML file (default: benchmark_results.html)",
     )
+    parser.add_argument(
+        "--y-zero",
+        action="store_true",
+        help="Start y-axis at 0",
+    )
     args = parser.parse_args()
 
     versions = args.versions
@@ -121,11 +126,14 @@ def main():
         category_orders={"version": versions},
     )
 
-    fig.update_layout(
+    layout_opts = dict(
         xaxis_tickangle=-45,
         height=900,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
+    if args.y_zero:
+        layout_opts["yaxis_rangemode"] = "tozero"
+    fig.update_layout(**layout_opts)
 
     # Add a horizontal line at y=1 (baseline)
     fig.add_hline(y=1, line_dash="dash", line_color="gray", opacity=0.5)

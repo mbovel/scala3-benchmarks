@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        scala:
+          - "3.3.7"
+          - "3.4.3"
+          - "3.5.2"
+          - "3.6.4"
+          - "3.7.4"
+          - "3.8.1-RC1-bin-20251205-cd32c6f-NIGHTLY"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 23
+          cache: sbt
+
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Compile all projects
+        run: sbt -Dcompiler.version=${{ matrix.scala }} compile

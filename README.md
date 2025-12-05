@@ -27,11 +27,17 @@ sbt -Dcompiler.version=3.3.4 "clean; bench / Jmh / run -gc true -foe true"
 ## Structure
 
 ```
-bench-sources/          # Benchmark source files
-  helloWorld.scala      # Single-file benchmark
-  sourcecode/           # Multi-file benchmark (directory)
+bench-sources/
+  small/                # Synthetic single-file benchmarks
+    helloWorld.scala
+    ...
+  dottyUtil/            # Real-world multi-file benchmarks (each is an SBT subproject)
+  re2s/
+  scalaParserCombinators/
+  scalaYaml/
+  sourcecode/
 bench/
-  CompilationBenchmark.scala  # JMH suite
+  CompilationBenchmarks.scala  # JMH suite
 results/
   <machine>/<jvm>/<version>/<timestamp>.json
 ```
@@ -56,8 +62,8 @@ Potential future benchmarks:
 
 To add a new benchmark:
 
-1. Add a `.scala` file or directory to `bench-sources/`
-2. Add a `@Benchmark` method in `CompilationBenchmark.scala`:
+1. Add a `.scala` file to `bench-sources/small/`, or create a new SBT subproject in `bench-sources/` for multi-file benchmarks
+2. Add a `@Benchmark` method in `CompilationBenchmarks.scala`:
    ```scala
    @Benchmark def myBenchmark = scalac(Config.myBenchmark)
    ```

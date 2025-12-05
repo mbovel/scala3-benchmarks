@@ -98,7 +98,7 @@ object Macros {
     findOwner(owner, owner0 => { owner0.flags.is(quotes.reflect.Flags.Macro) && Util.getName(owner0) == "macro"})
 
   def nameImpl(using Quotes): Expr[Name] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val owner = actualOwner(Symbol.spliceOwner)
     val simpleName = Util.getName(owner)
     '{Name(${Expr(simpleName)})}
@@ -112,14 +112,14 @@ object Macros {
       s
 
   def nameMachineImpl(using Quotes): Expr[Name.Machine] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val owner = nonMacroOwner(Symbol.spliceOwner)
     val simpleName = adjustName(Util.getName(owner))
     '{Name.Machine(${Expr(simpleName)})}
   }
 
   def fullNameImpl(using Quotes): Expr[FullName] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     @annotation.tailrec def cleanChunk(chunk: String): String =
       val refined = chunk.stripPrefix("_$").stripSuffix("$")
       if chunk != refined then cleanChunk(refined) else refined
@@ -135,7 +135,7 @@ object Macros {
   }
 
   def fullNameMachineImpl(using Quotes): Expr[FullName.Machine] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val owner = nonMacroOwner(Symbol.spliceOwner)
     val fullName = owner.fullName.trim
       .split("\\.", -1)
@@ -146,7 +146,7 @@ object Macros {
   }
 
   def fileImpl(using Quotes): Expr[sourcecode.File] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val file = quotes.reflect.Position.ofMacroExpansion.sourceFile.path
     '{sourcecode.File(${Expr(file)})}
   }
@@ -162,7 +162,7 @@ object Macros {
   }
 
   def enclosingImpl(using Quotes): Expr[Enclosing] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val path = enclosing(machine = false)(!Util.isSynthetic(_))
     '{Enclosing(${Expr(path)})}
   }
@@ -182,7 +182,7 @@ object Macros {
   }
 
   def argsImpl(using qctx: Quotes): Expr[Args] = {
-    import quotes.reflect._
+    import quotes.reflect.*
 
     val param: List[List[ValDef]] = {
       def nearestEnclosingMethod(owner: Symbol): List[List[ValDef]] =
@@ -218,7 +218,7 @@ object Macros {
 
 
   def text[T: Type](v: Expr[T])(using Quotes): Expr[sourcecode.Text[T]] = {
-    import quotes.reflect._
+    import quotes.reflect.*
     val txt = v.asTerm.pos.sourceCode.get
     '{sourcecode.Text[T]($v, ${Expr(txt)})}
   }
@@ -232,7 +232,7 @@ object Macros {
   }
 
   def enclosing(using Quotes)(machine: Boolean)(filter: quotes.reflect.Symbol => Boolean): String = {
-    import quotes.reflect._
+    import quotes.reflect.*
 
     var current = Symbol.spliceOwner
     if (!machine)

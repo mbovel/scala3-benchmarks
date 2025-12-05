@@ -81,6 +81,16 @@ def generateBenchmarkConfig = Def.task {
   Seq(configFile)
 }
 
+def bigBenchmarkConfig(project: Project) = Def.task {
+  val name = project.base.getName
+  val dir = (project / Compile / scalaSource).value
+  val classPath = (project / Compile / dependencyClasspath).value
+    .map(_.data.getAbsolutePath)
+    .mkString(java.io.File.pathSeparator)
+  val sources = (dir ** "*.scala").get.map(_.getAbsolutePath)
+  name -> (Seq("-classpath", classPath) ++ sources)
+}
+
 def benchmarkConfigs = Def.task {
   // Small benchmarks: single .scala files
   val smallDir = (benchSmall / Compile / scalaSource).value
@@ -96,42 +106,12 @@ def benchmarkConfigs = Def.task {
   }
 
   // Big benchmarks: each has its own subproject
-  val dottyUtilDir = (benchDottyUtil / Compile / scalaSource).value
-  val dottyUtilClassPath = (benchDottyUtil / Compile / dependencyClasspath).value
-    .map(_.data.getAbsolutePath)
-    .mkString(java.io.File.pathSeparator)
-  val dottyUtilSources = (dottyUtilDir ** "*.scala").get.map(_.getAbsolutePath)
-
-  val re2sDir = (benchRe2s / Compile / scalaSource).value
-  val re2sClassPath = (benchRe2s / Compile / dependencyClasspath).value
-    .map(_.data.getAbsolutePath)
-    .mkString(java.io.File.pathSeparator)
-  val re2sSources = (re2sDir ** "*.scala").get.map(_.getAbsolutePath)
-
-  val scalaParserCombinatorsDir = (benchScalaParserCombinators / Compile / scalaSource).value
-  val scalaParserCombinatorsClassPath = (benchScalaParserCombinators / Compile / dependencyClasspath).value
-    .map(_.data.getAbsolutePath)
-    .mkString(java.io.File.pathSeparator)
-  val scalaParserCombinatorsSources = (scalaParserCombinatorsDir ** "*.scala").get.map(_.getAbsolutePath)
-
-  val sourcecodeDir = (benchSourcecode / Compile / scalaSource).value
-  val sourcecodeClassPath = (benchSourcecode / Compile / dependencyClasspath).value
-    .map(_.data.getAbsolutePath)
-    .mkString(java.io.File.pathSeparator)
-  val sourcecodeSources = (sourcecodeDir ** "*.scala").get.map(_.getAbsolutePath)
-
-  val scalaYamlDir = (benchScalaYaml / Compile / scalaSource).value
-  val scalaYamlClassPath = (benchScalaYaml / Compile / dependencyClasspath).value
-    .map(_.data.getAbsolutePath)
-    .mkString(java.io.File.pathSeparator)
-  val scalaYamlSources = (scalaYamlDir ** "*.scala").get.map(_.getAbsolutePath)
-
   val bigEntries = Seq(
-    "dottyUtil" -> (Seq("-classpath", dottyUtilClassPath) ++ dottyUtilSources),
-    "re2s" -> (Seq("-classpath", re2sClassPath) ++ re2sSources),
-    "scalaParserCombinators" -> (Seq("-classpath", scalaParserCombinatorsClassPath) ++ scalaParserCombinatorsSources),
-    "sourcecode" -> (Seq("-classpath", sourcecodeClassPath) ++ sourcecodeSources),
-    "scalaYaml" -> (Seq("-classpath", scalaYamlClassPath) ++ scalaYamlSources),
+    bigBenchmarkConfig(benchDottyUtil).value,
+    bigBenchmarkConfig(benchRe2s).value,
+    bigBenchmarkConfig(benchScalaParserCombinators).value,
+    bigBenchmarkConfig(benchSourcecode).value,
+    bigBenchmarkConfig(benchScalaYaml).value,
   )
 
   (smallEntries ++ bigEntries).toMap

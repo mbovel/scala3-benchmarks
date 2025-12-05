@@ -89,3 +89,16 @@ Replace `3.7.4`, `../async-profiler-4.2.1-macos/lib/libasyncProfiler.dylib` and 
 The default sampling interval is 10ms. It can be changed by adding the `interval`, which is specified in nanoseconds. For example, to set the interval to 1ms, use `interval=1000000`.
 
 Async-profiler options reference [async-profiler/docs/ProfilerOptions.md](https://github.com/async-profiler/async-profiler/blob/master/docs/ProfilerOptions.md).
+
+## Known Issues
+
+Under Java 25, the following warning is printed during benchmark runs:
+
+```
+[info] WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+[info] WARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.openjdk.jmh.util.Utils (file:/home/runner/work/scala3-benchmarks/scala3-benchmarks/target/bg-jobs/sbt_accfab51/target/09a4797f/1296d6b9/jmh-core-1.37.jar)
+[info] WARNING: Please consider reporting this to the maintainers of class org.openjdk.jmh.util.Utils
+[info] WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release
+```
+
+It can be ignored for now. It is fixed by https://github.com/openjdk/jmh/pull/140, which will be included in the next JMH release.

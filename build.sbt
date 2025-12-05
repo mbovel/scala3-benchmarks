@@ -64,6 +64,16 @@ lazy val benchScalaYaml =
       Compile / scalaSource := baseDirectory.value,
     )
 
+lazy val benchFansi =
+  project
+    .in(file("bench-sources/fansi"))
+    .dependsOn(benchSourcecode)
+    .settings(
+      scalaVersion := compilerVersion,
+      libraryDependencies += "com.lihaoyi" %% "utest" % "0.8.5",
+      Compile / scalaSource := baseDirectory.value,
+    )
+
 def generateBenchmarkConfig = Def.task {
   val configFile = (Compile / sourceManaged).value / "bench" / "Config.scala"
   val benchmarks = benchmarkConfigs.value
@@ -108,6 +118,7 @@ def benchmarkConfigs = Def.task {
   // Big benchmarks: each has its own subproject
   val bigEntries = Seq(
     bigBenchmarkConfig(benchDottyUtil).value,
+    bigBenchmarkConfig(benchFansi).value,
     bigBenchmarkConfig(benchRe2s).value,
     bigBenchmarkConfig(benchScalaParserCombinators).value,
     bigBenchmarkConfig(benchSourcecode).value,

@@ -54,6 +54,7 @@ class CompilationBenchmarks:
 
   // Library benchmarks
   @Benchmark def dottyUtils = scalac(Config.dottyUtil)
+  @Benchmark def fansi = scalac(Config.fansi)
   @Benchmark def re2s = scalac(Config.re2s)
   @Benchmark def scalaParserCombinators = scalac(Config.scalaParserCombinators)
   @Benchmark def scalaYaml = scalac(Config.scalaYaml)

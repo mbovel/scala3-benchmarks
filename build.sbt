@@ -1,5 +1,7 @@
 val compilerVersion = sys.props.get("compiler.version").getOrElse("3.7.4")
 
+val sharedScalacOptions = Seq("-feature", "-Werror", "-deprecation")
+
 ThisBuild / resolvers += Resolver.scalaNightlyRepository
 
 lazy val bench =
@@ -7,6 +9,7 @@ lazy val bench =
     .in(file("bench"))
     .settings(
       scalaVersion := compilerVersion,
+      scalacOptions ++= sharedScalacOptions,
       libraryDependencies ++= Seq(
         "org.scala-lang" %% "scala3-compiler" % compilerVersion,
       ),
@@ -20,7 +23,7 @@ lazy val benchSmall =
     .in(file("bench-sources/small"))
     .settings(
       scalaVersion := compilerVersion,
-      scalacOptions ++= Seq("-feature", "-Werror", "-deprecation"),
+      scalacOptions ++= sharedScalacOptions,
       Compile / scalaSource := baseDirectory.value,
     )
 
@@ -29,6 +32,7 @@ lazy val benchDottyUtil =
     .in(file("bench-sources/dottyUtil"))
     .settings(
       scalaVersion := compilerVersion,
+      scalacOptions ++= sharedScalacOptions,
       Compile / scalaSource := baseDirectory.value,
     )
 
@@ -37,6 +41,7 @@ lazy val benchRe2s =
     .in(file("bench-sources/re2s"))
     .settings(
       scalaVersion := compilerVersion,
+      scalacOptions ++= sharedScalacOptions,
       Compile / scalaSource := baseDirectory.value,
     )
 
@@ -45,6 +50,7 @@ lazy val benchScalaParserCombinators =
     .in(file("bench-sources/scalaParserCombinators"))
     .settings(
       scalaVersion := compilerVersion,
+      scalacOptions ++= sharedScalacOptions,
       Compile / scalaSource := baseDirectory.value,
     )
 
@@ -53,6 +59,7 @@ lazy val benchSourcecode =
     .in(file("bench-sources/sourcecode"))
     .settings(
       scalaVersion := compilerVersion,
+      scalacOptions ++= sharedScalacOptions,
       Compile / scalaSource := baseDirectory.value,
     )
 
@@ -61,6 +68,7 @@ lazy val benchScalaYaml =
     .in(file("bench-sources/scalaYaml"))
     .settings(
       scalaVersion := compilerVersion,
+      scalacOptions ++= sharedScalacOptions,
       Compile / scalaSource := baseDirectory.value,
     )
 
@@ -70,6 +78,7 @@ lazy val benchFansi =
     .dependsOn(benchSourcecode)
     .settings(
       scalaVersion := compilerVersion,
+      scalacOptions ++= sharedScalacOptions,
       libraryDependencies += "com.lihaoyi" %% "utest" % "0.8.5",
       Compile / scalaSource := baseDirectory.value,
     )

@@ -15,7 +15,6 @@ JMH benchmarks for measuring Scala 3 compiler performance.
 | [scala-yaml](https://github.com/VirtusLab/scala-yaml) | 0.3.1 | 6'473 | pprint, munit | yes |
 | [scalaz](https://github.com/scalaz/scalaz) | v7.2.36 | 27'757| none | no |
 | [sourcecode](https://github.com/com-lihaoyi/sourcecode) | 0.4.4 | 638 | none | yes |
-| [stdlib 2.1.3](https://github.com/dotty-staging/scala213/tree/3f6bdaeafde17d790023cc3f299b81eaaf876ca3/src/library) | 3f6bdae | 47'072 | none | no |
 | [tasty-query](https://github.com/scalacenter/tasty-query) | v1.6.1 | 13'482 | none | no |
 
 LOC = lines of Scala code (reported by [cloc](https://github.com/AlDanial/cloc)). Features = notable usage of: inline, macros, implicits, match types, tuples.
@@ -63,11 +62,9 @@ Benchmarks should:
 Potential future benchmarks:
 
 - [scala-parallel-collections](https://github.com/scala/scala-parallel-collections) (6773 LOC)
-- [cats core](https://github.com/typelevel/cats/tree/main/core/src/main) (30,673 LOC)
-- [scalaz](https://github.com/scalaz/scalaz)
-- Dotty (waiting 3.8)
-- Scala Standard Library (waiting 3.8)
 - [quicklens](https://github.com/softwaremill/quicklens)  (waiting 3.8)
+- advent of code solutions (various authors, various sizes)
+
 
 To add a new benchmark:
 

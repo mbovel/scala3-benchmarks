@@ -50,7 +50,11 @@ lazy val benchScalaParserCombinators =
     .in(file("bench-sources/scalaParserCombinators"))
     .settings(
       scalaVersion := compilerVersion,
-      scalacOptions ++= sharedScalacOptions,
+      scalacOptions ++= Seq("-feature", "-deprecation"),
+      libraryDependencies ++= Seq(
+        "junit" % "junit" % "4.13.2",
+        "com.github.sbt" % "junit-interface" % "0.13.3",
+      ),
       Compile / scalaSource := baseDirectory.value,
     )
 

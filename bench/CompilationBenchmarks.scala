@@ -59,6 +59,7 @@ class CompilationBenchmarks:
   @Benchmark def scalaParserCombinators = scalac(Config.scalaParserCombinators)
   @Benchmark def scalaYaml = scalac(Config.scalaYaml)
   @Benchmark def sourcecode = scalac(Config.sourcecode)
+  @Benchmark def stdlib123 = scalac(Config.stdlib213)
 
   // Benchmarks from previous suite
   @Benchmark def exhaustivityI = scalac(Config.exhaustivityI)

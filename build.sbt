@@ -50,7 +50,7 @@ lazy val benchScalaz =
     .in(file("bench-sources/scalaz"))
     .settings(
       scalaVersion := compilerVersion,
-      scalacOptions ++= sharedScalacOptions ++ Seq("-nowarn", "-source", "3.0", "-Xkind-projector", "-language:implicitConversions"),
+      scalacOptions ++= sharedScalacOptions ++ Seq("-nowarn", "-source", "3.0", kindProjectorFlag(compilerVersion), "-language:implicitConversions"),
       Compile / scalaSource := baseDirectory.value,
     )
 
@@ -108,6 +108,12 @@ lazy val benchFansi =
       ),
       Compile / scalaSource := baseDirectory.value,
     )
+
+def kindProjectorFlag(scalaVersion: String): String =
+  if (scalaVersion.startsWith("3.0") || scalaVersion.startsWith("3.1") ||
+      scalaVersion.startsWith("3.2") || scalaVersion.startsWith("3.3") ||
+      scalaVersion.startsWith("3.4")) "-Ykind-projector"
+  else "-Xkind-projector"
 
 def generateBenchmarkConfig = Def.task {
   val configFile = (Compile / sourceManaged).value / "bench" / "Config.scala"

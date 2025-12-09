@@ -83,6 +83,17 @@ lazy val benchSourcecode =
       Compile / scalaSource := baseDirectory.value,
     )
 
+
+lazy val benchTastyQuery =
+  project
+    .in(file("bench-sources/tastyQuery"))
+    .settings(
+      scalaVersion := compilerVersion,
+      scalacOptions ++= sharedScalacOptions ++ Seq("-Yexplicit-nulls", "-Wsafe-init", "-Wconf:msg=Unnecessary .nn:s"),
+      Compile / scalaSource := baseDirectory.value / "tasty-query",
+    )
+
+
 lazy val benchScalaYaml =
   project
     .in(file("bench-sources/scalaYaml"))

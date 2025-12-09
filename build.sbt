@@ -1,6 +1,6 @@
 val compilerVersion = sys.props.get("compiler.version").getOrElse("3.8.1-RC1-bin-20251209-07883c1-NIGHTLY")
 
-val sharedScalacOptions = Seq("-feature", "-Werror", "-deprecation")
+val sharedScalacOptions = Seq("-feature", "-deprecation", "-Werror")
 
 ThisBuild / resolvers += Resolver.scalaNightlyRepository
 
@@ -24,6 +24,15 @@ lazy val benchSmall =
     .settings(
       scalaVersion := compilerVersion,
       scalacOptions ++= sharedScalacOptions,
+      Compile / scalaSource := baseDirectory.value,
+    )
+
+lazy val benchStdlib =
+  project
+    .in(file("bench-sources/stdlib"))
+    .settings(
+      scalaVersion := compilerVersion,
+      scalacOptions ++= sharedScalacOptions ++ Seq("-nowarn", "-unchecked", "-encoding", "UTF8", "-language:implicitConversions", "-Yexplicit-nulls", "-Wsafe-init", "-Yno-stdlib-patches"),
       Compile / scalaSource := baseDirectory.value,
     )
 
@@ -254,6 +263,7 @@ def benchmarkConfigs = Def.task {
     bigBenchmarkConfig(benchDottyUtil).value,
     bigBenchmarkConfig(benchFansi, includeTests = true).value,
     bigBenchmarkConfig(benchRe2s).value,
+    bigBenchmarkConfig(benchStdlib).value,
     bigBenchmarkConfig(benchScalaParserCombinators, includeTests = true).value,
     bigBenchmarkConfig(benchScalaToday).value,
     bigBenchmarkConfig(benchScalaYaml, includeTests = true).value,

@@ -39,6 +39,10 @@ lazy val benchStdlib =
         // Needed so that the library sources are visible when `dotty.tools.dotc.core.Definitions#init` is called
         "-sourcepath", (Compile / scalaSource).value.getAbsolutePath,
       ),
+      Compile / excludeFilter := {
+        if (isBeforeScala38(compilerVersion)) "AnyVal.scala"
+        else NothingFilter
+      },
     )
 
 lazy val benchDottyUtil =
@@ -215,6 +219,12 @@ def kindProjectorFlag(scalaVersion: String): String =
       scalaVersion.startsWith("3.2") || scalaVersion.startsWith("3.3") ||
       scalaVersion.startsWith("3.4")) "-Ykind-projector"
   else "-Xkind-projector"
+
+def isBeforeScala38(version: String): Boolean =
+  version.startsWith("3.0") || version.startsWith("3.1") ||
+  version.startsWith("3.2") || version.startsWith("3.3") ||
+  version.startsWith("3.4") || version.startsWith("3.5") ||
+  version.startsWith("3.6") || version.startsWith("3.7")
 
 def generateBenchmarkConfig = Def.task {
   val configFile = (Compile / sourceManaged).value / "bench" / "Config.scala"

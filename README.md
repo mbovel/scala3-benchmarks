@@ -11,7 +11,7 @@ JMH benchmarks for measuring Scala 3 compiler performance.
 | [dottyUtil](https://github.com/scala/scala3/tree/main/compiler/src/dotty/tools/dotc/util) | 6462d7d7 | 2209 | none | no | inline |
 | [fansi](https://github.com/com-lihaoyi/fansi) | 0.5.1 | 960 | sourcecode, utest | yes | implicits |
 | [re2s](https://github.com/twitter/rsc/tree/1d2b8962604206b1328e94257885117fd252bd23/examples/re2s/src/main/scala/java/util/regex) | 1d2b8962 | 9021 | none | no | implicits |
-| [scala-parser-combinators](https://github.com/scala/scala-parser-combinators) | 2.4.0 | 1107 | none | no | implicits |
+| [scala-parser-combinators](https://github.com/scala/scala-parser-combinators) | 2.4.0 | 1107 | none | yes | implicits |
 | [scala-yaml](https://github.com/VirtusLab/scala-yaml) | 0.3.1 | 6473 | pprint, munit | yes | macros, implicits |
 | [sourcecode](https://github.com/com-lihaoyi/sourcecode) | 0.4.4 | 638 | none | yes | macros, inline, implicits |
 
@@ -78,12 +78,13 @@ To add a new benchmark:
 
 ## Running Tests
 
-Some benchmarks (fansi, sourcecode, scalaYaml) include tests from their upstream repositories. To avoid a separate SBT test configuration, all source files (including tests) are compiled together under `Compile`, and test entry points are provided as main classes:
+Some benchmarks (fansi, sourcecode, scalaYaml, scalaParserCombinators) include tests from their upstream repositories. To avoid a separate SBT test configuration, all source files (including tests) are compiled together under `Compile`, and test entry points are provided as main classes:
 
 ```bash
 sbt "benchSourcecode/runMain sourcecode.Main"
 sbt "benchFansi/runMain test.fansi.Main"
 sbt "benchScalaYaml/runMain org.virtuslab.yaml.test.TestRunner"
+sbt "benchScalaParserCombinators/runMain scala.util.parsing.combinator.test.TestRunner"
 ```
 
 See individual benchmark READMEs for details.

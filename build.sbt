@@ -120,6 +120,19 @@ lazy val benchFansi =
       Compile / scalaSource := baseDirectory.value,
     )
 
+lazy val benchCaskApp =
+  project
+    .in(file("bench-sources/caskApp"))
+    .settings(
+      scalaVersion := compilerVersion,
+      scalacOptions ++= sharedScalacOptions,
+      libraryDependencies ++= Seq(
+        "com.lihaoyi" %% "cask" % "0.10.2",
+        "com.lihaoyi" %% "scalatags" % "0.13.1",
+      ),
+      Compile / scalaSource := baseDirectory.value,
+    )
+
 def kindProjectorFlag(scalaVersion: String): String =
   if (scalaVersion.startsWith("3.0") || scalaVersion.startsWith("3.1") ||
       scalaVersion.startsWith("3.2") || scalaVersion.startsWith("3.3") ||
@@ -170,6 +183,7 @@ def benchmarkConfigs = Def.task {
 
   // Big benchmarks: each has its own subproject
   val bigEntries = Seq(
+    bigBenchmarkConfig(benchCaskApp).value,
     bigBenchmarkConfig(benchDottyUtil).value,
     bigBenchmarkConfig(benchFansi).value,
     bigBenchmarkConfig(benchRe2s).value,

@@ -4,6 +4,9 @@ import org.openjdk.jmh.annotations.{Benchmark, Measurement}
 
 class CompilationBenchmarksBig extends CompilationBenchmarks:
   @Benchmark
+  def caskApp = scalac(Config.caskApp)
+
+  @Benchmark
   def dottyUtils = scalac(Config.dottyUtil)
 
   @Benchmark

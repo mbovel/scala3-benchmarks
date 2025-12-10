@@ -39,8 +39,4 @@ jobs:
         run: sbt -Dcompiler.version=${{ matrix.scala }} "bench/Jmh/run -foe true -wi 1 -i 1 -f 1"
 
       - name: Run tests
-        run: |
-          sbt -Dcompiler.version=${{ matrix.scala }} "benchSourcecode/runMain sourcecode.Main"
-          sbt -Dcompiler.version=${{ matrix.scala }} "benchFansi/runMain test.fansi.Main"
-          sbt -Dcompiler.version=${{ matrix.scala }} "benchScalaYaml/runMain org.virtuslab.yaml.test.TestRunner"
-          sbt -Dcompiler.version=${{ matrix.scala }} "benchScalaParserCombinators/runMain scala.util.parsing.combinator.test.TestRunner"
+        run: sbt -Dcompiler.version=${{ matrix.scala }} test

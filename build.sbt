@@ -98,7 +98,7 @@ lazy val benchScalaParallelCollections =
     .in(file("bench-sources/scalaParallelCollections"))
     .settings(
       scalaVersion := compilerVersion,
-      scalacOptions ++= sharedScalacOptions ++ Seq("-Wconf:msg=Implicit parameters should be provided:s"),
+      scalacOptions ++= sharedScalacOptions,
       Compile / scalaSource := baseDirectory.value / "scala",
     )
 

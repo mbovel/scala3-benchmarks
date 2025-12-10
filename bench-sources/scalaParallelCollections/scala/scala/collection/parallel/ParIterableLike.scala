@@ -812,7 +812,7 @@ extends IterableOnce[T @uncheckedVariance]
   }
 
   protected def toParMap[K, V, That](cbf: () => Combiner[(K, V), That])(implicit ev: T <:< (K, V)): That = {
-    tasksupport.executeAndWaitResult(new ToParMap(combinerFactory(cbf), splitter)(ev)).resultWithTaskSupport
+    tasksupport.executeAndWaitResult(new ToParMap(combinerFactory(cbf), splitter)(using ev)).resultWithTaskSupport
   }
 
   def toArray[U >: T: ClassTag]: Array[U] = {
@@ -979,7 +979,7 @@ extends IterableOnce[T @uncheckedVariance]
   protected class Sum[U >: T](num: Numeric[U], protected val pit: IterableSplitter[T @uncheckedVariance])
   extends Accessor[U, Sum[U]] {
     @volatile var result: U = null.asInstanceOf[U]
-    def leaf(prevr: Option[U]) = result = pit.sum(num)
+    def leaf(prevr: Option[U]) = result = pit.sum(using num)
     protected def newSubtask(p: IterableSplitter[T @uncheckedVariance]) = new Sum(num, p)
     override def merge(that: Sum[U]) = result = num.plus(result, that.result)
   }
@@ -987,7 +987,7 @@ extends IterableOnce[T @uncheckedVariance]
   protected class Product[U >: T](num: Numeric[U], protected val pit: IterableSplitter[T @uncheckedVariance])
   extends Accessor[U, Product[U]] {
     @volatile var result: U = null.asInstanceOf[U]
-    def leaf(prevr: Option[U]) = result = pit.product(num)
+    def leaf(prevr: Option[U]) = result = pit.product(using num)
     protected def newSubtask(p: IterableSplitter[T @uncheckedVariance]) = new Product(num, p)
     override def merge(that: Product[U]) = result = num.times(result, that.result)
   }
@@ -995,7 +995,7 @@ extends IterableOnce[T @uncheckedVariance]
   protected class Min[U >: T](ord: Ordering[U], protected val pit: IterableSplitter[T @uncheckedVariance])
   extends Accessor[Option[U], Min[U]] {
     @volatile var result: Option[U] = None
-    def leaf(prevr: Option[Option[U]]) = if (pit.remaining > 0) result = Some(pit.min(ord))
+    def leaf(prevr: Option[Option[U]]) = if (pit.remaining > 0) result = Some(pit.min(using ord))
     protected def newSubtask(p: IterableSplitter[T @uncheckedVariance]) = new Min(ord, p)
     override def merge(that: Min[U]) =
       if (this.result == None) result = that.result
@@ -1006,7 +1006,7 @@ extends IterableOnce[T @uncheckedVariance]
   protected class Max[U >: T](ord: Ordering[U], protected val pit: IterableSplitter[T @uncheckedVariance])
   extends Accessor[Option[U], Max[U]] {
     @volatile var result: Option[U] = None
-    def leaf(prevr: Option[Option[U]]) = if (pit.remaining > 0) result = Some(pit.max(ord))
+    def leaf(prevr: Option[Option[U]]) = if (pit.remaining > 0) result = Some(pit.max(using ord))
     protected def newSubtask(p: IterableSplitter[T @uncheckedVariance]) = new Max(ord, p)
     override def merge(that: Max[U]) =
       if (this.result == None) result = that.result
@@ -1317,7 +1317,7 @@ extends IterableOnce[T @uncheckedVariance]
       result = cbf()
       while (pit.hasNext) result += pit.next()
     }
-    protected def newSubtask(p: IterableSplitter[T @uncheckedVariance]) = new ToParMap[K, V, That](cbf, p)(ev)
+    protected def newSubtask(p: IterableSplitter[T @uncheckedVariance]) = new ToParMap[K, V, That](cbf, p)(using ev)
     override def merge(that: ToParMap[K, V, That]) = result = result `combine` that.result
   }
 

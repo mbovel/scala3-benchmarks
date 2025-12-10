@@ -80,16 +80,14 @@ To add a new benchmark:
 
 ## Running Tests
 
-Some benchmarks (fansi, sourcecode, scalaYaml, scalaParserCombinators) include tests from their upstream repositories. To avoid a separate SBT test configuration, all source files (including tests) are compiled together under `Compile`, and test entry points are provided as main classes:
+Some benchmarks (fansi, sourcecode, scalaYaml, scalaParserCombinators) include tests from their upstream repositories:
 
 ```bash
-sbt "benchSourcecode/runMain sourcecode.Main"
-sbt "benchFansi/runMain test.fansi.Main"
-sbt "benchScalaYaml/runMain org.virtuslab.yaml.test.TestRunner"
-sbt "benchScalaParserCombinators/runMain scala.util.parsing.combinator.test.TestRunner"
+sbt test                    # Run all tests
+sbt benchFansi/test         # Run fansi tests only
 ```
 
-See individual benchmark READMEs for details.
+Test sources are also included in benchmarks to compile both main and test code together.
 
 ## Using JMH's profilers
 

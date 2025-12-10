@@ -71,7 +71,13 @@ lazy val benchScalaParserCombinators =
       scalaVersion := compilerVersion,
       scalacOptions ++= sharedScalacOptions,
       libraryDependencies += "junit" % "junit" % "4.13.2",
-      Compile / scalaSource := baseDirectory.value,
+      libraryDependencies += "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
+      Compile / scalaSource := baseDirectory.value / "shared" / "src" / "main" / "scala",
+      Compile / unmanagedSourceDirectories ++= Seq(
+        baseDirectory.value / "shared" / "src" / "main" / "scala-2.13+",
+        baseDirectory.value / "jvm" / "src" / "main" / "scala",
+      ),
+      Test / scalaSource := baseDirectory.value / "test" / "scala",
     )
 
 lazy val benchSourcecode =
@@ -80,7 +86,14 @@ lazy val benchSourcecode =
     .settings(
       scalaVersion := compilerVersion,
       scalacOptions ++= sharedScalacOptions,
-      Compile / scalaSource := baseDirectory.value,
+      libraryDependencies ++= Seq(
+        "junit" % "junit" % "4.13.2" % Test,
+        "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
+      ),
+      Compile / scalaSource := baseDirectory.value / "src",
+      Compile / unmanagedSourceDirectories += baseDirectory.value / "src-3",
+      Test / scalaSource := baseDirectory.value / "test" / "src",
+      Test / unmanagedSourceDirectories += baseDirectory.value / "test" / "src-3",
     )
 
 
@@ -102,9 +115,16 @@ lazy val benchScalaYaml =
       scalacOptions ++= sharedScalacOptions,
       libraryDependencies ++= Seq(
         "com.lihaoyi" %% "pprint" % "0.9.4",
-        "org.scalameta" %% "munit" % "1.2.0",
+        "org.scalameta" %% "munit" % "1.2.0" % Test,
       ),
-      Compile / scalaSource := baseDirectory.value,
+      testFrameworks += new TestFramework("munit.Framework"),
+      Compile / scalaSource := baseDirectory.value / "core" / "shared" / "src" / "main" / "scala",
+      Compile / unmanagedSourceDirectories += baseDirectory.value / "core" / "shared" / "src" / "main" / "scala-3",
+      Test / scalaSource := baseDirectory.value / "core" / "shared" / "test" / "scala",
+      Test / unmanagedSourceDirectories ++= Seq(
+        baseDirectory.value / "core" / "shared" / "test" / "scala-3",
+        baseDirectory.value / "jvm" / "src" / "test",
+      ),
     )
 
 lazy val benchFansi =
@@ -115,9 +135,11 @@ lazy val benchFansi =
       scalacOptions ++= sharedScalacOptions,
       libraryDependencies ++= Seq(
         "com.lihaoyi" %% "sourcecode" % "0.4.0",
-        "com.lihaoyi" %% "utest" % "0.8.3",
+        "com.lihaoyi" %% "utest" % "0.8.3" % Test,
       ),
-      Compile / scalaSource := baseDirectory.value,
+      testFrameworks += new TestFramework("utest.runner.Framework"),
+      Compile / scalaSource := baseDirectory.value / "src",
+      Test / scalaSource := baseDirectory.value / "test" / "src",
     )
 
 lazy val benchCaskApp =
@@ -185,14 +207,17 @@ def generateBenchmarkConfig = Def.task {
   Seq(configFile)
 }
 
-def bigBenchmarkConfig(project: Project) = Def.task {
+def bigBenchmarkConfig(project: Project, includeTests: Boolean = false) = Def.task {
   val name = project.base.getName
-  val dir = (project / Compile / scalaSource).value
-  val classPath = (project / Compile / dependencyClasspath).value
-    .map(_.data.getAbsolutePath)
-    .mkString(java.io.File.pathSeparator)
-  val sources = (dir ** "*.scala").get.map(_.getAbsolutePath)
-  name -> (Seq("-classpath", classPath) ++ (project / Compile / scalacOptions).value ++ sources)
+  val compileSources = (project / Compile / unmanagedSourceDirectories).value.flatMap(dir => (dir ** "*.scala").get)
+  val testSourceDirs = (project / Test / unmanagedSourceDirectories).value
+  val testSources = if (includeTests) testSourceDirs.flatMap(dir => (dir ** "*.scala").get) else Seq.empty
+  val allSources = (compileSources ++ testSources).map(_.getAbsolutePath)
+  val testClasspath = (project / Test / dependencyClasspath).value
+  val compileClasspath = (project / Compile / dependencyClasspath).value
+  val classPath = (if (includeTests) testClasspath else compileClasspath)
+    .map(_.data.getAbsolutePath).mkString(java.io.File.pathSeparator)
+  name -> (Seq("-classpath", classPath) ++ (project / Compile / scalacOptions).value ++ allSources)
 }
 
 def benchmarkConfigs = Def.task {
@@ -214,13 +239,13 @@ def benchmarkConfigs = Def.task {
   val bigEntries = Seq(
     bigBenchmarkConfig(benchCaskApp).value,
     bigBenchmarkConfig(benchDottyUtil).value,
-    bigBenchmarkConfig(benchFansi).value,
+    bigBenchmarkConfig(benchFansi, includeTests = true).value,
     bigBenchmarkConfig(benchRe2s).value,
-    bigBenchmarkConfig(benchScalaParserCombinators).value,
+    bigBenchmarkConfig(benchScalaParserCombinators, includeTests = true).value,
     bigBenchmarkConfig(benchScalaToday).value,
-    bigBenchmarkConfig(benchScalaYaml).value,
+    bigBenchmarkConfig(benchScalaYaml, includeTests = true).value,
     bigBenchmarkConfig(benchScalaz).value,
-    bigBenchmarkConfig(benchSourcecode).value,
+    bigBenchmarkConfig(benchSourcecode, includeTests = true).value,
     //bigBenchmarkConfig(benchStdlib213).value,
     bigBenchmarkConfig(benchTastyQuery).value,
   )

@@ -13,8 +13,16 @@ lazy val bench =
       libraryDependencies ++= Seq(
         "org.scala-lang" %% "scala3-compiler" % compilerVersion,
       ),
-      Compile / scalaSource := baseDirectory.value,
+      Compile / scalaSource := baseDirectory.value / "scala",
       Compile / sourceGenerators += generateBenchmarkConfig.taskValue,
+      Compile / unmanagedSourceDirectories ++= {
+        val base = (Compile / baseDirectory).value
+        val sv   = scalaVersion.value
+        val dirs =
+          if(VersionNumber(sv).matchesSemVer(SemanticSelector(">=3.6"))) Seq(base / s"scala-3.6+")
+          else Seq()
+        dirs
+      }
     )
     .enablePlugins(JmhPlugin)
 

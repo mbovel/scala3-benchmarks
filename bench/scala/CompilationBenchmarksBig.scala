@@ -12,10 +12,6 @@ class CompilationBenchmarksBig extends CompilationBenchmarks:
   @Benchmark
   def fansi = scalac(Config.fansi, expectedSources = 2)
 
-  @Measurement(iterations = 60)
-  @Benchmark
-  def indigo = scalac(Config.indigo, expectedSources = 223)
-
   @Benchmark
   def re2s = scalac(Config.re2s, expectedSources = 17)
 

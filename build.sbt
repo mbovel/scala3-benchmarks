@@ -133,6 +133,35 @@ lazy val benchCaskApp =
       Compile / scalaSource := baseDirectory.value,
     )
 
+lazy val benchScalaToday =
+  project
+    .in(file("bench-sources/scalaToday"))
+    .settings(
+      scalaVersion := compilerVersion,
+      scalacOptions ++= sharedScalacOptions,
+      libraryDependencies ++= Seq(
+        "com.softwaremill.sttp.tapir" %% "tapir-netty-server-sync" % "1.10.8",
+        "com.softwaremill.sttp.tapir" %% "tapir-files" % "1.10.8",
+        "com.softwaremill.sttp.tapir" %% "tapir-json-upickle" % "1.10.8",
+        "com.softwaremill.ox" %% "core" % "0.2.1",
+        "com.outr" %% "scribe" % "3.15.0",
+        "com.outr" %% "scribe-slf4j2" % "3.15.0",
+        "com.augustnagro" %% "magnum" % "1.2.0",
+        "com.augustnagro" %% "magnumpg" % "1.2.0",
+        "com.zaxxer" % "HikariCP" % "5.1.0",
+        "org.postgresql" % "postgresql" % "42.7.3",
+        "org.flywaydb" % "flyway-core" % "10.15.0",
+        "org.flywaydb" % "flyway-database-postgresql" % "10.15.0",
+        "com.lihaoyi" %% "fastparse" % "3.1.0",
+        "com.lihaoyi" %% "scalatags" % "0.13.1",
+        "com.lihaoyi" %% "pprint" % "0.9.0",
+        "org.virtuslab" %% "besom-cfg" % "0.1.0",
+        "org.scala-lang" %% "toolkit" % "0.4.0",
+        "org.scalameta" %% "munit" % "1.2.0",
+      ),
+      Compile / scalaSource := baseDirectory.value,
+    )
+
 def kindProjectorFlag(scalaVersion: String): String =
   if (scalaVersion.startsWith("3.0") || scalaVersion.startsWith("3.1") ||
       scalaVersion.startsWith("3.2") || scalaVersion.startsWith("3.3") ||
@@ -188,6 +217,7 @@ def benchmarkConfigs = Def.task {
     bigBenchmarkConfig(benchFansi).value,
     bigBenchmarkConfig(benchRe2s).value,
     bigBenchmarkConfig(benchScalaParserCombinators).value,
+    bigBenchmarkConfig(benchScalaToday).value,
     bigBenchmarkConfig(benchScalaYaml).value,
     bigBenchmarkConfig(benchScalaz).value,
     bigBenchmarkConfig(benchSourcecode).value,

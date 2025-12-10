@@ -13,6 +13,7 @@ JMH benchmarks for measuring Scala 3 compiler performance.
 | [fansi](https://github.com/com-lihaoyi/fansi) | 0.5.1 | 960 | sourcecode, utest | yes |
 | [re2s](https://github.com/twitter/rsc/tree/1d2b8962604206b1328e94257885117fd252bd23/examples/re2s/src/main/scala/java/util/regex) | 1d2b8962 | 9'021 | none | no |
 | [scala-parser-combinators](https://github.com/scala/scala-parser-combinators) | 2.4.0 | 2'325 | junit | yes |
+| [scala.today](https://github.com/VirtusLab/scala.today) | main/app | 1'413 | tapir, ox, magnum, scalatags, etc. | yes |
 | [scala-yaml](https://github.com/VirtusLab/scala-yaml) | 0.3.1 | 6'473 | pprint, munit | yes |
 | [scalaz](https://github.com/scalaz/scalaz) | v7.2.36 | 27'757| none | no |
 | [sourcecode](https://github.com/com-lihaoyi/sourcecode) | 0.4.4 | 638 | none | yes |

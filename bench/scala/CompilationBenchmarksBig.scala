@@ -21,7 +21,7 @@ class CompilationBenchmarksBig extends CompilationBenchmarks:
 
   @Measurement(iterations = 80)
   @Benchmark
-  def scalaParallelCollections = scalac(Config.scalaParallelCollections, expectedSources = 60)
+  def scalaParallelCollections = scalac(Config.scalaParallelCollections, expectedSources = 86)
 
   @Benchmark
   def scalaToday = scalac(Config.scalaToday, expectedSources = 9)

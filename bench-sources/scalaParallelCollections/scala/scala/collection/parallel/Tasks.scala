@@ -354,7 +354,7 @@ private[parallel] final class FutureTasks(executor: ExecutionContext) extends Ta
       }
     }
 
-    compute(topLevelTask, 0) map { t =>
+    compute(topLevelTask, 0) `map` { t =>
       t.forwardThrowable()
       t.result
     }
@@ -382,7 +382,7 @@ private[parallel] final class FutureTasks(executor: ExecutionContext) extends Ta
  *  `ForkJoinTaskSupport` that shares the same pool to forward its request to it.
  *
  *  Otherwise, it uses an execution context exclusive `Tasks` implementation to
- *  divide the tasks into smaller chunks and execute operations on it.
+ *  divide the tasks into smaller chunks and `execute` operations on it.
  */
 trait ExecutionContextTasks extends Tasks {
   def executionContext = environment

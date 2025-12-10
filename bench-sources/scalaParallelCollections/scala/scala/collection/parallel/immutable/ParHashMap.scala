@@ -101,10 +101,10 @@ self =>
           new ParHashMapIterator(snd, sndlength)
         )
       case _ =>
-        // iterator of the collision map case
+        // iterator of the collision `map` case
         val buff = triter.toBuffer
         val (fp, sp) = buff.splitAt(buff.length / 2)
-        Seq(fp, sp) map { b => new ParHashMapIterator(b.iterator, b.length) }
+        Seq(fp, sp) `map` { b => new ParHashMapIterator(b.iterator, b.length) }
     }
     def next(): (K, V) = {
       i += 1
@@ -309,7 +309,7 @@ extends scala.collection.parallel.BucketCombiner[(K, V), ParHashMap[K, V], (K, V
         val evaledvalue = hm1.value.result()
         new OldHashMap.OldHashMap1[K, Repr](hm1.key, hm1.hash, evaledvalue, null)
       case hmc: OldHashMap.OldHashMapCollision1[?, Combiner[?, Repr]] =>
-        val evaledkvs = hmc.kvs map { p => (p._1, p._2.result()) }
+        val evaledkvs = hmc.kvs `map` { p => (p._1, p._2.result()) }
         new OldHashMap.OldHashMapCollision1[K, Repr](hmc.hash, evaledkvs)
       case htm: OldHashMap.HashTrieMap[k, v] =>
         var i = 0

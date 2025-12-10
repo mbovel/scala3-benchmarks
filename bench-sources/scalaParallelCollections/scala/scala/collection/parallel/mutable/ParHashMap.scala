@@ -23,7 +23,7 @@ import scala.collection.parallel.Task
 
 /** A `parallel` hash map.
  *
- *  `ParHashMap` is a `parallel` map which internally keeps elements within a hash table.
+ *  `ParHashMap` is a `parallel` `map` which internally keeps elements within a hash table.
  *  It uses chaining to resolve collisions.
  *
  *  @tparam K        type of the keys in the `parallel` hash map

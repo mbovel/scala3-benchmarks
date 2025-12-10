@@ -497,7 +497,7 @@ self =>
       val selfs = self.split
       val sizes = selfs.map(_.remaining)
       val thats = that.psplit(sizes*)
-      (selfs `zip` thats) map { p => p._1 `zipParSeq` p._2 }
+      (selfs `zip` thats) `map` { p => p._1 `zipParSeq` p._2 }
     }
   }
 
@@ -598,7 +598,7 @@ self =>
         } else Seq(sz)
       }
       val (selfszfrom, thatszfrom) = splitsizes.zip(szcum.init).span(_._2 < selfrem)
-      val (selfsizes, thatsizes) = (selfszfrom map { _._1 }, thatszfrom map { _._1 })
+      val (selfsizes, thatsizes) = (selfszfrom `map` { _._1 }, thatszfrom `map` { _._1 })
 
       // split iterators
       val selfs = self.psplit(selfsizes*)
@@ -615,7 +615,7 @@ self =>
   class RemainsIteratorZipped[S](ti: SeqSplitter[S]) extends Zipped[S](ti) with SeqSplitter[(T, S)] {
     override def dup = super.dup.asInstanceOf[SeqSplitter[(T, S)]]
     override def split: Seq[SeqSplitter[(T, S)]] = super.split.asInstanceOf[Seq[SeqSplitter[(T, S)]]]
-    def psplit(szs: Int*) = (self.psplit(szs*) `zip` that.psplit(szs*)) map { p => (p._1 `zipParSeq` p._2) }
+    def psplit(szs: Int*) = (self.psplit(szs*) `zip` that.psplit(szs*)) `map` { p => (p._1 `zipParSeq` p._2) }
   }
 
   override def zipParSeq[S](that: SeqSplitter[S]): SeqSplitter[(T, S)] = new RemainsIteratorZipped(that)

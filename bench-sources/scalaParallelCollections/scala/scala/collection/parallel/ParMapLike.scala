@@ -45,7 +45,7 @@ self =>
   def canEqual(that: Any): Boolean = true
 
   /** Compares two maps structurally; i.e., checks if all mappings
-    *  contained in this map are also contained in the other map,
+    *  contained in this `map` are also contained in the other map,
     *  and vice versa.
     *
     *  @param that the other map
@@ -190,7 +190,7 @@ self =>
   // Transformation operations (`map`, `collect`, `flatMap` and `concat`) are overloaded
   // to return a `ParMap` rather than a `ParIterable`
 
-  /** Builds a new map by applying a function to all elements of this $coll.
+  /** Builds a new `map` by applying a function to all elements of this $coll.
     *
     *  @param f      the function to apply to each element.
     *  @return       a new $coll resulting from applying the given function
@@ -220,7 +220,7 @@ self =>
       splitter
     ) mapResult { _.resultWithTaskSupport })
 
-  /** Builds a new map by applying a function to all elements of this $coll
+  /** Builds a new `map` by applying a function to all elements of this $coll
     *  and using the elements of the resulting collections.
     *
     *  @param f      the function to apply to each element.

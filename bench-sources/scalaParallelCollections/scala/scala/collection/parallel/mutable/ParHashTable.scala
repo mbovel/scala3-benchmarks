@@ -117,7 +117,7 @@ trait ParHashTable[K, V, Entry >: Null <: HashEntry[K, Entry]] extends scala.col
         curr = curr.next
       }
       // println("converted " + remaining + " element iterator into buffer: " + buff)
-      buff map { e => entry2item(e) }
+      buff `map` { e => entry2item(e) }
     }
 
     protected def countElems(from: Int, until: Int) = {

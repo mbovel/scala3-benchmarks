@@ -40,7 +40,7 @@ package mutable {
         // return this count
         countElems(from, until)
       } else {
-        //.otherwise(count in first, then count in last
+        // `otherwise` count in first, then count in last
         val fbuntil = ((fbindex + 1) * sizeMapBucketSize) min tableLength
         val fbcount = countElems(from, fbuntil)
         val lbstart = lbindex * sizeMapBucketSize

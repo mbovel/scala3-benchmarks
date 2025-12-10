@@ -42,22 +42,22 @@ self =>
 
   override def stringPrefix = "ParMap"
 
-  /** The same map with a given default function.
+  /** The same `map` with a given default function.
    *  Note: `get`, `contains`, `iterator`, `keys`, etc are not affected by `withDefault`.
    *
    *  Invoking transformer methods (e.g. `map`) will not preserve the default value.
    *
    *  @param d     the function mapping keys to values, used for non-present keys
-   *  @return      a wrapper of the map with a default value
+   *  @return      a wrapper of the `map` with a default value
    */
   def withDefault[U >: V](d: K => U): scala.collection.parallel.immutable.ParMap[K, U] = new ParMap.WithDefault[K, U](this, d)
 
-  /** The same map with a given default value.
+  /** The same `map` with a given default value.
    *
    *  Invoking transformer methods (e.g. `map`) will not preserve the default value.
    *
    *  @param d     default value used for non-present keys
-   *  @return      a wrapper of the map with a default value
+   *  @return      a wrapper of the `map` with a default value
    */
   def withDefaultValue[U >: V](d: U): scala.collection.parallel.immutable.ParMap[K, U] = new ParMap.WithDefault[K, U](this, x => d)
 

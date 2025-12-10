@@ -183,7 +183,7 @@ private[collection] abstract class TrieIterator[+T](elems: Array[Iterable[T]]) e
       ((buff.iterator, buff.length), this)
     }
     else {
-      //.otherwise(find the topmost array stack element
+      // `otherwise` find the topmost array stack element
       if (depth > 0) {
         // 2) topmost comes before (is not) arrayD
         //    steal a portion of top to create a new iterator

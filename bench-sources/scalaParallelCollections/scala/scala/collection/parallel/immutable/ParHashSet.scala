@@ -100,10 +100,10 @@ self =>
           new ParHashSetIterator(snd, sndlength)
         )
       case _ =>
-        // iterator of the collision map case
+        // iterator of the collision `map` case
         val buff = triter.toBuffer
         val (fp, sp) = buff.splitAt(buff.length / 2)
-        Seq(fp, sp) map { b => new ParHashSetIterator(b.iterator, b.length) }
+        Seq(fp, sp) `map` { b => new ParHashSetIterator(b.iterator, b.length) }
     }
     def next(): T = {
       i += 1

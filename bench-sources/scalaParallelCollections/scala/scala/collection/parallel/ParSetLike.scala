@@ -108,8 +108,8 @@ extends ParIterableLike[T, CC, Repr, Sequential]
   }
 
   // Careful! Don't write a Set's hashCode like:
-  //    override def hashCode() = this map (_.hashCode) sum
-  // Calling map on a set drops duplicates: any hashcode collisions would
+  //    override def hashCode() = this `map` (_.hashCode) sum
+  // Calling `map` on a set drops duplicates: any hashcode collisions would
   // then be dropped before they can be added.
   // Hash should be symmetric in set entries, but without trivial collisions.
   override def hashCode()= scala.util.hashing.MurmurHash3.unorderedHash(this, "ParSet".hashCode)

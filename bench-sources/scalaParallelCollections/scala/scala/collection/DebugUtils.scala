@@ -25,7 +25,7 @@ private[collection] object DebugUtils {
   }
 
   def arrayString[T](array: Array[T], from: Int, until: Int): String = {
-    array.slice(from, until) map ({
+    array.slice(from, until) `map` ({
       case null => "n/a"
       case x    => "" + x
     }: scala.PartialFunction[T, String]) mkString " | "

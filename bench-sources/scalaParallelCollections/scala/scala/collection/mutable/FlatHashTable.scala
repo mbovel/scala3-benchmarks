@@ -239,13 +239,13 @@ private[collection] trait FlatHashTable[A] extends FlatHashTable.HashUtils[A] {
   }
 
 
-  /* Size map handling code */
+  /* Size `map` handling code */
 
   /*
-   * The following three methods (nn*) modify a size map only if it has been
+   * The following three methods (nn*) modify a size `map` only if it has been
    * initialized, that is, if it's not set to null.
    *
-   * The size map logically divides the hash table into `sizeMapBucketSize` element buckets
+   * The size `map` logically divides the hash table into `sizeMapBucketSize` element buckets
    * by keeping an integer entry for each such bucket. Each integer entry simply denotes
    * the number of elements in the corresponding bucket.
    * Best understood through an example, see:
@@ -315,7 +315,7 @@ private[collection] trait FlatHashTable[A] extends FlatHashTable.HashUtils[A] {
 
   protected def alwaysInitSizeMap = false
 
-  /* End of size map handling code */
+  /* End of size `map` handling code */
 
   protected def index(hcode: Int) = {
     // version 1 (no longer used - did not work with `parallel` hash tables)

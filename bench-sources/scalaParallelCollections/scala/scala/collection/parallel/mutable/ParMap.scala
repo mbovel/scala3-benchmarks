@@ -40,22 +40,22 @@ extends parallel.ParMap[K, V]
 
   def seq: scala.collection.mutable.Map[K, V]
 
-  /** The same map with a given default function.
+  /** The same `map` with a given default function.
    *  Note: `get`, `contains`, `iterator`, `keys`, etc are not affected by `withDefault`.
    *
    *  Invoking transformer methods (e.g. `map`) will not preserve the default value.
    *
    *  @param d     the function mapping keys to values, used for non-present keys
-   *  @return      a wrapper of the map with a default value
+   *  @return      a wrapper of the `map` with a default value
    */
   def withDefault(d: K => V): scala.collection.parallel.mutable.ParMap[K, V] = new ParMap.WithDefault[K, V](this, d)
 
-  /** The same map with a given default value.
+  /** The same `map` with a given default value.
    *
    *  Invoking transformer methods (e.g. `map`) will not preserve the default value.
    *
    *  @param d     default value used for non-present keys
-   *  @return      a wrapper of the map with a default value
+   *  @return      a wrapper of the `map` with a default value
    */
   def withDefaultValue(d: V): scala.collection.parallel.mutable.ParMap[K, V] = new ParMap.WithDefault[K, V](this, x => d)
 }

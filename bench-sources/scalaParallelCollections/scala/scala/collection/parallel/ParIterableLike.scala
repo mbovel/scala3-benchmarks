@@ -245,7 +245,7 @@ extends IterableOnce[T @uncheckedVariance]
   /** Denotes whether this `parallel` collection has strict splitters.
    *
    *  This is true in general, and specific collection instances may choose to
-   *  override this method. Such collections will fail to execute methods
+   *  override this method. Such collections will fail to `execute` methods
    *  which rely on splitters being strict, i.e. returning a correct value
    *  in the `remaining` method.
    *
@@ -1255,7 +1255,7 @@ extends IterableOnce[T @uncheckedVariance]
       val pits = pit.splitWithSignalling
       val sizes = pits.map(_.remaining)
       val opits = othpit.psplitWithSignalling(sizes*)
-      (pits `zip` opits) map { p => new Zip(pbf, p._1, p._2) }
+      (pits `zip` opits) `map` { p => new Zip(pbf, p._1, p._2) }
     }
     override def merge(that: Zip[U, S, That]) = result = result `combine` that.result
     override def requiresStrictSplitters = true
@@ -1271,7 +1271,7 @@ extends IterableOnce[T @uncheckedVariance]
       val pits = pit.splitWithSignalling
       val sizes = pits.map(_.remaining)
       val opits = othpit.psplitWithSignalling(sizes*)
-      ((pits `zip` opits) `zip` sizes) map { t => new ZipAll(t._2, thiselem, thatelem, pbf, t._1._1, t._1._2) }
+      ((pits `zip` opits) `zip` sizes) `map` { t => new ZipAll(t._2, thiselem, thatelem, pbf, t._1._1, t._1._2) }
     } else {
       val opits = othpit.psplitWithSignalling(pit.remaining)
       val `diff` = len - pit.remaining

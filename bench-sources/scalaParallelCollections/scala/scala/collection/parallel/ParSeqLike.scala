@@ -13,7 +13,7 @@
 package scala
 package collection.parallel
 
-import scala.collection.{BufferedIterator, Iterator, SeqOps}
+import scala.collection.{AnyConstr, BufferedIterator, Iterator, SeqOps}
 import scala.collection.generic.DefaultSignalling
 import scala.collection.generic.AtomicIndexFlag
 import scala.collection.generic.VolatileAbort
@@ -46,7 +46,7 @@ import scala.annotation.unchecked.uncheckedVariance
  *  This trait defines a new, more general `split` operation and reimplements the `split`
  *  operation of `ParallelIterable` trait using the new `split` operation.
  */
-trait ParSeqLike[+T, +CC[X] <: ParSeq[X], +Repr <: ParSeq[T], +Sequential <: scala.collection.Seq[T] & SeqOps[T, collection.Seq, Sequential]]
+trait ParSeqLike[+T, +CC[X] <: ParSeq[X], +Repr <: ParSeq[T], +Sequential <: scala.collection.Seq[T] & SeqOps[T, AnyConstr, Sequential]]
 extends ParIterableLike[T, CC, Repr, Sequential]
    with Equals { self =>
 
@@ -414,7 +414,7 @@ extends ParIterableLike[T, CC, Repr, Sequential]
    *  @tparam  S       the type of the elements of `that`
    *  @return          `true` if both `parallel` sequences have the same length and
    *                   `p(x, y)` is `true` for all corresponding elements `x` of this $coll
-   *                   and `y` of `that`,.otherwise(`false`
+   *                   and `y` of `that`, `otherwise` `false`
    */
   def corresponds[S](that: ParSeq[S])(p: (T, S) => Boolean): Boolean = {
     val ctx = new DefaultSignalling with VolatileAbort

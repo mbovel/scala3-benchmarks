@@ -24,7 +24,7 @@ import scala.collection.mutable.{Builder, ImmutableBuilder}
 
 /** This class implements immutable maps using a hash trie.
   *
-  *  '''Note:''' The builder of this hash map may return specialized representations for small maps.
+  *  '''Note:''' The builder of this hash `map` may return specialized representations for small maps.
   *
   *  @tparam K      the type of the keys contained in this hash map.
   *  @tparam V      the type of the values associated with the keys.
@@ -59,14 +59,14 @@ sealed abstract class OldHashMap[K, +V]
 
   def split: Seq[OldHashMap[K, V]] = Seq(this)
 
-  /** Creates a new map which is the merge of this and the argument hash map.
+  /** Creates a new `map` which is the merge of this and the argument hash map.
     *
     *  Uses the specified collision resolution function if two keys are the same.
     *  The collision resolution function will always take the first argument from
-    *  `this` hash map and the second from `that`.
+    *  `this` hash `map` and the second from `that`.
     *
     *  The `merged` method is on average more performant than doing a traversal and reconstructing a
-    *  new immutable hash map from scratch, or `++`.
+    *  new immutable hash `map` from scratch, or `++`.
     *
     *  @tparam V1      the value type of the other hash map
     *  @param that     the other hash map
@@ -179,8 +179,8 @@ object OldHashMap extends MapFactory[OldHashMap] {
   @`inline` private def bufferSize(size: Int): Int = math.min(size + 6, 32 * 7)
 
   /**
-    * In many internal operations the empty map is represented as null for performance reasons. This method converts
-    * null to the empty map for use in public methods
+    * In many internal operations the empty `map` is represented as null for performance reasons. This method converts
+    * null to the empty `map` for use in public methods
     */
   @`inline` private def nullToEmpty[A, B](m: OldHashMap[A, B]): OldHashMap[A, B] = if (m eq null) empty[A, B] else m
 

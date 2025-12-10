@@ -30,8 +30,15 @@ import org.openjdk.jmh.annotations.{
 abstract class CompilationBenchmarks:
   val outDir = "out"
 
-  /** Launches `scalac` with the given arguments. */
-  def scalac(args: Seq[String]) =
+  /** Launches `scalac` with the given arguments.
+    * @param args Compiler arguments including source files
+    * @param expectedSources If provided, asserts that exactly this many .scala files are passed
+    */
+  def scalac(args: Seq[String], expectedSources: Int = -1) =
+    if expectedSources >= 0 then
+      val sourceCount = args.count(_.endsWith(".scala"))
+      assert(sourceCount == expectedSources,
+        s"Expected $expectedSources sources but found $sourceCount")
     val allArgs = Array("-d", "out") ++ args
     val reporter = Driver().process(allArgs)
     assert(!reporter.hasErrors, "Compilation failed with errors: " + reporter.allErrors)

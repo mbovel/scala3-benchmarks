@@ -206,10 +206,11 @@ def generateBenchmarkConfig = Def.task {
 
 def bigBenchmarkConfig(project: Project, includeTests: Boolean = false) = Def.task {
   val name = project.base.getName
-  val compileSources = (project / Compile / unmanagedSourceDirectories).value.flatMap(dir => (dir ** "*.scala").get)
-  val testSourceDirs = (project / Test / unmanagedSourceDirectories).value
+  val compileSourceDirs = (project / Compile / unmanagedSourceDirectories).value.distinct
+  val compileSources = compileSourceDirs.flatMap(dir => (dir ** "*.scala").get)
+  val testSourceDirs = (project / Test / unmanagedSourceDirectories).value.distinct
   val testSources = if (includeTests) testSourceDirs.flatMap(dir => (dir ** "*.scala").get) else Seq.empty
-  val allSources = (compileSources ++ testSources).map(_.getAbsolutePath)
+  val allSources = (compileSources ++ testSources).distinct.map(_.getAbsolutePath)
   val testClasspath = (project / Test / dependencyClasspath).value
   val compileClasspath = (project / Compile / dependencyClasspath).value
   val classPath = (if (includeTests) testClasspath else compileClasspath)

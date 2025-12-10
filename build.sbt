@@ -98,8 +98,12 @@ lazy val benchScalaParallelCollections =
     .in(file("bench-sources/scalaParallelCollections"))
     .settings(
       scalaVersion := compilerVersion,
-      scalacOptions ++= sharedScalacOptions,
+      scalacOptions ++= sharedScalacOptions ++ Seq("-Wconf:cat=unchecked:s"),
+      libraryDependencies += "junit" % "junit" % "4.13.2",
+      libraryDependencies += "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
+      libraryDependencies += "javax.xml.bind" % "jaxb-api" % "2.3.1" % Test,
       Compile / scalaSource := baseDirectory.value / "scala",
+      Test / scalaSource := baseDirectory.value / "test" / "scala",
     )
 
 lazy val benchSourcecode =
@@ -314,7 +318,7 @@ def benchmarkConfigs = Def.task {
     bigBenchmarkConfig(benchFansi, includeTests = true).value,
     bigBenchmarkConfig(benchIndigo).value, // Requires Scala 3.6.4+
     bigBenchmarkConfig(benchRe2s).value,
-    bigBenchmarkConfig(benchScalaParallelCollections).value,
+    bigBenchmarkConfig(benchScalaParallelCollections, includeTests = true).value,
     bigBenchmarkConfig(benchScalaParserCombinators, includeTests = true).value,
     bigBenchmarkConfig(benchScalaToday).value,
     bigBenchmarkConfig(benchScalaYaml, includeTests = true).value,

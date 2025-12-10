@@ -2,6 +2,8 @@ package sourcecode
 
 object Tests{
 
+  def main(args: Array[String]): Unit = run()
+
   def logExample() = {
     def log(foo: String)(using line: sourcecode.Line, file: sourcecode.File) = {
       println(s"${file.value}:${line.value} $foo")

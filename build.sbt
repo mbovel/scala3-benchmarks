@@ -86,14 +86,11 @@ lazy val benchSourcecode =
     .settings(
       scalaVersion := compilerVersion,
       scalacOptions ++= sharedScalacOptions,
-      libraryDependencies ++= Seq(
-        "junit" % "junit" % "4.13.2" % Test,
-        "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
-      ),
       Compile / scalaSource := baseDirectory.value / "src",
       Compile / unmanagedSourceDirectories += baseDirectory.value / "src-3",
       Test / scalaSource := baseDirectory.value / "test" / "src",
       Test / unmanagedSourceDirectories += baseDirectory.value / "test" / "src-3",
+      Test / test := (Test / runMain).toTask(" sourcecode.Tests").value,
     )
 
 

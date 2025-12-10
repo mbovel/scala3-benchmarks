@@ -180,6 +180,22 @@ lazy val benchScalaToday =
       Compile / scalaSource := baseDirectory.value,
     )
 
+lazy val benchTictactoe =
+  project
+    .in(file("bench-sources/tictactoe"))
+    .settings(
+      scalaVersion := compilerVersion,
+      scalacOptions ++= sharedScalacOptions,
+      libraryDependencies ++= Seq(
+        "org.typelevel" %% "cats-effect" % "3.5.7",
+        "org.typelevel" %% "cats-core" % "2.12.0",
+        "org.typelevel" %% "munit-cats-effect" % "2.0.0" % Test,
+      ),
+      testFrameworks += new TestFramework("munit.Framework"),
+      Compile / scalaSource := baseDirectory.value / "src",
+      Test / scalaSource := baseDirectory.value / "test",
+    )
+
 def kindProjectorFlag(scalaVersion: String): String =
   if (scalaVersion.startsWith("3.0") || scalaVersion.startsWith("3.1") ||
       scalaVersion.startsWith("3.2") || scalaVersion.startsWith("3.3") ||
@@ -245,6 +261,7 @@ def benchmarkConfigs = Def.task {
     bigBenchmarkConfig(benchSourcecode, includeTests = true).value,
     //bigBenchmarkConfig(benchStdlib213).value,
     bigBenchmarkConfig(benchTastyQuery).value,
+    bigBenchmarkConfig(benchTictactoe, includeTests = true).value,
   )
 
   (smallEntries ++ bigEntries).toMap

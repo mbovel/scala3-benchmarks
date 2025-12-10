@@ -38,3 +38,6 @@ class CompilationBenchmarksBig extends CompilationBenchmarks:
   @Measurement(iterations = 60)
   @Benchmark
   def tastyQuery = scalac(Config.tastyQuery, expectedSources = 49)
+
+  @Benchmark
+  def tictactoe = scalac(Config.tictactoe, expectedSources = 16)

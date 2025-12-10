@@ -18,6 +18,7 @@ JMH benchmarks for measuring Scala 3 compiler performance.
 | [scalaz](https://github.com/scalaz/scalaz) | v7.2.36 | 27'757| none | no |
 | [sourcecode](https://github.com/com-lihaoyi/sourcecode) | 0.4.4 | 638 | none | yes |
 | [tasty-query](https://github.com/scalacenter/tasty-query) | v1.6.1 | 13'482 | none | no |
+| [tictactoe](https://github.com/KatlasTsoulouhas/scala3-tictactoe) | - | 441 | cats-effect, cats-core | yes |
 
 LOC = lines of Scala code (reported by [cloc](https://github.com/AlDanial/cloc)). Features = notable usage of: inline, macros, implicits, match types, tuples.
 
@@ -46,6 +47,7 @@ bench-sources/
   scalaParserCombinators/
   scalaYaml/
   sourcecode/
+  tictactoe/
 bench/
   CompilationBenchmarks.scala  # JMH suite
 results/

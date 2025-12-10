@@ -88,8 +88,6 @@ class Scraper(baseUrl: Uri):
 
 end Scraper
 
-// Commented out to avoid Java 21 requirement for benchmarking
-/*
 def runScrapingOncePerDay(config: Config)(using Ox): Unit =
   import java.time.*, temporal.ChronoUnit
   val startTime = Instant.now()
@@ -244,4 +242,3 @@ def scrape(scaladexApiUri: Uri, jdbcUrl: String)(using Ox): Either[Throwable, Un
     }
 
     scribe.info(s"Upserted ${artifactRows.size} artifacts for project ${project.organization}/${project.repository} id: ${projectRow.id}")
-*/

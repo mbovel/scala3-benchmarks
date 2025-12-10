@@ -10,11 +10,10 @@ extension [A](expr: => A) def attempt: Either[Throwable, A] = Try(expr).toEither
 extension [A](expr: => A)
   inline def as[B](b: B): B = b
 
-  // Commented out to avoid Java 21 requirement for benchmarking
-  // def sleepAfter(duration: Duration)(using Ox): A =
-  //   val result = expr
-  //   Thread.sleep(duration.toMillis)
-  //   result
+  def sleepAfter(duration: Duration)(using Ox): A =
+    val result = expr
+    Thread.sleep(duration.toMillis)
+    result
 
 extension [E <: Throwable, A](either: Either[E, A])
   def discardError: Either[Unit, A] =
@@ -29,19 +28,18 @@ extension (frag: Frag)
     scribe.info(frag.sqlString)
     frag
 
-// Commented out to avoid Java 21 requirement for benchmarking
-// trait OxApp:
-//   def main(args: Array[String]): Unit =
-//     supervised:
-//       val forkedMain = fork(supervised(run(args.toVector)))
-//       forkedMain.joinEither() match
-//         case Left(err) => throw err
-//         case Right(userEither) =>
-//           userEither match
-//             case Left(err) => throw err
-//             case Right(()) => System.exit(0)
-//
-//   def run(args: Vector[String])(using Ox): Either[Throwable, Unit]
+trait OxApp:
+  def main(args: Array[String]): Unit =
+    supervised:
+      val forkedMain = fork(supervised(run(args.toVector)))
+      forkedMain.joinEither() match
+        case Left(err) => throw err
+        case Right(userEither) =>
+          userEither match
+            case Left(err) => throw err
+            case Right(()) => System.exit(0)
+
+  def run(args: Vector[String])(using Ox): Either[Throwable, Unit]
 
 extension (t: Throwable)
   def printToString: String =

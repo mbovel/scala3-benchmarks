@@ -20,7 +20,7 @@ class CompilationBenchmarksBig extends CompilationBenchmarks:
   def scalaParserCombinators = scalac(Config.scalaParserCombinators, expectedSources = 50)
 
   @Benchmark
-  def scalaToday = scalac(Config.scalaToday, expectedSources = 10)
+  def scalaToday = scalac(Config.scalaToday, expectedSources = 9)
 
   @Measurement(iterations = 80)
   @Benchmark

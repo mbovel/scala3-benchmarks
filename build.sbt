@@ -176,7 +176,6 @@ lazy val benchScalaToday =
         "com.lihaoyi" %% "pprint" % "0.9.0",
         "org.virtuslab" %% "besom-cfg" % "0.1.0",
         "org.scala-lang" %% "toolkit" % "0.4.0",
-        "org.scalameta" %% "munit" % "1.2.0",
       ),
       Compile / scalaSource := baseDirectory.value,
     )

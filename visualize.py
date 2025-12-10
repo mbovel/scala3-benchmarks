@@ -81,7 +81,8 @@ def main():
     parser.add_argument(
         "--versions",
         nargs="+",
-        help="Ordered list of versions to compare. The first version is used as the baseline.",
+        help="Ordered list of versions to compare. The first version is used as the baseline. "
+             "If not specified, all available versions are used (sorted alphabetically).",
     )
     parser.add_argument(
         "-o", "--output",
@@ -99,13 +100,22 @@ def main():
     )
     args = parser.parse_args()
 
-    versions = args.versions
-    baseline_version = versions[0]
-
     df = load_all_data()
 
-    # Filter to only requested versions
-    df = df[df["version"].isin(versions)]
+    # Determine versions to use
+    if args.versions:
+        versions = args.versions
+        # Filter to only requested versions
+        df = df[df["version"].isin(versions)]
+    else:
+        # Use all available versions, sorted alphabetically
+        versions = sorted(df["version"].unique())
+
+    if not versions:
+        print("Error: No versions found in results directory")
+        return
+
+    baseline_version = versions[0]
 
     # Filter benchmarks by substring if specified
     if args.filter:

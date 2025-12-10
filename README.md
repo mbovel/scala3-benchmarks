@@ -11,6 +11,7 @@ JMH benchmarks for measuring Scala 3 compiler performance.
 | [cask app](https://www.lihaoyi.com/post/SimpleWebandApiServerswithScala.html) | - | 115 | cask, scalatags | no |
 | [dotty util](https://github.com/scala/scala3/tree/main/compiler/src/dotty/tools/dotc/util) | 6462d7d7 | 2'209 | none | no |
 | [fansi](https://github.com/com-lihaoyi/fansi) | 0.5.1 | 960 | sourcecode, utest | yes |
+| [indigo](https://github.com/PurpleKingdomGames/indigo) ⚡ | 0.22.0 | 25'270 | scalajs-dom, ultraviolet | no |
 | [re2s](https://github.com/twitter/rsc/tree/1d2b8962604206b1328e94257885117fd252bd23/examples/re2s/src/main/scala/java/util/regex) | 1d2b8962 | 9'021 | none | no |
 | [scala-parser-combinators](https://github.com/scala/scala-parser-combinators) | 2.4.0 | 2'325 | junit | yes |
 | [scala.today](https://github.com/VirtusLab/scala.today) | 2dd97e7 | 1'103 | tapir, ox, magnum, etc. | no |
@@ -19,6 +20,8 @@ JMH benchmarks for measuring Scala 3 compiler performance.
 | [sourcecode](https://github.com/com-lihaoyi/sourcecode) | 0.4.4 | 638 | none | yes |
 | [tasty-query](https://github.com/scalacenter/tasty-query) | v1.6.1 | 13'482 | none | no |
 | [tictactoe](https://github.com/KatlasTsoulouhas/scala3-tictactoe) | - | 441 | cats-effect, cats-core | yes |
+
+⚡ = Scala.js benchmark (requires Scala 3.6.4+)
 
 LOC = lines of Scala code (reported by [cloc](https://github.com/AlDanial/cloc)). Features = notable usage of: inline, macros, implicits, match types, tuples.
 
@@ -43,6 +46,7 @@ bench-sources/
     ...
   dottyUtil/            # Real-world multi-file benchmarks (each is an SBT subproject)
   fansi/
+  indigo/               # Scala.js benchmark (3.6.4+)
   re2s/
   scalaParserCombinators/
   scalaYaml/

@@ -196,6 +196,34 @@ lazy val benchTictactoe =
       Test / scalaSource := baseDirectory.value / "test",
     )
 
+// Scala.js version for cross-platform Scala.js dependencies
+// Need 1.20.1+ for LinkingInfo.linkTimeIf used by ultraviolet
+val scalaJSVersion = "1.20.1"
+
+lazy val benchIndigo =
+  project
+    .in(file("bench-sources/indigo"))
+    .settings(
+      scalaVersion := compilerVersion,
+      scalacOptions ++= sharedScalacOptions ++ Seq(
+        "-scalajs",
+        "-language:strictEquality",
+        "-language:implicitConversions",
+        "-Wconf:msg=Implicit parameters should be provided:s",
+        "-Wconf:msg=Extension method toString will never be selected:s",
+        "-Wconf:msg=Discarded non-Unit value:s",
+      ),
+      libraryDependencies ++= Seq(
+        "org.scala-js" % "scalajs-library_2.13" % scalaJSVersion,
+        "org.scala-js" % "scalajs-javalib" % scalaJSVersion,
+        "org.scala-lang" % "scala3-library_sjs1_3" % compilerVersion,
+        "org.scala-js" % "scalajs-dom_sjs1_3" % "2.8.0",
+        "org.scala-js" % "scala-js-macrotask-executor_sjs1_3" % "1.1.1",
+        "io.indigoengine" % "ultraviolet_sjs1_3" % "0.6.0",
+      ),
+      Compile / scalaSource := baseDirectory.value / "src",
+    )
+
 def kindProjectorFlag(scalaVersion: String): String =
   if (scalaVersion.startsWith("3.0") || scalaVersion.startsWith("3.1") ||
       scalaVersion.startsWith("3.2") || scalaVersion.startsWith("3.3") ||
@@ -253,6 +281,7 @@ def benchmarkConfigs = Def.task {
     bigBenchmarkConfig(benchCaskApp).value,
     bigBenchmarkConfig(benchDottyUtil).value,
     bigBenchmarkConfig(benchFansi, includeTests = true).value,
+    bigBenchmarkConfig(benchIndigo).value,  // Requires Scala 3.6.4+
     bigBenchmarkConfig(benchRe2s).value,
     bigBenchmarkConfig(benchScalaParserCombinators, includeTests = true).value,
     bigBenchmarkConfig(benchScalaToday).value,

@@ -19,6 +19,9 @@ class CompilationBenchmarksBig extends CompilationBenchmarks:
   @Benchmark
   def scalaParserCombinators = scalac(Config.scalaParserCombinators)
 
+  @Benchmark
+  def scalaToday = scalac(Config.scalaToday)
+
   @Measurement(iterations = 80)
   @Benchmark
   def scalaYaml = scalac(Config.scalaYaml)

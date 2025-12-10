@@ -99,7 +99,7 @@ lazy val benchScalaParallelCollections =
     .settings(
       scalaVersion := compilerVersion,
       scalacOptions ++= sharedScalacOptions ++ Seq("-Wconf:cat=unchecked:s"),
-      libraryDependencies += "junit" % "junit" % "4.13.2",
+      libraryDependencies += "junit" % "junit" % "4.13.2" % Test,
       libraryDependencies += "com.github.sbt" % "junit-interface" % "0.13.3" % Test,
       libraryDependencies += "javax.xml.bind" % "jaxb-api" % "2.3.1" % Test,
       Compile / scalaSource := baseDirectory.value / "scala",

@@ -17,12 +17,12 @@ lazy val bench =
       Compile / sourceGenerators += generateBenchmarkConfig.taskValue,
       Compile / unmanagedSourceDirectories ++= {
         val base = (Compile / baseDirectory).value
-        val sv   = scalaVersion.value
+        val sv = scalaVersion.value
         val dirs =
-          if(VersionNumber(sv).matchesSemVer(SemanticSelector(">=3.6"))) Seq(base / s"scala-3.6+")
+          if (VersionNumber(sv).matchesSemVer(SemanticSelector(">=3.6"))) Seq(base / s"scala-3.6+")
           else Seq()
         dirs
-      }
+      },
     )
     .enablePlugins(JmhPlugin)
 
@@ -58,10 +58,15 @@ lazy val benchScalaz =
     .in(file("bench-sources/scalaz"))
     .settings(
       scalaVersion := compilerVersion,
-      scalacOptions ++= sharedScalacOptions ++ Seq("-nowarn", "-source", "3.0", kindProjectorFlag(compilerVersion), "-language:implicitConversions"),
+      scalacOptions ++= sharedScalacOptions ++ Seq(
+        "-nowarn",
+        "-source",
+        "3.0",
+        kindProjectorFlag(compilerVersion),
+        "-language:implicitConversions",
+      ),
       Compile / scalaSource := baseDirectory.value,
     )
-
 
 lazy val benchRe2s =
   project
@@ -101,7 +106,6 @@ lazy val benchSourcecode =
       Test / test := (Test / runMain).toTask(" sourcecode.Tests").value,
     )
 
-
 lazy val benchTastyQuery =
   project
     .in(file("bench-sources/tastyQuery"))
@@ -110,7 +114,6 @@ lazy val benchTastyQuery =
       scalacOptions ++= sharedScalacOptions ++ Seq("-Yexplicit-nulls", "-Wconf:msg=Unnecessary .nn:s"),
       Compile / scalaSource := baseDirectory.value / "tasty-query",
     )
-
 
 lazy val benchScalaYaml =
   project
@@ -209,34 +212,45 @@ lazy val benchTictactoe =
 val scalaJSVersion = "1.20.1"
 
 lazy val benchIndigo =
-  project
-    .in(file("bench-sources/indigo"))
-    .settings(
-      scalaVersion := compilerVersion,
-      scalacOptions ++= sharedScalacOptions ++ Seq(
-        "-scalajs",
-        "-language:strictEquality",
-        "-language:implicitConversions",
-        "-Wconf:msg=Implicit parameters should be provided:s",
-        "-Wconf:msg=Extension method toString will never be selected:s",
-        "-Wconf:msg=Discarded non-Unit value:s",
-      ),
-      libraryDependencies ++= Seq(
-        "org.scala-js" % "scalajs-library_2.13" % scalaJSVersion,
-        "org.scala-js" % "scalajs-javalib" % scalaJSVersion,
-        "org.scala-lang" % "scala3-library_sjs1_3" % compilerVersion,
-        "org.scala-js" % "scalajs-dom_sjs1_3" % "2.8.0",
-        "org.scala-js" % "scala-js-macrotask-executor_sjs1_3" % "1.1.1",
-        "io.indigoengine" % "ultraviolet_sjs1_3" % "0.6.0",
-      ),
-      Compile / scalaSource := baseDirectory.value / "src",
-    )
+  if (VersionNumber(compilerVersion).matchesSemVer(SemanticSelector(">=3.6")))
+    project
+      .in(file("bench-sources/indigo"))
+      .settings(
+        scalaVersion := compilerVersion,
+        scalacOptions ++= sharedScalacOptions ++ Seq(
+          "-scalajs",
+          "-language:strictEquality",
+          "-language:implicitConversions",
+          "-Wconf:msg=Implicit parameters should be provided:s",
+          "-Wconf:msg=Extension method toString will never be selected:s",
+          "-Wconf:msg=Discarded non-Unit value:s",
+        ),
+        libraryDependencies ++= Seq(
+          "org.scala-js" % "scalajs-library_2.13" % scalaJSVersion,
+          "org.scala-js" % "scalajs-javalib" % scalaJSVersion,
+          "org.scala-lang" % "scala3-library_sjs1_3" % compilerVersion,
+          "org.scala-js" % "scalajs-dom_sjs1_3" % "2.8.0",
+          "org.scala-js" % "scala-js-macrotask-executor_sjs1_3" % "1.1.1",
+          "io.indigoengine" % "ultraviolet_sjs1_3" % "0.6.0",
+        ),
+        Compile / scalaSource := baseDirectory.value / "src",
+      )
+  else
+    // Empty project...
+    project
+      .in(file("bench-sources/indigo"))
+      .settings(
+        // Disable everything
+        Compile / sources := Seq.empty,
+        Test / sources := Seq.empty,
+        publish / skip := true,
+      )
 
 def kindProjectorFlag(scalaVersion: String): String =
-  if (scalaVersion.startsWith("3.0") || scalaVersion.startsWith("3.1") ||
-      scalaVersion.startsWith("3.2") || scalaVersion.startsWith("3.3") ||
-      scalaVersion.startsWith("3.4")) "-Ykind-projector"
-  else "-Xkind-projector"
+  if (VersionNumber(scalaVersion).matchesSemVer(SemanticSelector("<=3.4")))
+    "-Ykind-projector"
+  else
+    "-Xkind-projector"
 
 def generateBenchmarkConfig = Def.task {
   val configFile = (Compile / sourceManaged).value / "bench" / "Config.scala"
@@ -289,14 +303,14 @@ def benchmarkConfigs = Def.task {
     bigBenchmarkConfig(benchCaskApp).value,
     bigBenchmarkConfig(benchDottyUtil).value,
     bigBenchmarkConfig(benchFansi, includeTests = true).value,
-    bigBenchmarkConfig(benchIndigo).value,  // Requires Scala 3.6.4+
+    bigBenchmarkConfig(benchIndigo).value, // Requires Scala 3.6.4+
     bigBenchmarkConfig(benchRe2s).value,
     bigBenchmarkConfig(benchScalaParserCombinators, includeTests = true).value,
     bigBenchmarkConfig(benchScalaToday).value,
     bigBenchmarkConfig(benchScalaYaml, includeTests = true).value,
     bigBenchmarkConfig(benchScalaz).value,
     bigBenchmarkConfig(benchSourcecode, includeTests = true).value,
-    //bigBenchmarkConfig(benchStdlib213).value,
+    // bigBenchmarkConfig(benchStdlib213).value,
     bigBenchmarkConfig(benchTastyQuery).value,
     bigBenchmarkConfig(benchTictactoe, includeTests = true).value,
   )

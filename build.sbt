@@ -1,6 +1,6 @@
 val compilerVersion = sys.props.get("compiler.version").getOrElse("3.8.1-RC1-bin-20251209-07883c1-NIGHTLY")
 
-val sharedScalacOptions = Seq("-feature", "-Werror", "-deprecation")
+val sharedScalacOptions = Seq("-feature", "-deprecation", "-Werror")
 
 ThisBuild / resolvers += Resolver.scalaNightlyRepository
 
@@ -35,13 +35,19 @@ lazy val benchSmall =
       Compile / scalaSource := baseDirectory.value,
     )
 
-lazy val benchDottyUtil =
+lazy val benchDotty =
   project
-    .in(file("bench-sources/dottyUtil"))
+    .in(file("bench-sources/dotty"))
     .settings(
       scalaVersion := compilerVersion,
-      scalacOptions ++= sharedScalacOptions,
-      Compile / scalaSource := baseDirectory.value,
+      scalacOptions ++= sharedScalacOptions ++ Seq("-nowarn", "-unchecked", "-encoding", "UTF8", "-language:implicitConversions", "-Yexplicit-nulls", "-Wsafe-init", "-Yno-stdlib-patches"),
+      libraryDependencies := Seq(
+        "org.scala-lang.modules" % "scala-asm" % "9.9.0-scala-1",
+        "org.scala-sbt" % "compiler-interface" % "1.10.7",
+        "org.scala-lang" % "scala3-interfaces" % "3.8.0-RC3",
+        "org.scala-lang" %% "tasty-core" % "3.8.0-RC3",
+      ),
+      Compile / scalaSource := baseDirectory.value / "compiler" / "src",
     )
 
 //lazy val benchStdlib213 =
@@ -314,7 +320,7 @@ def benchmarkConfigs = Def.task {
   // Big benchmarks: each has its own subproject
   val bigEntries = Seq(
     bigBenchmarkConfig(benchCaskApp).value,
-    bigBenchmarkConfig(benchDottyUtil).value,
+    bigBenchmarkConfig(benchDotty).value,
     bigBenchmarkConfig(benchFansi, includeTests = true).value,
     bigBenchmarkConfig(benchIndigo).value, // Requires Scala 3.6.4+
     bigBenchmarkConfig(benchRe2s).value,

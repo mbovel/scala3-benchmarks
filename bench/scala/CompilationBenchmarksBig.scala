@@ -7,7 +7,7 @@ class CompilationBenchmarksBig extends CompilationBenchmarks:
   def caskApp = scalac(Config.caskApp, expectedSources = 1)
 
   @Benchmark
-  def dottyUtils = scalac(Config.dottyUtil, expectedSources = 34)
+  def dotty = scalac(Config.dotty, expectedSources = 587)
 
   @Benchmark
   def fansi = scalac(Config.fansi, expectedSources = 2)

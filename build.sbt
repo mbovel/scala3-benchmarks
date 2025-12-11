@@ -261,9 +261,10 @@ def kindProjectorFlag(scalaVersion: String): String =
 def generateBenchmarkConfig = Def.task {
   val configFile = (Compile / sourceManaged).value / "bench" / "Config.scala"
   val benchmarks = benchmarkConfigs.value
-  val members = benchmarks.map { case (name, args) =>
-    val argsSeq = args.map(a => s""""$a"""").mkString("Seq(", ", ", ")")
-    s"  val $name = $argsSeq"
+  val members = benchmarks.map { case (name, (sources, options)) =>
+    val sourcesSeq = sources.map(s => s""""$s"""").mkString("Seq(", ", ", ")")
+    val optionsSeq = options.map(o => s""""$o"""").mkString("Seq(", ", ", ")")
+    s"  val $name = BenchmarkConfig($sourcesSeq, $optionsSeq)"
   }.mkString("\n")
   val content =
     s"""package bench
@@ -286,7 +287,8 @@ def bigBenchmarkConfig(project: Project, includeTests: Boolean = false) = Def.ta
   val compileClasspath = (project / Compile / dependencyClasspath).value
   val classPath = (if (includeTests) testClasspath else compileClasspath)
     .map(_.data.getAbsolutePath).mkString(java.io.File.pathSeparator)
-  name -> (Seq("-classpath", classPath) ++ (project / Compile / scalacOptions).value ++ allSources)
+  val options = Seq("-classpath", classPath) ++ (project / Compile / scalacOptions).value
+  name -> (allSources, options)
 }
 
 def benchmarkConfigs = Def.task {
@@ -297,10 +299,11 @@ def benchmarkConfigs = Def.task {
     .mkString(java.io.File.pathSeparator)
 
   val smallScalacOptions = (benchSmall / Compile / scalacOptions).value
+  val smallOptions = Seq("-classpath", smallClassPath) ++ smallScalacOptions
   val smallEntries = smallDir.listFiles.toSeq.flatMap { entry =>
     if (entry.isFile && entry.getName.endsWith(".scala")) {
       val name = entry.getName.stripSuffix(".scala")
-      Some(name -> (Seq("-classpath", smallClassPath) ++ smallScalacOptions ++ Seq(entry.getAbsolutePath)))
+      Some(name -> (Seq(entry.getAbsolutePath), smallOptions))
     } else None
   }
 

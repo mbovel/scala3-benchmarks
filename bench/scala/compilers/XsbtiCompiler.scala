@@ -1,7 +1,7 @@
-package bench
+package bench.compilers
 
 import java.io.{File, InputStream}
-import java.nio.file.{Files, Path}
+import java.nio.file.{Path, Paths}
 import java.util.{Optional, ServiceLoader}
 import java.util.function.Supplier
 
@@ -12,27 +12,21 @@ import xsbti.{AnalysisCallback2, Logger, Problem, Reporter, VirtualFile, Virtual
 import xsbti.api.{ClassLike, DependencyContext}
 import xsbti.compile.{CompileProgress, CompilerInterface2, DependencyChanges, SingleOutput}
 
-/** Compiler wrapper using the xsbti.compile.CompilerInterface2 bridge.
+/** Compiler using the xsbti.compile.CompilerInterface2 bridge.
   *
   * This is the same interface that sbt/bloop/scala-cli use to invoke scalac.
   */
-object XsbtiCompiler:
-  /** Compiles the given source files with the given options.
-    *
-    * @param sourceFiles paths to .scala or .java files
-    * @param options compiler options (excluding -d, which is set from outputDir)
-    * @param outputDir directory where compiled classes will be written
-    */
-  def compile(sourceFiles: Seq[Path], options: Seq[String], outputDir: Path): Unit =
+object XsbtiCompiler extends Compiler:
+  def compile(sources: Seq[String], options: Seq[String], outputDir: String): Unit =
     val compilerInterface: CompilerInterface2 =
       ServiceLoader.load(classOf[CompilerInterface2]).iterator().asScala.toList.last
 
-    val sources: Array[VirtualFile] = sourceFiles.map(SourceFile(_)).toArray
-    val output = SimpleOutput(outputDir)
+    val sourceFiles: Array[VirtualFile] = sources.map(s => SourceFile(Paths.get(s))).toArray
+    val output = SimpleOutput(Paths.get(outputDir))
     val reporter = ErrorCollectingReporter()
 
     compilerInterface.run(
-      sources,
+      sourceFiles,
       EmptyDependencyChanges,
       options.toArray,
       output,
@@ -48,13 +42,13 @@ object XsbtiCompiler:
 
   /** A PathBasedFile implementation for source files. */
   private class SourceFile(path: Path) extends xsbti.PathBasedFile:
-    private val content = Files.readAllBytes(path)
     def toPath(): Path = path
     def id(): String = path.toString
     def name(): String = path.getFileName.toString
     def names(): Array[String] = Array(name())
-    def contentHash(): Long = java.util.Arrays.hashCode(content)
-    def input(): InputStream = new java.io.ByteArrayInputStream(content)
+    // Not called by the compiler bridge - it reads files directly via toPath()
+    def contentHash(): Long = ???
+    def input(): InputStream = ???
 
   /** A simple SingleOutput implementation. */
   private class SimpleOutput(outputDir: Path) extends SingleOutput:

@@ -1,9 +1,10 @@
 package bench
 
-import java.nio.file.{Path, Paths}
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
 import scala.sys.process.stringToProcess
+
+import bench.compilers.{Compiler, XsbtiCompiler}
 
 import org.openjdk.jmh.annotations.{
   BenchmarkMode,
@@ -24,30 +25,26 @@ import org.openjdk.jmh.annotations.{
 @State(Scope.Benchmark)
 @OutputTimeUnit(MILLISECONDS)
 abstract class CompilationBenchmarks:
-  val outDir = Paths.get("out")
+  val outDir = "out"
+  val compiler: Compiler = XsbtiCompiler
 
-  /** Launches `scalac` with the given arguments.
-    * @param args Compiler arguments including source files
-    * @param expectedSources If provided, asserts that exactly this many .scala/.java files are passed
+  /** Compiles the given benchmark configuration.
+    * @param config benchmark configuration with sources and options
+    * @param expectedSources If provided, asserts that exactly this many source files are passed
     */
-  def scalac(args: Seq[String], expectedSources: Int = -1) =
-    // Separate source files from options
-    val sourceFiles = args.filter(a => a.endsWith(".scala") || a.endsWith(".java"))
-    val options = args.filterNot(a => a.endsWith(".scala") || a.endsWith(".java"))
-
-    // Sanity check on number of source files
+  def scalac(config: BenchmarkConfig, expectedSources: Int = -1): Unit =
     if expectedSources >= 0 then
-      assert(sourceFiles.size == expectedSources,
-        s"Expected $expectedSources sources but found ${sourceFiles.size}")
+      assert(config.sources.size == expectedSources,
+        s"Expected $expectedSources sources but found ${config.sources.size}")
 
-    XsbtiCompiler.compile(sourceFiles.map(Paths.get(_)), options, outDir)
+    compiler.compile(config.sources, config.options, outDir)
 
   @Setup(Level.Iteration)
   def setup(): Unit =
     removeAndCreateDir(outDir)
 
   /** Removes and creates a directory. */
-  def removeAndCreateDir(dir: Path) =
+  def removeAndCreateDir(dir: String) =
     // Using `rm` instead of Java's API because it is better at removing the
     // whole directory atomically. Got occasional `DirectoryNotEmptyException`
     // exceptions with the Java's API.

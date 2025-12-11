@@ -44,15 +44,6 @@ lazy val benchDottyUtil =
       Compile / scalaSource := baseDirectory.value,
     )
 
-//lazy val benchStdlib213 =
-//  project
-//    .in(file("bench-sources/stdlib213"))
-//    .settings(
-//      scalaVersion := compilerVersion,
-//      scalacOptions ++= sharedScalacOptions ++ Seq("-nowarn", "-language:implicitConversions", "-source", "3.3"),
-//      Compile / scalaSource := baseDirectory.value / "src" / "library",
-//    )
-
 lazy val benchScalaz =
   project
     .in(file("bench-sources/scalaz"))
@@ -324,7 +315,6 @@ def benchmarkConfigs = Def.task {
     bigBenchmarkConfig(benchScalaYaml, includeTests = true).value,
     bigBenchmarkConfig(benchScalaz).value,
     bigBenchmarkConfig(benchSourcecode, includeTests = true).value,
-    // bigBenchmarkConfig(benchStdlib213).value,
     bigBenchmarkConfig(benchTastyQuery).value,
     bigBenchmarkConfig(benchTictactoe, includeTests = true).value,
   )

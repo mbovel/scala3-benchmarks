@@ -37,8 +37,6 @@ class CompilationBenchmarksBig extends CompilationBenchmarks:
   @Benchmark
   def sourcecode = scalac(Config.sourcecode, expectedSources = 20)
 
-  //@Benchmark def stdlib123 = scalac(Config.stdlib213)
-
   @Measurement(iterations = 60)
   @Benchmark
   def tastyQuery = scalac(Config.tastyQuery, expectedSources = 49)

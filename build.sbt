@@ -12,6 +12,8 @@ lazy val bench =
       scalacOptions ++= sharedScalacOptions,
       libraryDependencies ++= Seq(
         "org.scala-lang" %% "scala3-compiler" % compilerVersion,
+        "org.scala-lang" % "scala3-sbt-bridge" % compilerVersion,
+        "org.scala-sbt" % "compiler-interface" % "1.10.7",
       ),
       Compile / scalaSource := baseDirectory.value / "scala",
       Compile / sourceGenerators += generateBenchmarkConfig.taskValue,

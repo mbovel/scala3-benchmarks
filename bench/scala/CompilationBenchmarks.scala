@@ -4,8 +4,6 @@ import java.util.concurrent.TimeUnit.MILLISECONDS
 
 import scala.sys.process.stringToProcess
 
-import bench.compilers.{Compiler, XsbtiCompiler}
-
 import org.openjdk.jmh.annotations.{
   BenchmarkMode,
   Fork,
@@ -26,18 +24,6 @@ import org.openjdk.jmh.annotations.{
 @OutputTimeUnit(MILLISECONDS)
 abstract class CompilationBenchmarks:
   val outDir = "out"
-  val compiler: Compiler = XsbtiCompiler
-
-  /** Compiles the given benchmark configuration.
-    * @param config benchmark configuration with sources and options
-    * @param expectedSources If provided, asserts that exactly this many source files are passed
-    */
-  def scalac(config: BenchmarkConfig, expectedSources: Int = -1): Unit =
-    if expectedSources >= 0 then
-      assert(config.sources.size == expectedSources,
-        s"Expected $expectedSources sources but found ${config.sources.size}")
-
-    compiler.compile(config.sources, config.options, outDir)
 
   @Setup(Level.Iteration)
   def setup(): Unit =
